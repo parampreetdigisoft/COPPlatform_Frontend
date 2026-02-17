@@ -20,19 +20,7 @@ const routes: Routes = [
       { path: 'assigned-city', component: AssignedCityComponent },
       { path: 'make-assessment', component: MakeAssessmentComponent },
       { path: 'assessment-result', component: AssessmentResultComponent },
-      { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent },
-      {
-        path: 'ai/city-analysis',
-        loadComponent: () => import('./container/ai-city-analysis/aicity-analysis.component').then(m => m.AICityAnalaysisComponent)
-      },
-      {
-        path: 'ai/city-comparison',
-        loadComponent: () => import('./container/ai-city-comparison/ai-city-comparison.component').then(m => m.AiCityComparisonComponent)
-      },
-      {
-        path: 'ai/kpi-analysis',
-        loadComponent: () => import('./container/ai-kpi-analysis/kpianalysis.component').then(m => m.KPIAnalysisComponent)
-      }
+      { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent }
     ]
   }
 ];

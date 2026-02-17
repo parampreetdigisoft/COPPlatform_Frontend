@@ -34,22 +34,6 @@ const routes: Routes = [
       {
         path: 'kpi-comparision',
         loadComponent: () => import('./container/kpi-comparision/kpi-comparision.component').then(m => m.KpiComparisionComponent)
-      },
-      {
-        path: 'ai/city-analysis',
-        loadComponent: () => import('./container/ai-city-analysis/aicity-analysis.component').then(m => m.AICityAnalaysisComponent)
-      },
-      {
-        path: 'ai/city-comparison',
-        loadComponent: () => import('./container/ai-city-comparison/ai-city-comparison.component').then(m => m.AiCityComparisonComponent)
-      },
-      {
-        path: 'ai/questions-analysis',
-        loadComponent: () => import('./container/ai-question-analysis/ai-question-analysis.component').then(m => m.AiQuestionAnalysisComponent)
-      },
-      {
-        path: 'ai/kpi-analysis',
-        loadComponent: () => import('./container/ai-kpi-analysis/kpianalysis.component').then(m => m.KPIAnalysisComponent)
       }
     ],
   },
