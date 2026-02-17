@@ -1,0 +1,17 @@
+
+<app-header></app-header>
+<div class="main_area">
+  @if(cityUser===currentUser()?.role && pendingTier == currentUser()?.tier){
+    
+  }
+  @else {
+    <div class="sidebar_area">
+      <app-sidebar></app-sidebar>
+    </div>
+  }
+  <div class="content_area">
+    <router-outlet>
+    
+    </router-outlet>
+  </div>
+</div>
