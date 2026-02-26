@@ -1,0 +1,137 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-body">
+      <button (click)="closeModel()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+      </button>
+
+      <h4 class="modal_head">
+        {{ analyst ? 'Update' : 'Send' }} Invitation for Assessment
+      </h4>
+
+      <p class="modal_sub_head">
+        Enter the details below and mark required fields (*)
+      </p>
+
+      <div class="modal_tabs">
+        <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="pills-home">
+
+            <form [formGroup]="analystForm" (ngSubmit)="onSubmit()">
+
+              <!-- Select Analyst -->
+              <div class="input_field">
+                <label>Select Analyst *</label>
+
+                <ng-select [items]="users" [searchable]="true" placeholder="Select analyst" bindValue="userID"
+                  bindLabel="userID" formControlName="userID" class="form-control analyst_multi_select">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.fullName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.fullName }} ({{ item.email }})
+                  </ng-template>
+
+                </ng-select>
+
+                <div *ngIf="analystForm.get('userID')?.invalid && (isSubmitted || analystForm.get('userID')?.touched)"
+                  class="error-msg">
+                  Analyst is required.
+                </div>
+              </div>
+
+              <!-- Role -->
+              <div class="input_field">
+                <label>Role *</label>
+
+                <select formControlName="role" class="form-control">
+                  <option [ngValue]="null" disabled>
+                    Select role
+                  </option>
+
+                  <option *ngFor="let role of rolesList" [value]="role.role">
+                    {{ role.name }}
+                  </option>
+                </select>
+
+                <div *ngIf="analystForm.get('role')?.invalid && (isSubmitted || analystForm.get('role')?.touched)"
+                  class="error-msg">
+                  Role is required.
+                </div>
+              </div>
+
+              <!-- Year -->
+              <div class="input_field">
+                <label>Select Year for Assessment *</label>
+
+                <select formControlName="year" class="form-control">
+                  <option [ngValue]="null" disabled>
+                    Select year
+                  </option>
+
+                  <option *ngFor="let year of commonService.applicateYears" [value]="year">
+                    {{ year }}
+                  </option>
+                </select>
+
+                <div *ngIf="analystForm.get('year')?.invalid && (isSubmitted || analystForm.get('year')?.touched)"
+                  class="error-msg">
+                  Year is required.
+                </div>
+              </div>
+
+              <!-- Due Date -->
+              <div class="input_field">
+                <label>Due Date of Assessment *</label>
+
+                <input type="date" [min]="minDate" (focus)="openPicker($event)" formControlName="dueDate"
+                  class="form-control">
+
+                <div *ngIf="analystForm.get('dueDate')?.invalid && (analystForm.get('dueDate')?.touched || isSubmitted)"
+                  class="error-msg">
+                  Due date is required.
+                </div>
+              </div>
+
+              <!-- Assign Pillars -->
+              <div class="input_field">
+                <label>Assign Pillars for Assessment *</label>
+
+                <ng-select [items]="pillars" [multiple]="true" [searchable]="true" placeholder="Assign pillars"
+                  bindValue="pillarID" bindLabel="pillarName" formControlName="pillarIDs"
+                  class="form-control analyst_multi_select">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.pillarName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.pillarName }}
+                  </ng-template>
+
+                </ng-select>
+
+                <div
+                  *ngIf="analystForm.get('pillarIDs')?.invalid && (isSubmitted || analystForm.get('pillarIDs')?.touched)"
+                  class="error-msg">
+                  At least one pillar must be selected.
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="common_button w-100 mt-4" [disabled]="!analystForm.dirty">
+                {{ analyst ? 'Update' : 'Save' }}
+
+                <span *ngIf="loading" class="spinner-border spinner-border-sm ms-2"></span>
+              </button>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

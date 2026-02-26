@@ -3,7 +3,7 @@
 
         <div class="modal-body">
             <button type="button" (click)="closeModel()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <h4 class="modal_head"> {{analyst ?'Update':'Add' }} Analyst</h4>
+            <h4 class="modal_head"> {{analyst ?'Update':'Add' }} user</h4>
             <p class="modal_sub_head">Enter The details and marked</p>
             <div class="modal_tabs">
                 <ul class="nav nav-pills" id="pills-tab" role="tablist">
@@ -56,31 +56,26 @@
                                 </div>
                             </div>
                             <!-- City Multi-Select -->
-                            <div class="input_field">
-                                <label>Assign City *</label>
-                                <ng-select [items]="cities" bindValue="cityID" bindLabel="cityName"
-                                    formControlName="city" [multiple]="true" class="form-control analyst_multi_select"
-                                    [searchable]="true"
-                                    [placeholder]="analystForm.get('city')?.invalid ? 'Assign City' : ''">
+                             <div class="input_field">
+                                <label>Select Role *</label>
+                                <select formControlName="role" name="role" class="form-control" >
+                                    <!-- Placeholder option -->
+                                    <option [ngValue]="null" disabled selected>
+                                        Select role
+                                    </option>
 
-                                    <ng-template ng-label-tmp let-item="item " class="select_item">
-                                        {{ item.cityName +', '}}
-                                    </ng-template>
-
-                                    <ng-template ng-option-tmp let-item="item">
-                                        {{ item.cityName }}, {{ item.state }}
-                                    </ng-template>
-                                </ng-select>
-
-
-                                <div class="error-msg"
-                                    *ngIf="analystForm.get('city')?.invalid && (isSubmitted || analystForm.get('city')?.touched)">
-                                    Please select at least one city.
+                                    <option *ngFor="let role of rolesList" [value]="role.role">
+                                        {{ role.name }}
+                                    </option>
+                                </select>
+                                <div *ngIf="analystForm.get('role')?.invalid && (isSubmitted || analystForm.get('role')?.touched)"
+                                    class="error-msg">
+                                    Please select at least one role.
                                 </div>
                             </div>
 
                             <!-- Submit -->
-                            <button type="submit" class="common_button w-100 mt-4">
+                            <button type="submit" class="common_button w-100 mt-4"  [disabled]="!analystForm.dirty">
                                 {{analyst ?'Update':'Save' }} <span *ngIf="loading" class="spinner-border spinner-border-sm ms-2"></span>
                             </button>
                         </form>

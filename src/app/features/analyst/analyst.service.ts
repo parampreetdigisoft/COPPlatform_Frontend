@@ -5,10 +5,10 @@ import { PaginationUserRequest } from 'src/app/core/models/PaginationRequest';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { UserService } from 'src/app/core/services/user.service';
 import { CityVM } from '../../core/models/CityVM';
-import { GetUserByRoleRequestDto, GetUserByRoleResponse } from '../../core/models/GetUserByRoleResponse';
-import { InviteBulkUserDto, InviteUserDto, SendRequestMailToUpdateCity, UpdateInviteUserDto } from '../../core/models/AnalystVM';
+import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
+import { InviteBulkUserDto, InviteUserDto, RegisterDto, SendRequestMailToUpdateCity, UpdateInviteUserDto } from '../../core/models/AnalystVM';
 import { ResultResponseDto } from 'src/app/core/models/ResultResponseDto';
-import { CityMappingPillerRequestDto} from 'src/app/core/models/QuestionRequest';
+import { CityMappingPillerRequestDto } from 'src/app/core/models/QuestionRequest';
 import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
@@ -23,6 +23,7 @@ import { GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto, AnalyticalLa
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
+import { GetInviatationRequestDto, GetInviatationResponseDto, DeleteInvitationDto } from 'src/app/core/models/GetInviatationRequestDto';
 
 @Injectable({
   providedIn: 'root'
@@ -47,11 +48,32 @@ export class AnalystService {
   }
 
   public getEvaluator(request: GetUserByRoleRequestDto) {
-    return this.http.getWithQueryParams(`User/GetUserByRoleWithAssignedCity`, request).pipe(map(x => x as PaginationResponse<GetUserByRoleResponse>));
+    return this.http.getWithQueryParams(`User/GetUserByRoleWithAssignedCity`, request).pipe(map(x => x as PaginationResponse<GetUserByRoleResponseVM>));
   }
-  public addEvaluator(data: InviteUserDto) {
-    return this.http.post(`Auth/InviteUser`, data).pipe(map(x => x as ResultResponseDto<unknown>));
+  public getAccessUsers(payload: GetAssignUserDto) {
+    return this.http
+      .getWithQueryParams(`User/getAccessUsers`, payload)
+      .pipe(map((x) => x as ResultResponseDto<PublicUserResponse[]>));
+  }
 
+  public getInviations(request: GetInviatationRequestDto) {
+    return this.http
+      .getWithQueryParams(`User/getInviations`, request)
+      .pipe(map((x) => x as PaginationResponse<GetInviatationResponseDto>));
+  }
+  public deleteInvitation(request: DeleteInvitationDto) {
+    return this.http
+      .post(`User/deleteInvitation`, request)
+      .pipe(map((x) => x as ResultResponseDto<unknown>));
+  }
+  public GetEvaluatorByAnalyst(payload: GetAssignUserDto) {
+    return this.http.getWithQueryParams(`User/GetEvaluatorByAnalyst`, payload).pipe(map(x => x as ResultResponseDto<PublicUserResponse[]>));
+  }
+
+  public addUpdateStaffUser(data: RegisterDto) {
+    return this.http
+      .post(`Auth/addUpdateStaffUser`, data)
+      .pipe(map((x) => x as ResultResponseDto<unknown>));
   }
   public addBulkEvaluator(data: InviteBulkUserDto) {
     return this.http.post(`Auth/InviteBulkUser`, data).pipe(map(x => x as ResultResponseDto<unknown>));
@@ -64,13 +86,15 @@ export class AnalystService {
   }
 
   public deleteEvaluator(id: number) {
-    return this.http.delete(`Auth/deleteUser` + id).pipe(map(x => x as ResultResponseDto<boolean>));
+    return this.http.delete(`Auth/deleteUser/` + id).pipe(map(x => x as ResultResponseDto<boolean>));
   }
+
+
   public unAssignCity(data: any) {
     return this.http.post(`City/unAssignCity`, data).pipe(map(x => x as ResultResponseDto<unknown>));
   }
   public getCitiesProgressByUserId(userID: number, updatedAt: string) {
-    return this.http.get(`City/getCitiesProgressByUserId/`+ updatedAt).pipe(map(x => x as ResultResponseDto<GetCitiesSubmitionHistoryReponseDto[]>));
+    return this.http.get(`City/getCitiesProgressByUserId/` + updatedAt).pipe(map(x => x as ResultResponseDto<GetCitiesSubmitionHistoryReponseDto[]>));
   }
   public getAllPillars() {
     return this.http.get(`Pillar/Pillars`).pipe(map(x => x as PillarsVM[]));
@@ -124,9 +148,6 @@ export class AnalystService {
     return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as PaginationResponse<PillarsHistoryResponse>));
   }
 
-  public GetEvaluatorByAnalyst(payload: GetAssignUserDto) {
-    return this.http.getWithQueryParams(`User/GetEvaluatorByAnalyst`, payload).pipe(map(x => x as ResultResponseDto<PublicUserResponse[]>));
-  }
   public getMutiplekpiLayerResults(payload: GetMutiplekpiLayerRequestDto) {
     return this.http.post(`kpi/getMutiplekpiLayerResults`, payload).pipe(map(x => x as ResultResponseDto<GetMutiplekpiLayerResultsDto>));;
   }

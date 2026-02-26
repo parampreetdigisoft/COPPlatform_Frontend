@@ -20,7 +20,7 @@ const routes: Routes = [
       { path: "", redirectTo: "dashboard", pathMatch: "full" },
       { path: "dashboard", component: AdminDashboardComponent },
       { path: "city", component: CityComponent },
-      { path: "analyst", component: AnalystViewComponent },
+      { path: "users", component: AnalystViewComponent },
       { path: "pillar", component: PillarComponent },
       { path: "question", component: QuestionComponent },
       { path: "assesment", component: AssesmentComponent },
@@ -43,6 +43,13 @@ const routes: Routes = [
         loadComponent: () =>
           import("./container/kpi-comparision/kpi-comparision.component").then(
             (m) => m.KpiComparisionComponent
+          ),
+      },      
+      {
+        path: "invitations",
+        loadComponent: () =>
+          import("./container/invitations/invitations.component").then(
+            (m) => m.InvitationsComponent
           ),
       }      
     ],

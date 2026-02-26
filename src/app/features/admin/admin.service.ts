@@ -12,17 +12,19 @@ import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto
 import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseDto';
 import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserInfo';
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
-import { InviteBulkUserDto, InviteUserDto, UpdateInviteUserDto } from '../../core/models/AnalystVM';
+import { InviteBulkUserDto, InviteUserDto, RegisterDto, UpdateInviteUserDto } from '../../core/models/AnalystVM';
 import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/models/cityHistoryDto';
 import { QuestionsByUserPillarsResponsetDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
-import { GetUserByRoleRequestDto, GetUserByRoleResponse } from '../../core/models/GetUserByRoleResponse';
+import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
 import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
 import { ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
+import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
+import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 
 @Injectable({
   providedIn: "root",
@@ -86,11 +88,11 @@ export class AdminService {
   public getAnalyst(request: GetUserByRoleRequestDto) {
     return this.http
       .getWithQueryParams(`User/GetUserByRoleWithAssignedCity`, request)
-      .pipe(map((x) => x as PaginationResponse<GetUserByRoleResponse>));
+      .pipe(map((x) => x as PaginationResponse<GetUserByRoleResponseVM>));
   }
-  public addAnalyst(data: InviteUserDto) {
+  public addUpdateStaffUser(data: RegisterDto) {
     return this.http
-      .post(`Auth/InviteUser`, data)
+      .post(`Auth/addUpdateStaffUser`, data)
       .pipe(map((x) => x as ResultResponseDto<unknown>));
   }
   public addBulkAnalyst(data: InviteBulkUserDto) {
@@ -98,11 +100,12 @@ export class AdminService {
       .post(`Auth/InviteBulkUser`, data)
       .pipe(map((x) => x as ResultResponseDto<unknown>));
   }
-  public editAnalyst(data: UpdateInviteUserDto) {
+  public addUpdateInvitation(data: UpdateInvitationUserDto) {
     return this.http
-      .post(`Auth/UpdateInviteUser`, data)
-      .pipe(map((x) => x as ResultResponseDto<unknown>));
+      .post(`Auth/addUpdateInvitation`, data)
+      .pipe(map((x) => x as ResultResponseDto<string>));
   }
+
   public deleteUser(id: number) {
     return this.http
       .delete(`Auth/deleteUser/` + id)
@@ -194,11 +197,23 @@ export class AdminService {
       .get(`User/getUsersAssignedToCity/` + cityID)
       .pipe(map((x) => x as ResultResponseDto<GetAssessmentResponse[]>));
   }
-  public GetEvaluatorByAnalyst(payload: GetAssignUserDto) {
+  public getAccessUsers(payload: GetAssignUserDto) {
     return this.http
-      .getWithQueryParams(`User/GetEvaluatorByAnalyst`, payload)
+      .getWithQueryParams(`User/getAccessUsers`, payload)
       .pipe(map((x) => x as ResultResponseDto<PublicUserResponse[]>));
   }
+
+  public getInviations(request: GetInviatationRequestDto) {
+    return this.http
+      .getWithQueryParams(`User/getInviations`, request)
+      .pipe(map((x) => x as PaginationResponse<GetInviatationResponseDto>));
+  }
+  public deleteInvitation(request: DeleteInvitationDto) {
+    return this.http
+      .post(`User/deleteInvitation`,request)
+      .pipe(map((x) => x as ResultResponseDto<unknown>));
+  }
+
   public GetAnalyticalLayerResults(request: GetAnalyticalLayerRequestDto) {
     return this.http
       .getWithQueryParams(`Kpi/GetAnalyticalLayerResults`, request)

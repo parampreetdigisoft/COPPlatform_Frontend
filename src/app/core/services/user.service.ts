@@ -139,8 +139,8 @@ export class UserService {
         case UserRole.Evaluator.toLowerCase():
           this.router.navigate(['/evaluator/dashboard'], { state: { role: UserRole.Evaluator } });
           break;
-        case UserRole.CityUser.toLowerCase():
-          this.router.navigate(['/cityuser/dashboard'], { state: { role: UserRole.CityUser } });
+        case UserRole.Executive.toLowerCase():
+          this.router.navigate(['/cityuser/dashboard'], { state: { role: UserRole.Executive } });
           break;
         default:
           this.router.navigate(['/']);
@@ -151,7 +151,7 @@ export class UserService {
   logout() {
     let role = this.userInfo?.role;
     let url = '/auth/clientPortalLogin';
-    if (role && role?.toLowerCase() !== UserRole.CityUser.toLowerCase()) {
+    if (role && role?.toLowerCase() !== UserRole.Executive.toLowerCase()) {
       url = '/auth/login';
     }
     localStorage.removeItem(StorageKeyEnum.UserInfo);

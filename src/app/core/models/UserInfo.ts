@@ -1,4 +1,5 @@
 import { TieredAccessPlanValue } from "../enums/TieredAccessPlan";
+import { UserRole, UserRoleValue } from "../enums/UserRole";
 
 export interface UserInfo extends PublicUserResponse,PublicUserLocalStorageResponse {
   tokenExpirationDate: Date;
@@ -47,9 +48,8 @@ export interface LoginResponse {
 }
 
 export interface GetAssignUserDto {
-  userID: number;
-  searchUserID?: number;
-  cityID?: number;
+  searchedUserID?: number | null;  
+  userRole:UserRoleValue
 }
 export interface UpdateUserResponseDto {
   userID: number;

@@ -57,7 +57,7 @@
     <thead>
       <tr>
         <th>S.No.</th>
-         <th>Image</th>
+        <th>Image</th>
         <th>City</th>
         <th>State</th>
         <th>Country</th>
@@ -70,10 +70,10 @@
         <td>{{ (currentPage - 1) * pageSize + (i + 1) }}</td>
         <td>  <img class="city_img"
           style="width: 50px; border-radius:5px; height: 35px; object-fit: cover;"
-                [src]="urlBase+city?.image"
-                [alt]="'Profile Image'"
-                (error)="onImgError($event)"
-              /></td>
+          [src]="urlBase+city?.image"
+          [alt]="'Profile Image'"
+          (error)="onImgError($event)"
+        /></td>
         <td>{{ city.cityName }}</td>
         <td>{{ city.state }}</td>
         <td>{{ city.country }}</td>

@@ -48,7 +48,7 @@ export class CompareCityKpiDetailComponent {
     }));
   });
 
-  isCityUser = computed(() => this.userService.userInfo.role === UserRole.CityUser);
+  isCityUser = computed(() => this.userService.userInfo.role === UserRole.Executive);
 
   getInterpretaionClass = (interpretationID: number) => {
     const layer = this.selectedLayerSig();

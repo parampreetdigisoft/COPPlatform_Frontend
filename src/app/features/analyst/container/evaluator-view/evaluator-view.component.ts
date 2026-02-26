@@ -3,9 +3,9 @@ import { CityVM } from '../../../../core/models/CityVM';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { ToasterService } from 'src/app/core/services/toaster.service';
 import { UserService } from 'src/app/core/services/user.service';
-import { GetUserByRoleRequestDto, GetUserByRoleResponse } from '../../../../core/models/GetUserByRoleResponse';
+import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../../../core/models/GetUserByRoleResponse';
 import { UserRoleValue } from 'src/app/core/enums/UserRole';
-import { InviteBulkUserDto, UpdateInviteUserDto } from '../../../../core/models/AnalystVM';
+import { InviteBulkUserDto, RegisterDto, UpdateInviteUserDto } from '../../../../core/models/AnalystVM';
 import { AnalystService } from '../../analyst.service';
 declare var bootstrap: any;
 
@@ -15,9 +15,9 @@ declare var bootstrap: any;
   styleUrl: './evaluator-view.component.css'
 })
 export class EvaluatorViewComponent implements OnInit, OnDestroy {
-  selectedEvaluator: GetUserByRoleResponse | null = null;
+  selectedEvaluator: GetUserByRoleResponseVM | null = null;
   loading: boolean = false;
-  evaluatorResponse: PaginationResponse<GetUserByRoleResponse> | undefined;
+  evaluatorResponse: PaginationResponse<GetUserByRoleResponseVM> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1
@@ -61,7 +61,7 @@ export class EvaluatorViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  editEvaluator(evaluator: GetUserByRoleResponse | null, isOpen:boolean=true) {
+  editEvaluator(evaluator: GetUserByRoleResponseVM | null, isOpen:boolean=true) {
     this.selectedEvaluator = evaluator;
     if(isOpen){
       this.opendialog();
@@ -69,11 +69,8 @@ export class EvaluatorViewComponent implements OnInit, OnDestroy {
   }
 
   deleteEvaluator() {
-    let payload = {
-      userId: this.selectedEvaluator?.userID,
-      assignedByUserId: this.userService.userInfo.userID
-    }
-    this.analystService.unAssignCity(payload).subscribe({
+    
+    this.analystService.deleteEvaluator(this.selectedEvaluator?.userID ?? 0).subscribe({
       next: (res) => {
         if (res.succeeded) {
           this.getEvaluator();
@@ -83,61 +80,37 @@ export class EvaluatorViewComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.toaster.showError('Failed to un-assigned city');
+        this.toaster.showError('Failed to delete user');
       }
     });
   }
 
-  ResendInvitaion(analyst: GetUserByRoleResponse, i :number) {
+  ResendInvitaion(analyst: GetUserByRoleResponseVM, i :number) {
     this.selectedIndex =i;
-    let payload: UpdateInviteUserDto = {
+    let payload: RegisterDto = {
       fullName: analyst.fullName,
       email: analyst.email,
       phone: analyst.phone ?? "",
       password: "",
       role: UserRoleValue.Evaluator,
-      invitedUserID: this.userService.userInfo?.userID ?? 0,
-      cityID: analyst.cities.map((x) => x.cityID),
-      userID: analyst.userID,
     };
     this.addUpdateEvaluator(payload);
   }
-  addUpdateEvaluator(evaluator: UpdateInviteUserDto | null) {
+  addUpdateEvaluator(evaluator: RegisterDto | null) {
     if (!evaluator) {
       return;
     }
     this.loading = true;
-    let payload: UpdateInviteUserDto = {
+    let payload: RegisterDto = {
       fullName: evaluator.fullName,
       email: evaluator.email,
       phone: evaluator.phone,
       password: evaluator.password,
-      role: UserRoleValue.Evaluator,
-      invitedUserID: this.userService.userInfo?.userID ?? 0,
-      cityID: evaluator.cityID,
-      userID: evaluator.userID
+      role: UserRoleValue.Evaluator
+
     }
 
-    if (evaluator?.userID > 0) {
-      this.analystService.editEvaluator(payload).subscribe({
-        next: (res) => {
-          this.closeModal();
-          if (res.succeeded) {
-            this.getEvaluator(this.currentPage);
-            this.toaster.showSuccess(res?.messages.join(', '));
-
-          } else {
-            this.toaster.showError(res?.errors.join(', '));
-          }
-        },
-        error: () => {
-          this.closeModal();
-          this.toaster.showError('Failed to edit evaluator');
-        }
-      });
-    }
-    else {
-      this.analystService.addEvaluator(payload).subscribe({
+    this.analystService.addUpdateStaffUser(payload).subscribe({
         next: (res) => {
           this.closeModal();
           if (res.succeeded) {
@@ -152,7 +125,6 @@ export class EvaluatorViewComponent implements OnInit, OnDestroy {
           this.toaster.showError('Failed to add evaluator');
         }
       });
-    }
   }
   opendialog() {
     this.isOpendialog = true;

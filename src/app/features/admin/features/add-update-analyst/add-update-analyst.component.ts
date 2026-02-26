@@ -8,17 +8,14 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { CityVM } from "../../../../core/models/CityVM";
+import { RegisterDto, UpdateInviteUserDto } from "../../../../core/models/AnalystVM";
+import { GetUserByRoleResponseVM } from "../../../../core/models/GetUserByRoleResponse";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import {
-  InviteUserDto,
-  UpdateInviteUserDto,
-} from "../../../../core/models/AnalystVM";
-import { GetUserByRoleResponse } from "../../../../core/models/GetUserByRoleResponse";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import { UserRoleValue } from "src/app/core/enums/UserRole";
 import { UserService } from "src/app/core/services/user.service";
+import { UserRole, UserRoleValue } from "src/app/core/enums/UserRole";
+import { PillarsVM } from "src/app/core/models/PillersVM";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 @Component({
   selector: "app-add-update-analyst",
@@ -26,32 +23,37 @@ import { UserService } from "src/app/core/services/user.service";
   styleUrl: "./add-update-analyst.component.css",
 })
 export class AddUpdateAnalystComponent implements OnInit {
-  @Input() analyst: GetUserByRoleResponse | null = null;
-  @Input() cities: CityVM[] | null = [];
+
+  @Input() analyst: GetUserByRoleResponseVM | null = null;
   @Output() analystChange = new EventEmitter<UpdateInviteUserDto | null>();
   @Output() closeAnalystModel = new EventEmitter<boolean>();
   @Output() bulkImportChange = new EventEmitter<UpdateInviteUserDto[] | null>();
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
   @Input() loading: boolean = false;
+
   alertMsg = "";
   excelData: any;
   isSubmitted: boolean = false;
-  requiredHeaders = ["FullName", "Email", "Phone", "CityName"];
+  requiredHeaders = ["FullName", "Email", "Phone", "Role"];
   analystForm: FormGroup<any> = this.fb.group({});
-
+  rolesList = [
+    { name: "Analyst", role: UserRoleValue.Analyst },
+    { name: "Executive", role: UserRoleValue.Executive }
+  ];
   constructor(private fb: FormBuilder, private userService: UserService) {}
+
   ngOnInit(): void {
     this.initializeForm();
   }
+
   initializeForm() {
+    const roleValue = UserRoleValue[this.analyst?.role  as keyof typeof UserRoleValue] ?? null;
+
     this.analystForm = this.fb.group({
       fullName: [this.analyst?.fullName, [Validators.required]],
       email: [this.analyst?.email, [Validators.required, Validators.email]],
       phone: [this.analyst?.phone, [Validators.required]],
-      city: [
-        this.analyst?.cities?.map((x) => x?.cityID) ?? [],
-        [Validators.required],
-      ],
+      role:[{ value: roleValue, disabled: this.analyst != null },  [Validators.required]],
     });
   }
 
@@ -73,22 +75,21 @@ export class AddUpdateAnalystComponent implements OnInit {
     }
   }
   downloadTemplate() {
-    const headers = ["FullName", "Email", "Phone", "CityName"];
+    const headers = ["FullName", "Email", "Phone", "Role"];
 
     const sampleRow = {
-      FullName: "FullName of Analyst",
-      Email: "Enter Email of Analyst",
-      Phone: "Enter Phone Number of Analyst",
-      CityName:
-        "Enter city seprated by comma, like :- Chandigarh, Mohali, Swar",
+      FullName: "Full Name of user",
+      Email: "Enter Email of user",
+      Phone: "Enter Phone Number of user",
+      Role:"Enter role  like - Analyst , Executive"
     };
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet([sampleRow], {
       header: headers,
     });
-    ws["!cols"] = headers.map(() => ({ wch: 20 }));
+    ws["!cols"] = headers.map(() => ({ wch: 30 }));
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "AnalystTemplate");
+    XLSX.utils.book_append_sheet(wb, ws, "UserTemplate");
 
     const excelBuffer: any = XLSX.write(wb, {
       bookType: "xlsx",
@@ -97,7 +98,7 @@ export class AddUpdateAnalystComponent implements OnInit {
     const data: Blob = new Blob([excelBuffer], {
       type: "application/octet-stream",
     });
-    saveAs(data, "AnalystTemplate.xlsx");
+    saveAs(data, "UserTemplate.xlsx");
   }
   onFileChange(evt: any) {
     this.alertMsg = "";
@@ -130,7 +131,7 @@ export class AddUpdateAnalystComponent implements OnInit {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const phoneRegex = /^[0-9+\-\s()]+$/;
 
-      const excelData: InviteUserDto[] = [];
+      const excelData: RegisterDto[] = [];
 
       for (let i = 0; i < jsonData.length; i++) {
         const row = jsonData[i];
@@ -138,21 +139,26 @@ export class AddUpdateAnalystComponent implements OnInit {
         const fullName = String(row["FullName"] || "").trim();
         const email = String(row["Email"] || "").trim();
         const phone = String(row["Phone"] || "").trim();
-        const cityName = String(row["CityName"] || "").trim();
-
-        const isCompletelyBlank = !fullName && !email && !phone && !cityName;
+        const role = String(row["Role"] || "").trim();
+        const isCompletelyBlank = !fullName && !email && !phone && !role;
         if (isCompletelyBlank) {
           continue;
         }
+        if (fullName.toLowerCase() === "Full Name of user".toLowerCase()) {
+          continue;
+        }
+        if(!(role == UserRole.Analyst || role == UserRole.Executive)){
+          this.alertMsg = `Row ${i + 2}: invalid role: ${role},  valid values are - Analyst , Executive`;
+          this.fileInput.nativeElement.value = "";
+          return;
+        }
         // ✅ Required check
-        if (!fullName || !email || !phone || !cityName) {
+        if (!fullName || !email || !phone || !role) {
           this.alertMsg = `Row ${i + 2}: All fields are required.`;
           this.fileInput.nativeElement.value = "";
           return;
         }
-        if (fullName.toLowerCase() === "FullName of Analyst".toLowerCase()) {
-          continue;
-        }
+        
 
         // ✅ Email validation
         if (!emailRegex.test(email)) {
@@ -177,29 +183,18 @@ export class AddUpdateAnalystComponent implements OnInit {
         }
 
         // ✅ Construct DTO (invitedUserID/userID can be handled later by API)
-        const dto: InviteUserDto = {
-          invitedUserID: this.userService.userInfo?.userID ?? 0,
+        const dto: RegisterDto = {
           fullName,
           email,
           phone,
           password: email,
-          role: UserRoleValue.Analyst,
-          cityID: this.getCityByName(cityName),
+          role: UserRoleValue[role as keyof typeof UserRoleValue]
         };
         excelData.push(dto);
       }
       this.excelData = excelData;
     };
     reader.readAsBinaryString(target.files[0]);
-  }
-
-  getCityByName(cityNames: string): number[] {
-    if (!cityNames) return [];
-    return cityNames
-      .split(",")
-      .map((name) => name.trim())
-      .map((name) => this.cities?.find((c) => c.cityName === name)?.cityID)
-      .filter((id): id is number => id !== undefined);
   }
 
   bulkImport() {

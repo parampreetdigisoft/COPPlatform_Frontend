@@ -20,6 +20,7 @@ import {
   AssessmentPhase } from "src/app/core/enums/AssessmentPhase";
 import { CommonService } from "src/app/core/services/common.service";
 import { SendRequestMailToUpdateCity } from "src/app/core/models/AnalystVM";
+import { UserRoleValue } from "src/app/core/enums/UserRole";
 
 @Component({
   selector: "app-evaluator-responses",
@@ -159,7 +160,8 @@ export class EvaluatorResponsesComponent implements OnInit {
   }
   GetEvaluatorByAnalyst() {
     let payload: GetAssignUserDto = {
-      userID: this.userService.userInfo.userID,
+      searchedUserID: this.userService.userInfo.userID,
+      userRole:UserRoleValue.Evaluator
     };
     this.analystService.GetEvaluatorByAnalyst(payload).subscribe({
       next: (res) => {

@@ -1,43 +1,47 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { AdminService } from "../../admin.service";
+import { CityVM } from "../../../../core/models/CityVM";
 import { PaginationResponse } from "src/app/core/models/PaginationResponse";
 import { ToasterService } from "src/app/core/services/toaster.service";
 import { UserService } from "src/app/core/services/user.service";
-import { UserRole, UserRoleValue } from "src/app/core/enums/UserRole";
-import { GetUserByRoleRequestDto, GetUserByRoleResponseVM } from "../../../../core/models/GetUserByRoleResponse";
-import {
-  InviteBulkUserDto,
-  RegisterDto,
-  UpdateInviteUserDto,
-} from "../../../../core/models/AnalystVM";
+import { UserRoleValue } from "src/app/core/enums/UserRole";
 import { SortDirection } from "src/app/core/enums/SortDirection";
 import { ActivatedRoute } from "@angular/router";
 import { PillarsVM } from "src/app/core/models/PillersVM";
 import { CommonService } from "src/app/core/services/common.service";
+import { CommonModule } from "@angular/common";
+import { SharedModule } from "src/app/shared/share.module";
+import { SendInvitationComponent } from "../../features/send-invitation/send-invitation.component";
+import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from "src/app/core/models/GetInviatationRequestDto";
+import { GetAssignUserDto, PublicUserResponse } from "src/app/core/models/UserInfo";
+import { UpdateInvitationUserDto } from "src/app/core/models/UpdateInviteUserDto";
 declare var bootstrap: any;
 
 @Component({
-  selector: "app-analyst-view",
-  templateUrl: "./analyst-view.component.html",
-  styleUrl: "./analyst-view.component.css",
+  standalone: true,
+  imports: [CommonModule, SharedModule, SendInvitationComponent],
+  selector: 'app-invitations',
+  templateUrl: './invitations.component.html',
+  styleUrl: './invitations.component.css'
 })
-export class AnalystViewComponent implements OnInit, OnDestroy {
+export class InvitationsComponent {
   selectedYear = new Date().getFullYear();
   isLoader: boolean = false;
-  selectedAnalyst: GetUserByRoleResponseVM | null = null;
-  analystResponse: PaginationResponse<GetUserByRoleResponseVM> | undefined;
+  selectedAnalyst: GetInviatationResponseDto | null = null;
+  selectedCity: CityVM | null = null;
+  analystResponse: PaginationResponse<GetInviatationResponseDto> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
   pillars: PillarsVM[] | null = [];
+  users: PublicUserResponse[] | null = [];
   loading: boolean = false;
   isOpendialog: boolean = false;
   roleId: number | any = 0;
-  selectedRoleID: UserRoleValue = UserRoleValue.Analyst;
+  selectedRoleID: UserRoleValue = UserRoleValue.Analyst;;
   selectedIndex?:number;
   rolesList = [
     { name: "Analyst", role: UserRoleValue.Analyst },
-    { name: "Executive", role: UserRoleValue.Executive },
     { name: "Evaluator", role: UserRoleValue.Evaluator },
   ];
 
@@ -55,22 +59,49 @@ export class AnalystViewComponent implements OnInit, OnDestroy {
       if(this.roleId)
       this.selectedRoleID = this.roleId;
     });
-    this.getAnalyst();
+    this.getInviations();
+    this.getAllPillars();
+    this.getAccessUsers();
   }
 
-  getAnalyst(currentPage: number = 1) {
+  getAllPillars() {
+    this.adminService
+      .getAllPillars()
+      .subscribe({
+        next: (res) => {
+          this.pillars = res ?? [];
+        },
+      });
+  }
+
+  getAccessUsers() {
+    let payload:GetAssignUserDto ={
+      userRole:UserRoleValue.Analyst
+    }
+    this.adminService
+      .getAccessUsers(payload)
+      .subscribe({
+        next: (res) => {
+          this.users = res.result ?? [];
+        },
+      });
+  }
+
+  getInviations(currentPage: number = 1) {
     this.analystResponse = undefined;
     this.isLoader = true;
-    let payload: GetUserByRoleRequestDto = {
+    let payload: GetInviatationRequestDto = {
       sortDirection: SortDirection.DESC,
-      sortBy: "userID",
+      sortBy: "UpdatedAt",
       pageNumber: currentPage,
       pageSize: this.pageSize,
-      userID: this.userService?.userInfo?.userID,
       getUserRole:this.selectedRoleID
     };
+    if(this.selectedYear){
+      payload.year = this.selectedYear;
+    }
 
-    this.adminService.getAnalyst(payload).subscribe((anaylist) => {
+    this.adminService.getInviations(payload).subscribe((anaylist) => {
       this.analystResponse = anaylist;
       this.totalRecords = anaylist.totalRecords;
       this.currentPage = currentPage;
@@ -79,65 +110,52 @@ export class AnalystViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  editAnalyst(analyst: GetUserByRoleResponseVM | null, isOpen: boolean = true) {
+  editAnalyst(analyst: GetInviatationResponseDto | null, isOpen: boolean = true) {
     this.selectedAnalyst = analyst;
     if (isOpen) {
       this.opendialog();
     }
   }
-  deleteAnalyst() {
-    if (this.selectedAnalyst === null) {
-      this.toaster.showError("No analyst selected for deletion");
+  deleteInvitation() {
+    if (!this.selectedAnalyst || this.selectedAnalyst.userAssessmentMappingID < 1) {
+      this.toaster.showError("No assessment selected for deletion");
       return;
     }
-    this.adminService.deleteUser(this.selectedAnalyst.userID).subscribe({
+    let payload:DeleteInvitationDto ={
+      userID :this.selectedAnalyst.userID,
+      userAssessmentMappingID:this.selectedAnalyst.userAssessmentMappingID
+    }
+    this.adminService.deleteInvitation(payload).subscribe({
       next: (res) => {
         if (res.succeeded) {
-          this.getAnalyst(this.currentPage);
+          this.getInviations(this.currentPage);
           this.toaster.showSuccess(res?.messages.join(", "));
         } else {
           this.toaster.showError(res?.errors.join(", "));
         }
       },
       error: () => {
-        this.toaster.showError("Failed to delete analyst");
+        this.toaster.showError("Failed to delete invitation");
       },
     });
   }
 
-  ResendInvitaion(analyst: GetUserByRoleResponseVM, i :number) {
-    if(analyst.role == UserRole.Evaluator) {
-      this.toaster.showError("You don't have permission");
-      return;
-    }
-    this.selectedIndex =i;
-    let payload: RegisterDto = {
-      fullName: analyst.fullName,
-      email: analyst.email,
-      phone: analyst.phone ?? "",
-      password: "",
-      role: UserRoleValue[analyst.role as keyof typeof UserRoleValue]
-    };
-    this.addUpdateStaffUser(payload);
-  }
-
-  addUpdateStaffUser(analyst: RegisterDto | null) {
+  addUpdateInvitation(analyst: UpdateInvitationUserDto | null) {
     if (!analyst) {
       return;
     }
     this.loading = true;
-    let payload: RegisterDto = {
-      fullName: analyst.fullName,
-      email: analyst.email,
-      phone: analyst.phone,
-      password: analyst.password,
-      role: analyst.role
+    let payload: UpdateInvitationUserDto = {
+      userID: analyst.userID,
+      dueDate: analyst.dueDate,
+      year: analyst.year,
+      pillarIDs: analyst.pillarIDs
     };
-    this.adminService.addUpdateStaffUser(payload).subscribe({
+    this.adminService.addUpdateInvitation(payload).subscribe({
         next: (res) => {
           this.closeModal();
           if (res.succeeded) {
-            this.getAnalyst();
+            this.getInviations();
             this.toaster.showSuccess(res?.messages.join(", "));
           } else {
             this.toaster.showError(res?.errors.join(", "));
@@ -145,7 +163,7 @@ export class AnalystViewComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.closeModal();
-          this.toaster.showError("Failed to add analyst");
+          this.toaster.showError("Failed to add/update invitation ");
         },
       });
   }
@@ -165,7 +183,7 @@ export class AnalystViewComponent implements OnInit, OnDestroy {
   }
 
   closeModal() {
-     this.selectedIndex =undefined;
+    this.selectedIndex =undefined;
     this.loading = false;
     const homeTab = document.querySelector("#pills-home-tab") as HTMLElement;
     if (homeTab) {
@@ -177,27 +195,4 @@ export class AnalystViewComponent implements OnInit, OnDestroy {
     this.isOpendialog = false;
   }
   ngOnDestroy(): void {}
-
-  addBulkAnalyst(analysts: UpdateInviteUserDto[] | null) {
-    if (!analysts) return;
-    let payload: InviteBulkUserDto = {
-      users: analysts,
-    };
-    this.loading = true;
-    this.adminService.addBulkAnalyst(payload).subscribe({
-      next: (res) => {
-        this.closeModal();
-        if (res.succeeded) {
-          this.getAnalyst();
-          this.toaster.showSuccess(res?.messages.join(", "));
-        } else {
-          this.toaster.showError(res?.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.closeModal();
-        this.toaster.showError("Failed to add Users");
-      },
-    });
-  }
 }

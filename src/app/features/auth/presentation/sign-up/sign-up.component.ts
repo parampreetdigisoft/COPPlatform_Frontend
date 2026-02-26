@@ -87,7 +87,7 @@ export class SignUpComponent implements OnInit, AfterViewInit {
           email: user.email,
           phone: '',
           password: '',
-          role: UserRoleValue.CityUser,
+          role: UserRoleValue.Executive,
           isConfrimed: true,
           is2FAEnabled :false
         };
@@ -118,7 +118,7 @@ export class SignUpComponent implements OnInit, AfterViewInit {
                 email: user.email,
                 phone: '',
                 password: '',
-                role: UserRoleValue.CityUser,
+                role: UserRoleValue.Executive,
                 isConfrimed: true,
                 is2FAEnabled :false
               };
@@ -153,7 +153,7 @@ export class SignUpComponent implements OnInit, AfterViewInit {
       email: f?.email,
       phone: f?.phone,
       password: f?.password,
-      role: UserRoleValue.CityUser,
+      role: UserRoleValue.Executive,
       isConfrimed: this.externalLogin() !=null ,
       is2FAEnabled :f?.is2FAEnabled
     };

@@ -9,7 +9,7 @@ export interface RegisterDto {
 
 export interface InviteUserDto extends RegisterDto {
   invitedUserID: number;
-  cityID: number[]; 
+  pillarID: number[]; 
 }
 
 export interface UpdateInviteUserDto extends InviteUserDto {
