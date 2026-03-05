@@ -93,14 +93,14 @@ export class AssessmentResultComponent implements OnInit {
     switch (assessment.assessmentPhase) {
       case AssessmentPhase.InProgress: {
         this.evaluatorService.userCityMappingIDSubject$.next(
-          assessment.userCityMappingID
+          assessment.userAssessmentMappingID
         );
         this.router.navigate(["evaluator/make-assessment"]);
         break;
       }
       case  AssessmentPhase.EditApproved: {
         this.evaluatorService.userCityMappingIDSubject$.next(
-          assessment.userCityMappingID
+          assessment.userAssessmentMappingID
         );
         this.router.navigate(["evaluator/make-assessment"]);
         break;
@@ -109,14 +109,14 @@ export class AssessmentResultComponent implements OnInit {
         break;
         case AssessmentPhase.EditRejected : {
         this.sendMailForEditAssessment(
-          assessment.userCityMappingID,
+          assessment.userAssessmentMappingID,
           assessment.assignedByUserId
         );
         break;
       }
       case AssessmentPhase.Completed : {
         this.sendMailForEditAssessment(
-          assessment.userCityMappingID,
+          assessment.userAssessmentMappingID,
           assessment.assignedByUserId
         );
         break;
@@ -125,10 +125,10 @@ export class AssessmentResultComponent implements OnInit {
     }
   }
 
-  sendMailForEditAssessment(userCityMappingID: number, mailToUserID: number) {
+  sendMailForEditAssessment(userAssessmentMappingID: number, mailToUserID: number) {
     let payload: SendRequestMailToUpdateCity = {
       userID: this.userService.userInfo.userID,
-      userCityMappingID: userCityMappingID,
+      userAssessmentMappingID: userAssessmentMappingID,
       mailToUserID: mailToUserID,
     };
     this.evaluatorService.sendMailForEditAssessment(payload).subscribe({

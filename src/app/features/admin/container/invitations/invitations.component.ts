@@ -149,7 +149,8 @@ export class InvitationsComponent {
       userID: analyst.userID,
       dueDate: analyst.dueDate,
       year: analyst.year,
-      pillarIDs: analyst.pillarIDs
+      pillarIDs: analyst.pillarIDs,
+      userAssessmentMappingID:analyst.userAssessmentMappingID
     };
     this.adminService.addUpdateInvitation(payload).subscribe({
         next: (res) => {

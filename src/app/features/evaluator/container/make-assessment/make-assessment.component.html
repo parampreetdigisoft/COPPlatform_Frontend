@@ -10,7 +10,7 @@
         <div class="input_field">
           <select [(ngModel)]="selectedUserCityMappingID" name="cityID" class="form-control" (change)="cityChanged()">
             <option value="0">Select City-Analyst</option>
-            <option *ngFor="let city of cities" [value]="city.userCityMappingID">
+            <option *ngFor="let city of cities" [value]="city.userAssessmentMappingID">
               {{ city.cityName }} - {{ city.assignedBy }}
             </option>
           </select>
@@ -97,7 +97,7 @@
         <div class="next_btn"  [class.loading-bottom]="isLoader" *ngIf="this.selectedUserCityMappingID || !(this.selectedUserCityMappingID == 0)">
           <button type="button" data-bs-toggle="modal" data-bs-target="#confirmModal" style="cursor: pointer"
             class="common_button" [disabled]="!this.selectedUserCityMappingID || this.selectedUserCityMappingID == 0">
-            {{pillerQuestions?.displayOrder == 14 ? 'Submit' :'Save & NEXT' }}
+            {{pillerQuestions?.displayOrder == 14 ? 'Submit' :'Save & Next' }}
           </button>
         </div>
       </form>

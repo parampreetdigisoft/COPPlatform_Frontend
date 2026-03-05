@@ -21,5 +21,5 @@ export interface InviteBulkUserDto {
 export interface SendRequestMailToUpdateCity {
     userID: number;
     mailToUserID: number;
-    userCityMappingID: number;
+    userAssessmentMappingID: number;
 }

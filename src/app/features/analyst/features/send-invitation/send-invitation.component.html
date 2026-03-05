@@ -20,9 +20,9 @@
 
               <!-- Select Analyst -->
               <div class="input_field">
-                <label>Select Analyst *</label>
+                <label>Select Evaluator *</label>
 
-                <ng-select [items]="users" [searchable]="true" placeholder="Select analyst" bindValue="userID"
+                <ng-select [items]="users" [searchable]="true" placeholder="Select Evaluator" bindValue="userID"
                   bindLabel="userID" formControlName="userID" class="form-control analyst_multi_select">
 
                   <ng-template ng-label-tmp let-item="item">
@@ -37,7 +37,7 @@
 
                 <div *ngIf="analystForm.get('userID')?.invalid && (isSubmitted || analystForm.get('userID')?.touched)"
                   class="error-msg">
-                  Analyst is required.
+                  Evaluator is required.
                 </div>
               </div>
 
@@ -65,7 +65,7 @@
               <div class="input_field">
                 <label>Select Year for Assessment *</label>
 
-                <select formControlName="year" class="form-control">
+                <select formControlName="year" class="form-control" >
                   <option [ngValue]="null" disabled>
                     Select year
                   </option>
@@ -98,7 +98,7 @@
               <div class="input_field">
                 <label>Assign Pillars for Assessment *</label>
 
-                <ng-select [items]="pillars" [multiple]="true" [searchable]="true" placeholder="Assign pillars"
+                <ng-select [items]="pillars()" [multiple]="true" [searchable]="true" placeholder="Assign pillars"
                   bindValue="pillarID" bindLabel="pillarName" formControlName="pillarIDs"
                   class="form-control analyst_multi_select">
 

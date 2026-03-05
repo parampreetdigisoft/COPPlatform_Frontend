@@ -2,7 +2,7 @@ import { AssessmentPhase } from "../enums/AssessmentPhase";
 
 export interface GetAssessmentResponse {
   assessmentID:number;
-  userCityMappingID:number
+  userAssessmentMappingID:number
   createdAt:Date | string;
   cityID: number;
   state: string;
@@ -36,6 +36,7 @@ export interface AssessmentWithProgressVM {
   assessmentID: number;
   score: number;
   totalAnsPillar: number;
+  totalPillar: number;
   totalQuestion: number;
   totalAnsQuestion: number;
   currentProgress:number

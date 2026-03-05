@@ -21,43 +21,6 @@ export class CommonService {
 
   constructor(private http: HttpService, private userService: UserService, private toaster: ToasterService) { }
 
-  public getAllCityByLocation(): Observable<ResultResponseDto<CityVM[]>> {
-    const payload: GetNearestCityRequestDto = {
-      userID: this.userService.userInfo.userID,
-      latitude: this.latitude,
-      longitude: this.longitude,
-    };
-
-    return this.http
-      .getWithQueryParams('City/getAllCityByLocation', payload)
-      .pipe(map((x) => x as ResultResponseDto<CityVM[]>));
-  }
-
-  public getUserNearestCity(): Observable<ResultResponseDto<CityVM[]>> {
-    if (navigator.geolocation) {
-      return from(
-        new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        })
-      ).pipe(
-        switchMap((position) => {
-          this.latitude = position.coords.latitude;
-          this.longitude = position.coords.longitude;
-          return this.getAllCityByLocation();
-        }),
-        catchError((error) => {
-          console.error('Geolocation error:', error);
-          this.toaster.showError(
-            'Location access denied or unavailable. Showing all cities.'
-          );
-          return this.getAllCityByLocation(); // fallback
-        })
-      );
-    } else {
-      this.toaster.showError('Geolocation not supported by this browser.');
-      return this.getAllCityByLocation();
-    }
-  }
 
   public getUserInfo() {
     return this.http

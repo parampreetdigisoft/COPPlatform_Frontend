@@ -19,6 +19,7 @@ import {
 import { AnalystService } from "../../analyst.service";
 import { environment } from "src/environments/environment";
 import { CommonService } from "src/app/core/services/common.service";
+import { AssignedAssessmentPillarMappingDto, GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 
 @Component({
   selector: "app-analyst-assessment",
@@ -28,17 +29,18 @@ import { CommonService } from "src/app/core/services/common.service";
 export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   pillars: PillarsVM[] = [];
   cities: CityVM[] = []; // ✅ fixed type
-  selectedUserCityMappingID: number = 0;
+  userAssessmentMappingID: number = 0;
   pillerQuestions: GetQuestionByCityMappingRespones | null = null;
   form!: FormGroup;
   pillarDisplayOrder: number = 1;
-  selectedPillar?: PillarsVM;
+  selectedPillar?: AssignedAssessmentPillarMappingDto;
   @ViewChild("scrollContainer") scrollContainer!: ElementRef;
   isloading = false;
   isUploading = false;
   isLoader: boolean = false;
   urlBase = environment.apiUrl;
-  isAssessementFinalized = false;
+  assignedInvitations: GetAssignedAssessmentResponseDto[] = []
+  selectedPillarMappings: AssignedAssessmentPillarMappingDto[] = [];
 
   constructor(
     private analystService: AnalystService,
@@ -49,10 +51,9 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.isLoader =true;
+    this.isLoader = true;
     this.formInitialized();
-    this.GetAllPillars();
-    this.getCityByUserIdForAssessment();
+    this.getAssignedInvitations();
   }
 
   get questions() {
@@ -112,64 +113,54 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       this.pillars = pillars;
     });
   }
-  pillarChanged(pillar?: PillarsVM) {
-    if (!this.selectedUserCityMappingID || this.selectedUserCityMappingID == 0) {
-      this.toaster.showWarning("Please select city first");
+
+  getAssignedInvitations() {
+    this.analystService.getAssignedInvitations().subscribe((res) => {
+      if (res.succeeded) {
+        this.assignedInvitations = res.result ?? [];
+        if (this.assignedInvitations.length) {
+          this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
+          this.selectedPillarMappings = this.assignedInvitations[0].userPillarMappings;
+          this.selectedPillar = this.selectedPillarMappings[0];
+          this.getQuestionsByCityId();
+        }
+      }
+    });
+  }
+  pillarChanged(pillar?: AssignedAssessmentPillarMappingDto) {
+    if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
+      this.toaster.showWarning("Please select invitation first");
       return;
     }
 
-    this.isAssessementFinalized = false;
     if (pillar) {
       this.selectedPillar = pillar;
       this.getQuestionsByCityId();
     }
     else {
-      this.selectedPillar = this.pillars.find((x) => x.pillarID == this.pillerQuestions?.pillarID);
+      this.selectedPillar = this.selectedPillarMappings.find((x) => x.pillarID == this.pillerQuestions?.pillarID);
       if (this.pillerQuestions && this.pillerQuestions?.submittedPillarDisplayOrder < (this.selectedPillar?.displayOrder ?? 0)) {
         this.pillarDisplayOrder = this.selectedPillar?.displayOrder ?? 1;
       }
     }
   }
+
   cityChanged() {
     this.selectedPillar = undefined;
     this.getQuestionsByCityId();
   }
 
-  getCityByUserIdForAssessment() {
-    this.selectedPillar = undefined;
-    this.commonService.getUserNearestCity()
-      .subscribe({
-        next: (res) => {
-          this.cities = res.result ?? [];
-          if (this.cities.length > 0) {
-            this.selectedUserCityMappingID = this.analystService.userCityMappingIDSubject$.value != null ?
-              this.analystService.userCityMappingIDSubject$.value
-              : this.cities[0].userCityMappingID ?? 0;
-            setTimeout(() => {
-              this.toaster.showInfo("You have rediredected to assgined city, please submit all pillars for the city");
-            }, 1000);
-            this.getQuestionsByCityId();
-          } else {
-            this.toaster.showWarning(res.errors.join(", "));
-          }
-        },
-        error: () => {
-          this.toaster.showWarning("There is an error please try again");
-        },
-      });
-  }
-
   getQuestionsByCityId() {
     if (
-      !this.selectedUserCityMappingID ||
-      this.selectedUserCityMappingID == 0
+      !this.userAssessmentMappingID ||
+      this.userAssessmentMappingID == 0
     ) {
-      this.toaster.showWarning("Please select city first");
+      this.toaster.showWarning("Please select invitaion first");
       return;
     }
     this.formInitialized();
     const payload: CityMappingPillerRequestDto = {
-      userCityMappingID: this.selectedUserCityMappingID ?? 0,
+      userAssessmentMappingID: this.userAssessmentMappingID ?? 0,
     };
     if (this.selectedPillar) {
       payload.pillarID = this.selectedPillar.pillarID;
@@ -190,35 +181,36 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
           this.pillarChanged();
           this.loadQuestions();
         } else {
-          this.toaster.showWarning("City's assessment is already submitted");
+          this.toaster.showWarning("invitaion's assessment is already submitted");
         }
       },
     });
   }
 
+  get IsLastPillar() {
+    var index = this.selectedPillarMappings.findIndex(x => x.displayOrder == Number(this.selectedPillar?.displayOrder));
+
+    return index == this.selectedPillarMappings.length - 1;
+  }
+
   SaveAssessment() {
-    if (
-      !this.selectedUserCityMappingID ||
-      this.selectedUserCityMappingID == 0
-    ) {
-      this.toaster.showWarning("Please select city first");
+
+    if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
+      this.toaster.showWarning("Please select invitaion first");
       return;
     }
     const validQuestions = this.questionsArray.controls
       .filter((ctrl) => ctrl.valid)
       .map((ctrl) => ctrl.value as AddAssessmentResponseDto);
     const payload: AddAssessmentDto = {
-      userCityMappingID: this.selectedUserCityMappingID,
+      userAssessmentMappingID: this.userAssessmentMappingID,
       assessmentID: this.pillerQuestions?.assessmentID ?? 0,
       pillarID: this.pillerQuestions?.pillarID ?? 0,
       responses: validQuestions ?? [],
       isAutoSave: false,
-      isFinalized: this.isAssessementFinalized
+      isFinalized: false
     };
-    if (
-      this.pillerQuestions?.pillarID != null &&
-      this.pillerQuestions?.pillarID > 0
-    ) {
+    if (this.pillerQuestions?.pillarID != null && this.pillerQuestions?.pillarID > 0) {
       this.analystService.saveAssessment(payload).subscribe({
         next: (res) => {
           setTimeout(() => {
@@ -228,12 +220,12 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
             });
           }, 300);
           if (res.succeeded) {
-            if (this.pillerQuestions?.displayOrder == 14 || this.isAssessementFinalized) {
+
+            if (this.IsLastPillar) {
               this.analystService.userCityMappingIDSubject$.next(null);
-              this.getCityByUserIdForAssessment();
             } else {
               if (this.selectedPillar)
-                this.selectedPillar = this.pillars.find(x => x.displayOrder == (Number(this.selectedPillar?.displayOrder) + 1));
+                this.selectedPillar = this.selectedPillarMappings.find(x => x.displayOrder > Number(this.selectedPillar?.displayOrder));
               this.getQuestionsByCityId();
             }
             this.toaster.showSuccess(res.messages.join(", "));
@@ -255,21 +247,21 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   }
 
   ImportQuestions() {
-    if (this.selectedUserCityMappingID != 0) {
+    if (this.userAssessmentMappingID != 0) {
       this.isloading = true;
       this.analystService
-        .ExportQuestions(this.selectedUserCityMappingID)
+        .ExportQuestions(this.userAssessmentMappingID)
         .subscribe({
           next: (res: any) => {
-            var city = this.cities?.find(
-              (x) => x.userCityMappingID == this.selectedUserCityMappingID
+            var invitaion = this.assignedInvitations?.find(
+              (x) => x.userAssessmentMappingID == this.userAssessmentMappingID
             );
             this.isloading = false;
             const url = window.URL.createObjectURL(res);
             const a = document.createElement("a");
             a.href = url;
             a.download =
-              city?.cityName + "_" + city?.assignedBy + "_Questions.xlsx";
+              invitaion?.assignedBy + "_" + invitaion?.year + "_Questions.xlsx";
             a.click();
             this.toaster.showSuccess("Questions downloaded successfully");
           },
@@ -279,7 +271,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
           },
         });
     } else {
-      this.toaster.showWarning("Please select city to get questions");
+      this.toaster.showWarning("Please select invitaion to get questions");
     }
   }
 
@@ -293,7 +285,6 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
         this.selectedPillar = undefined;
         this.isUploading = false;
         if (res.succeeded) {
-          this.getCityByUserIdForAssessment();
           this.toaster.showSuccess(res.messages.join(", "));
         } else {
           this.toaster.showError(res.errors.join(", "));
@@ -305,6 +296,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   getAssessmentProgressHistory() {
     this.analystService
       .getAssessmentProgressHistory(this.pillerQuestions?.assessmentID ?? 0)
@@ -318,13 +310,16 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   }
 
   autoSaveSingleAssessemnt(index: number) {
-    if (this.questionsArray.controls[index].valid) {
-      if (!this.selectedUserCityMappingID || this.selectedUserCityMappingID == 0) {
-        this.toaster.showWarning("Please select city first");
-        return;
-      }
+
+    if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
+      this.toaster.showWarning("Please select invitaion first");
+      return;
+    }
+
+    if (this.questionsArray.controls[index].valid && this.questionsArray.controls[index].dirty) {
+
       const payload: AddAssessmentDto = {
-        userCityMappingID: this.selectedUserCityMappingID,
+        userAssessmentMappingID: this.userAssessmentMappingID,
         assessmentID: this.pillerQuestions?.assessmentID ?? 0,
         pillarID: this.pillerQuestions?.pillarID ?? 0,
         responses: [this.questionsArray.controls[index].value],
@@ -334,6 +329,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       this.analystService.saveAssessment(payload).subscribe({
         next: (res) => {
           if (res.succeeded) {
+            this.questionsArray.at(index).markAsPristine();
           }
         },
         error: () => {
@@ -346,7 +342,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     if (text) {
       const txt = document.createElement('textarea');
       txt.innerHTML = text;
-      return txt.value.replace(/\u00a0/g, ' '); // Replace non-breaking space with normal space
+      return txt.value.replace(/\u00a0/g, ' ');
     }
     return "";
   }

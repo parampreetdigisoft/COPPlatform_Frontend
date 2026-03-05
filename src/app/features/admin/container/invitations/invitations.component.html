@@ -55,7 +55,6 @@
     <th>Due Date</th>
     <th>Users Involved</th>
     <th>Pillars Involved</th>
-    <th>Assigned By</th>
     <th class="action_th" *ngIf="selectedRoleID != 3">Actions</th>
   </tr>
 </thead>
@@ -68,8 +67,7 @@
          <td>{{analyst.dueDate | date}}</td>
          <td>{{analyst.numOfUser}}</td>
          <td>{{analyst.pillars.length }}</td>
-        <td>{{ analyst.createdByName }}</td>
-      
+
         <td *ngIf="selectedRoleID!=3">
           <div class="action_icons">
             <a style="cursor: pointer" (click)="editAnalyst(analyst); $event.preventDefault()">

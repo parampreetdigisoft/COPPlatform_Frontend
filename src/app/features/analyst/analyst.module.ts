@@ -28,6 +28,13 @@ const routes: Routes = [
       { path: 'assessment-result/:assessmentID/:userName', component: EvaluatorResponseViewComponent },
       { path: 'evaluator-Comparision', component: ComparisionComponent },
       {
+        path: "invitations",
+        loadComponent: () =>
+          import("./container/invitations/invitations.component").then(
+            (m) => m.InvitationsComponent
+          ),
+      },
+      {
         path: 'kpi-layers',
         loadComponent: () => import('./container/kpi-layers/kpi-layers.component').then(m => m.KpiLayersComponent)
       },

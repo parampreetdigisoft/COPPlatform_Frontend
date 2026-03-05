@@ -24,6 +24,8 @@ import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPill
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
 import { GetInviatationRequestDto, GetInviatationResponseDto, DeleteInvitationDto } from 'src/app/core/models/GetInviatationRequestDto';
+import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +34,8 @@ export class AnalystService {
 
   public userCityMappingIDSubject$ = new BehaviorSubject<number | null>(null);
 
-
   constructor(private http: HttpService, private userService: UserService) { }
+
   public getCities(request: PaginationUserRequest) {
     return this.http.getWithQueryParams(`City/cities`, request).pipe(map(x => x as PaginationResponse<CityVM>));;
   }
@@ -89,7 +91,11 @@ export class AnalystService {
     return this.http.delete(`Auth/deleteUser/` + id).pipe(map(x => x as ResultResponseDto<boolean>));
   }
 
-
+  public addUpdateInvitation(data: UpdateInvitationUserDto) {
+    return this.http
+      .post(`Auth/addUpdateInvitation`, data)
+      .pipe(map((x) => x as ResultResponseDto<string>));
+  }
   public unAssignCity(data: any) {
     return this.http.post(`City/unAssignCity`, data).pipe(map(x => x as ResultResponseDto<unknown>));
   }
@@ -105,8 +111,8 @@ export class AnalystService {
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
     return this.http.getWithQueryParams(`Question/getQuestionsByCityMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
   }
-  public ExportQuestions(userCityMappingID: number) {
-    return this.http.ImportFile(`Question/ExportAssessment/` + userCityMappingID);
+  public ExportQuestions(userAssessmentMappingID: number) {
+    return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);
   }
   public getQuestionsHistoryByPillar(request: GetCityPillarHistoryRequestDto) {
     return this.http.getWithQueryParams(`Question/getQuestionsHistoryByPillar`, request).pipe(map(x => x as ResultResponseDto<QuestionsByUserPillarsResponsetDto[]>));
@@ -134,6 +140,12 @@ export class AnalystService {
   }
   public getCityPillarHistory(request: UserCityPillarDashboardRequstDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getCityPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
+  }
+  public getAssignedAssessments() {
+    return this.http.get(`AssessmentResponse/getAssignedAssessments`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
+  }
+  public getAssignedInvitations() {
+    return this.http.get(`AssessmentResponse/getAssignedInvitations`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
   }
   public GetAnalyticalLayerResults(request: GetAnalyticalLayerRequestDto) {
     return this.http.getWithQueryParams(`Kpi/GetAnalyticalLayerResults`, request).pipe(map(x => x as PaginationResponse<GetAnalyticalLayerResultDto>));;

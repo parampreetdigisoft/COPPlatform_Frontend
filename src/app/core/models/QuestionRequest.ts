@@ -7,6 +7,6 @@ export interface CityPillerRequestDto {
 
 
 export interface CityMappingPillerRequestDto {
-  userCityMappingID: number;
+  userAssessmentMappingID: number;
   pillarID?: number;
 }

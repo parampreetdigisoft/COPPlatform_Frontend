@@ -5,7 +5,7 @@ export interface CityVM extends AddUpdateCityDto {
   isDeleted: boolean;
   assignedBy?: string;
   image?: string;
-  userCityMappingID?:number;
+  userAssessmentMappingID?:number;
   score?: number;
   progress?: number;
   aiScore?: number;

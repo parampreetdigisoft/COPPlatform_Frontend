@@ -52,7 +52,6 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     this.isLoader =true;
     this.formInitialized();
     this.GetAllPillars();
-    this.getCityByUserIdForAssessment();
   }
 
   get questions() {
@@ -135,33 +134,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     this.selectedPillar = undefined;
     this.getQuestionsByCityId();
   }
-  getCityByUserIdForAssessment() {
-    this.selectedPillar = undefined;
-    this.commonService.getUserNearestCity()
-      .subscribe({
-        next: (res) => {
-          this.cities = res.result ?? [];
-          if (this.cities.length > 0) {
-            this.selectedUserCityMappingID = this.evaluatorService.userCityMappingIDSubject$.value != null ?
-              this.evaluatorService.userCityMappingIDSubject$.value
-              : this.cities[0].userCityMappingID ?? 0;
-
-            setTimeout(() => {
-              this.toaster.showInfo(
-                "You have rediredected to assgined city, please submit all pillars for the city"
-              );
-            }, 1000);
-            this.getQuestionsByCityId();
-          } else {
-            this.toaster.showWarning(res.errors.join(", "));
-          }
-        },
-        error: () => {
-          this.toaster.showWarning("There is an error please try again");
-        },
-      });
-  }
-
+ 
   getQuestionsByCityId() {
     if (
       !this.selectedUserCityMappingID ||
@@ -172,7 +145,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     }
     this.formInitialized();
     const payload: CityMappingPillerRequestDto = {
-      userCityMappingID: this.selectedUserCityMappingID ?? 0,
+      userAssessmentMappingID: this.selectedUserCityMappingID ?? 0,
     };
     if (this.selectedPillar) {
       payload.pillarID = this.selectedPillar.pillarID;
@@ -212,7 +185,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       .filter((ctrl) => ctrl.valid)
       .map((ctrl) => ctrl.value as AddAssessmentResponseDto);
     const payload: AddAssessmentDto = {
-      userCityMappingID: this.selectedUserCityMappingID,
+      userAssessmentMappingID: this.selectedUserCityMappingID,
       assessmentID: this.pillerQuestions?.assessmentID ?? 0,
       pillarID: this.pillerQuestions?.pillarID ?? 0,
       responses: validQuestions ?? [],
@@ -234,7 +207,6 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
           if (res.succeeded) {
             if (this.pillerQuestions?.displayOrder == 14 || this.isAssessementFinalized) {
               this.evaluatorService.userCityMappingIDSubject$.next(null);
-              this.getCityByUserIdForAssessment();
             } else {
               if (this.selectedPillar)
                 this.selectedPillar = this.pillars.find(x => x.displayOrder == (Number(this.selectedPillar?.displayOrder) + 1));
@@ -266,7 +238,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (res: any) => {
             var city = this.cities?.find(
-              (x) => x.userCityMappingID == this.selectedUserCityMappingID
+              (x) => x.userAssessmentMappingID == this.selectedUserCityMappingID
             );
             this.isloading = false;
             const url = window.URL.createObjectURL(res);
@@ -297,7 +269,6 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
         this.selectedPillar = undefined;
         this.isUploading = false;
         if (res.succeeded) {
-          this.getCityByUserIdForAssessment();
           this.toaster.showSuccess(res.messages.join(", "));
         } else {
           this.toaster.showError(res.errors.join(", "));
@@ -327,7 +298,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
         return;
       }
       const payload: AddAssessmentDto = {
-        userCityMappingID: this.selectedUserCityMappingID,
+        userAssessmentMappingID: this.selectedUserCityMappingID,
         assessmentID: this.pillerQuestions?.assessmentID ?? 0,
         pillarID: this.pillerQuestions?.pillarID ?? 0,
         responses: [this.questionsArray.controls[index].value],

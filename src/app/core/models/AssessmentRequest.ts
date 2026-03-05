@@ -5,7 +5,7 @@ import { PaginationUserRequest } from "./PaginationRequest";
 
 export interface AddAssessmentDto {
   assessmentID: number;
-  userCityMappingID: number;
+  userAssessmentMappingID: number;
   pillarID: number;
   responses: AddAssessmentResponseDto[];
   isAutoSave:boolean;

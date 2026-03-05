@@ -53,6 +53,7 @@ export class SendInvitationComponent implements OnInit {
     const userDisabled=this.analyst && this.analyst?.userID > 0;
 
     this.analystForm = this.fb.group({
+      userAssessmentMappingID:[this.analyst?.userAssessmentMappingID,[Validators.required]],
       userID: [{ value: this.analyst?.userID, disabled:  userDisabled }, [Validators.required]],
       role:[{ value: roleValue, disabled: true },  [Validators.required]],
       dueDate: [this.formatDate(this.analyst?.dueDate), [Validators.required]],
@@ -60,7 +61,7 @@ export class SendInvitationComponent implements OnInit {
       pillarIDs: [this.analyst?.pillars?.map((x) => x?.pillarID) ?? [], [Validators.required]],
     });
   }
-
+   
   formatDate(date: any): string {
     if (!date) return '';
     return date.split('T')[0];

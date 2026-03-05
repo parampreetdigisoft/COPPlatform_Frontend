@@ -84,7 +84,7 @@ export class EvaluatorResponsesComponent implements OnInit {
       case AssessmentPhase.InProgress: {
         if (this.assessmentUserID) {
           this.analystService.userCityMappingIDSubject$.next(
-            assessment.userCityMappingID
+            assessment.userAssessmentMappingID
           );
           this.router.navigate(["analyst/analyst-assessment"]);
         }
@@ -93,7 +93,7 @@ export class EvaluatorResponsesComponent implements OnInit {
       case AssessmentPhase.EditApproved: {
         if (this.assessmentUserID) {
           this.analystService.userCityMappingIDSubject$.next(
-            assessment.userCityMappingID
+            assessment.userAssessmentMappingID
           );
           this.router.navigate(["analyst/analyst-assessment"]);
         }
@@ -103,7 +103,7 @@ export class EvaluatorResponsesComponent implements OnInit {
         break;
       case AssessmentPhase.EditRejected: {
         this.sendMailForEditAssessment(
-          assessment.userCityMappingID,
+          assessment.userAssessmentMappingID,
           assessment.assignedByUserId
         );
         break;
@@ -111,7 +111,7 @@ export class EvaluatorResponsesComponent implements OnInit {
       case AssessmentPhase.Completed: {
         if (this.assessmentUserID) {
           this.sendMailForEditAssessment(
-            assessment.userCityMappingID,
+            assessment.userAssessmentMappingID,
             assessment.assignedByUserId
           );
         }
@@ -169,10 +169,10 @@ export class EvaluatorResponsesComponent implements OnInit {
       },
     });
   }
-  sendMailForEditAssessment(userCityMappingID: number, mailToUserID: number) {
+  sendMailForEditAssessment(userAssessmentMappingID: number, mailToUserID: number) {
     let payload: SendRequestMailToUpdateCity = {
       userID: this.userService.userInfo.userID,
-      userCityMappingID: userCityMappingID,
+      userAssessmentMappingID: userAssessmentMappingID,
       mailToUserID: mailToUserID,
     };
     this.analystService.sendMailForEditAssessment(payload).subscribe({

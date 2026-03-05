@@ -75,8 +75,8 @@ export class EvaluatorService {
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
     return this.http.getWithQueryParams(`Question/getQuestionsByCityMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
   }
-  public ExportQuestions(userCityMappingID: number) {
-    return this.http.ImportFile(`Question/ExportAssessment/` + userCityMappingID);
+  public ExportQuestions(userAssessmentMappingID: number) {
+    return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);
   }
   public GetAnalyticalLayerResults(request: GetAnalyticalLayerRequestDto) {
     return this.http.getWithQueryParams(`Kpi/GetAnalyticalLayerResults`, request).pipe(map(x => x as PaginationResponse<GetAnalyticalLayerResultDto>));;

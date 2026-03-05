@@ -5,7 +5,7 @@ export interface GetQuestionRequest extends PaginationRequest {
 }
 export interface GetQuestionByCityMappingRespones {
   assessmentID: number;
-  userCityMappingID: number;
+  userAssessmentMappingID: number;
   displayOrder: number;
   submittedPillarDisplayOrder: number;
   pillarID: number;

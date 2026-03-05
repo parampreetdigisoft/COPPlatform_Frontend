@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { AdminService } from "../../admin.service";
 import { CityVM } from "../../../../core/models/CityVM";
 import { PaginationResponse } from "src/app/core/models/PaginationResponse";
 import { ToasterService } from "src/app/core/services/toaster.service";
@@ -15,6 +14,8 @@ import { SendInvitationComponent } from "../../features/send-invitation/send-inv
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from "src/app/core/models/GetInviatationRequestDto";
 import { GetAssignUserDto, PublicUserResponse } from "src/app/core/models/UserInfo";
 import { UpdateInvitationUserDto } from "src/app/core/models/UpdateInviteUserDto";
+import { AnalystService } from "../../analyst.service";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 declare var bootstrap: any;
 
 @Component({
@@ -33,19 +34,20 @@ export class InvitationsComponent {
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
-  pillars: PillarsVM[] | null = [];
   users: PublicUserResponse[] | null = [];
   loading: boolean = false;
   isOpendialog: boolean = false;
   roleId: number | any = 0;
   selectedRoleID: UserRoleValue = UserRoleValue.Analyst;;
   selectedIndex?:number;
+  assingedAssessments:GetAssignedAssessmentResponseDto[] = [];
   rolesList = [
+    { name: "Your Assessments", role: UserRoleValue.Analyst },
     { name: "Evaluator", role: UserRoleValue.Evaluator },
   ];
 
   constructor(
-    private adminService: AdminService,
+    private analystService: AnalystService,
     private toaster: ToasterService,
     private userService: UserService,
     private route: ActivatedRoute,
@@ -59,25 +61,31 @@ export class InvitationsComponent {
       this.selectedRoleID = this.roleId;
     });
     this.getInviations();
-    this.getAllPillars();
     this.getAccessUsers();
+    this.getAssignedAssessments();
   }
 
-  getAllPillars() {
-    this.adminService
-      .getAllPillars()
-      .subscribe({
-        next: (res) => {
-          this.pillars = res ?? [];
-        },
-      });
+
+   getAssignedAssessments() {
+        this.analystService.getAssignedAssessments().subscribe({
+      next: (res) => {
+        if (res.succeeded) {
+          this.assingedAssessments = res.result ?? [];
+        } else {
+          this.toaster.showError(res?.errors.join(', '));
+        }
+      },
+      error: () => {
+        this.toaster.showError('Failed to get assessment please try again');
+      }
+    });
   }
 
   getAccessUsers() {
     let payload:GetAssignUserDto ={
-      userRole:UserRoleValue.Analyst
+      userRole:UserRoleValue.Evaluator
     }
-    this.adminService
+    this.analystService
       .getAccessUsers(payload)
       .subscribe({
         next: (res) => {
@@ -100,7 +108,7 @@ export class InvitationsComponent {
       payload.year = this.selectedYear;
     }
 
-    this.adminService.getInviations(payload).subscribe((anaylist) => {
+    this.analystService.getInviations(payload).subscribe((anaylist) => {
       this.analystResponse = anaylist;
       this.totalRecords = anaylist.totalRecords;
       this.currentPage = currentPage;
@@ -124,7 +132,7 @@ export class InvitationsComponent {
       userID :this.selectedAnalyst.userID,
       userAssessmentMappingID:this.selectedAnalyst.userAssessmentMappingID
     }
-    this.adminService.deleteInvitation(payload).subscribe({
+    this.analystService.deleteInvitation(payload).subscribe({
       next: (res) => {
         if (res.succeeded) {
           this.getInviations(this.currentPage);
@@ -148,9 +156,10 @@ export class InvitationsComponent {
       userID: analyst.userID,
       dueDate: analyst.dueDate,
       year: analyst.year,
-      pillarIDs: analyst.pillarIDs
+      pillarIDs: analyst.pillarIDs,
+      userAssessmentMappingID : analyst.userAssessmentMappingID
     };
-    this.adminService.addUpdateInvitation(payload).subscribe({
+    this.analystService.addUpdateInvitation(payload).subscribe({
         next: (res) => {
           this.closeModal();
           if (res.succeeded) {
