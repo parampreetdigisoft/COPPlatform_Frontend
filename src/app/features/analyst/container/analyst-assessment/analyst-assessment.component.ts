@@ -286,6 +286,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
         this.isUploading = false;
         if (res.succeeded) {
           this.toaster.showSuccess(res.messages.join(", "));
+          this.getQuestionsByCityId();
         } else {
           this.toaster.showError(res.errors.join(", "));
         }
