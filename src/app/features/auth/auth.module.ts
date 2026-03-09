@@ -18,7 +18,7 @@ import { environment } from 'src/environments/environment';
 
 const routes: Routes = [{
   path: '', component: AccountComponent, data: { roles: [] }, children: [
-    { path: '', redirectTo: 'clientPortalLogin', pathMatch: 'full' },
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent, data: { roles: 'login' } },
     { path: 'clientPortalLogin', component: LoginComponent, data: { roles: 'clientPortalLogin' } },
     { path: 'sign-up', component: SignUpComponent, data: { roles: 'sign-up' } },
