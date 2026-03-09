@@ -150,7 +150,7 @@ export class UserService {
 
   logout() {
     let role = this.userInfo?.role;
-    let url = '/auth/clientPortalLogin';
+    let url = '/auth/login';
     if (role && role?.toLowerCase() !== UserRole.Executive.toLowerCase()) {
       url = '/auth/login';
     }
