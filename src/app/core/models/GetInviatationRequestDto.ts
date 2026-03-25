@@ -10,7 +10,7 @@ export interface GetInviatationResponseDto  extends PublicUserResponse {
     numOfUser : number;
     pillars: PillarsVM[];
     updatedAt:string;
-        
+    geographicReference:string;
     userID: number;
     fullName: string;
     email: string;

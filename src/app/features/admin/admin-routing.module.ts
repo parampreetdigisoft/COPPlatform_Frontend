@@ -9,7 +9,6 @@ import { AssesmentComponent } from "./container/assesment/assesment.component";
 import { AnalystViewComponent } from "./container/analyst-view/analyst-view.component";
 import { AdminDashboardComponent } from "./container/admin-dashboard/admin-dashboard.component";
 import { ComparisionComponent } from "./container/comparision/comparision.component";
-import { KpiLayersComponent } from "./container/kpi-layers/kpi-layers.component";
 import { EvaluatoinResponseViewComponent } from "./container/evaluatoin-response-view/evaluatoin-response-view.component";
 
 const routes: Routes = [
@@ -51,7 +50,15 @@ const routes: Routes = [
           import("./container/invitations/invitations.component").then(
             (m) => m.InvitationsComponent
           ),
+      } ,
+      {
+        path: "edit-assesment",
+        loadComponent: () =>
+          import("./container/analyst-assessment/analyst-assessment.component").then(
+            (m) => m.AnalystAssessmentComponent
+          ),
       }      
+           
     ],
   },
 ];

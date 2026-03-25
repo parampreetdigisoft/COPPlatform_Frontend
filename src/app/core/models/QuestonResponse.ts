@@ -1,17 +1,15 @@
 import { PaginationRequest } from "./PaginationRequest";
+import { PillarsVM } from "./PillersVM";
 
 export interface GetQuestionRequest extends PaginationRequest {
   pillarID?: number;
 }
-export interface GetQuestionByCityMappingRespones {
+export interface GetQuestionByCityMappingRespones extends PillarsVM {
   assessmentID: number;
   userAssessmentMappingID: number;
-  displayOrder: number;
   submittedPillarDisplayOrder: number;
-  pillarID: number;
-  pillarName: string;
-  description: string;
   questions:AssessmentQuestionResponse[];
+  pillars : PillarsVM[];
 }
 
 export interface GetQuestionByCityRespones extends GetQuestionResponse {

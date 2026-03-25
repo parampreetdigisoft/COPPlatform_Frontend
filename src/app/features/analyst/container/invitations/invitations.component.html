@@ -49,6 +49,7 @@
 <thead>
   <tr>
     <th>S.No.</th>
+    <th>Geographic Reference</th>
     <th>Assignee Name</th>
     <th>Role</th>
     <th>Assessment Year</th>
@@ -61,6 +62,7 @@
     <tbody>
       <tr *ngFor="let analyst of analystResponse?.data; let i = index">
         <td>{{ (currentPage - 1) * pageSize + (i + 1) }}</td>
+        <td>{{ analyst.geographicReference }}</td>
         <td>{{ analyst.fullName }}</td>
         <td>{{ analyst.role }}</td>
         <td>{{analyst.year}}</td>

@@ -1,11 +1,11 @@
-import { map, Subject, tap } from 'rxjs';
+import { BehaviorSubject, map, Subject, tap } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { CityVM } from '../../core/models/CityVM';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
 import { HttpService } from 'src/app/core/http/http.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { ResultResponseDto } from 'src/app/core/models/ResultResponseDto';
-import { CityPillerRequestDto } from 'src/app/core/models/QuestionRequest';
+import { CityMappingPillerRequestDto, CityPillerRequestDto } from 'src/app/core/models/QuestionRequest';
 import { PaginationUserRequest } from 'src/app/core/models/PaginationRequest';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
@@ -17,19 +17,24 @@ import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/mod
 import { QuestionsByUserPillarsResponsetDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
-import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
+import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingRespones, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
-import { ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 
 @Injectable({
   providedIn: "root",
 })
 export class AdminService {
+
+  public userCityMappingIDSubject$ = new BehaviorSubject<number | null>(null);
+  
+  
   public errorMessage: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpService, private userService: UserService) { }
@@ -229,5 +234,20 @@ export class AdminService {
   }
   public getMutiplekpiLayerResults(payload: GetMutiplekpiLayerRequestDto) {
     return this.http.post(`kpi/getMutiplekpiLayerResults`, payload).pipe(map(x => x as ResultResponseDto<GetMutiplekpiLayerResultsDto>));;
+  }
+    public getAssignedInvitations() {
+      return this.http.get(`AssessmentResponse/getAssignedInvitations`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
+    }
+      public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
+        return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
+      }
+        public saveAnalystAssessment(payload: AddAssessmentDto) {
+          return this.http.post(`AssessmentResponse/saveAssessment`, payload).pipe(map(x => x as ResultResponseDto<string>));
+        }
+  public ExportQuestions(userAssessmentMappingID: number) {
+    return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);
+  }
+  public ImportAssessment(formData: FormData) {
+    return this.http.UploadFile(`AssessmentResponse/ImportAssessment`, formData).pipe(map(x => x as ResultResponseDto<string>));;
   }
 }

@@ -67,7 +67,7 @@ export class InvitationsComponent {
 
 
    getAssignedAssessments() {
-        this.analystService.getAssignedAssessments().subscribe({
+      this.analystService.getAssignedAssessments().subscribe({
       next: (res) => {
         if (res.succeeded) {
           this.assingedAssessments = res.result ?? [];
@@ -157,7 +157,8 @@ export class InvitationsComponent {
       dueDate: analyst.dueDate,
       year: analyst.year,
       pillarIDs: analyst.pillarIDs,
-      userAssessmentMappingID : analyst.userAssessmentMappingID
+      userAssessmentMappingID : analyst.userAssessmentMappingID,
+      geographicReference : analyst.geographicReference
     };
     this.analystService.addUpdateInvitation(payload).subscribe({
         next: (res) => {

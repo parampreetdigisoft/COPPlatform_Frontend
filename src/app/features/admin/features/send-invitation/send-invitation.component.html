@@ -18,6 +18,17 @@
 
             <form [formGroup]="analystForm" (ngSubmit)="onSubmit()">
 
+              <div class="input_field">
+                <label>Enter geographic reference *</label>
+
+                <input type="text" formControlName="geographicReference" placeholder="Enter geographic location" class="form-control" />
+                  
+                <div *ngIf="analystForm.get('geographicReference')?.invalid && (isSubmitted || analystForm.get('geographicReference')?.touched)"
+                  class="error-msg">
+                  Geographic reference is required.
+                </div>
+              </div>
+
               <!-- Select Analyst -->
               <div class="input_field">
                 <label>Select Analyst *</label>

@@ -5,15 +5,6 @@
   margin-top: 2px;
 }
 
-::ng-deep .analyst_multi_select  .ng-select-container {
-    border: 0;
-    min-height: 30px;
-    outline: none !important;
-    box-shadow: none !important;
-}
-::ng-deep .analyst_multi_select  .ng-select-container .ng-value-container {
-    padding: 0 !important;
-}
 .wrong_upload_alert p {
     font-size: 13px;
     font-style: normal;
@@ -24,6 +15,17 @@
     margin-left: 5px;
     color: red;
 }
+
+::ng-deep .analyst_multi_select  .ng-select-container {
+    border: 0;
+    min-height: 30px;
+    outline: none !important;
+    box-shadow: none !important;
+}
+::ng-deep .analyst_multi_select  .ng-select-container .ng-value-container {
+    padding: 0 !important;
+}
+
 ::ng-deep .analyst_multi_select .ng-option-selected {
     background-color: #e8f0ff !important;
     color: #304a43 !important;

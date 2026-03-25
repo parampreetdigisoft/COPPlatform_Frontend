@@ -109,7 +109,7 @@ export class AnalystService {
     return this.http.ImportFile(`Pillar/ExportPillarsHistoryByUserId`, request);
   }
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
-    return this.http.getWithQueryParams(`Question/getQuestionsByCityMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
+    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
   }
   public ExportQuestions(userAssessmentMappingID: number) {
     return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);

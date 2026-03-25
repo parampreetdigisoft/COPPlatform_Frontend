@@ -119,6 +119,7 @@ export class ComparisionComponent implements OnInit {
       pageNumber: this.currentPage,
       pageSize:this.pageSize
     };
+    this.questionsByUserPillars = [];
     this.adminService.getResponsesByUserId(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
@@ -471,7 +472,7 @@ export class ComparisionComponent implements OnInit {
     ) {
       return;
     }
-
+    this.questionsByUserPillars = [];
     let payload: GetCityPillarHistoryRequestDto = {
       userID: this.userService?.userInfo?.userID,
       pillarID: pillarID,

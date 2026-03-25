@@ -4,4 +4,5 @@ export interface UpdateInvitationUserDto {
   year: number;
   pillarIDs: number[];
   userAssessmentMappingID?:number;
+  geographicReference:string;
 }

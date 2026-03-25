@@ -5,6 +5,7 @@ export interface GetAssignedAssessmentResponseDto {
   dueDate?: string | null;      // DateTime? → string (ISO) or null
   updatedAt?: string | null;
   assignedBy?: string | null;
+  geographicReference : string;
   userPillarMappings: AssignedAssessmentPillarMappingDto[] ;
 }
 export interface AssignedAssessmentPillarMappingDto {

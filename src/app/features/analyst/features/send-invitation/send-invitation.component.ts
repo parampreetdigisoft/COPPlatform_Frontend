@@ -64,6 +64,7 @@ export class SendInvitationComponent implements OnInit,OnChanges {
 
     this.analystForm = this.fb.group({
       userAssessmentMappingID:[this.analyst?.userAssessmentMappingID,[Validators.required]],
+      geographicReference: [{ value: this.analyst?.geographicReference, disabled:  userDisabled }, [Validators.required]],
       userID: [{ value: this.analyst?.userID, disabled:  userDisabled }, [Validators.required]],
       role:[{ value: UserRoleValue.Evaluator, disabled: true },  [Validators.required]],
       dueDate: [this.formatDate(this.analyst?.dueDate), [Validators.required]],
@@ -77,12 +78,13 @@ export class SendInvitationComponent implements OnInit,OnChanges {
   }
 
   setPillar(year:number){
-    let selectedAssessments = this.assingedAssessments?.find(x=>x?.year ==year) ;
+    let selectedAssessments = this.assingedAssessments?.find(x=>x?.year ==year);
     if(selectedAssessments){
       let pillars = selectedAssessments.userPillarMappings.filter(x=>x?.year == year) ?? [];
       this.pillars.set(pillars);      
       setTimeout(() => {
         this.analystForm.get('userAssessmentMappingID')?.patchValue(selectedAssessments?.userAssessmentMappingID);
+        this.analystForm.get('geographicReference')?.patchValue(selectedAssessments?.geographicReference);
       }, 100);
     }else{
       this.pillars.set([]);

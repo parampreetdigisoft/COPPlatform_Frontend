@@ -18,6 +18,32 @@
 
             <form [formGroup]="analystForm" (ngSubmit)="onSubmit()">
 
+              
+              <!-- Assign Pillars -->
+              <div class="input_field">
+                <label>Select assessment *</label>
+
+                <ng-select [items]="assingedAssessments" [multiple]="false" [searchable]="true" placeholder="select assessment"
+                  bindValue="year" bindLabel="year" formControlName="year"
+                  class="form-control analyst_multi_select">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.year}}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.geographicReference }} - {{ item.year }}
+                  </ng-template>
+
+                </ng-select>
+
+                <div
+                  *ngIf="analystForm.get('pillarIDs')?.invalid && (isSubmitted || analystForm.get('pillarIDs')?.touched)"
+                  class="error-msg">
+                  At least one assessment must be selected.
+                </div>
+              </div>
+
               <!-- Select Analyst -->
               <div class="input_field">
                 <label>Select Evaluator *</label>
@@ -58,26 +84,6 @@
                 <div *ngIf="analystForm.get('role')?.invalid && (isSubmitted || analystForm.get('role')?.touched)"
                   class="error-msg">
                   Role is required.
-                </div>
-              </div>
-
-              <!-- Year -->
-              <div class="input_field">
-                <label>Select Year for Assessment *</label>
-
-                <select formControlName="year" class="form-control" >
-                  <option [ngValue]="null" disabled>
-                    Select year
-                  </option>
-
-                  <option *ngFor="let year of commonService.applicateYears" [value]="year">
-                    {{ year }}
-                  </option>
-                </select>
-
-                <div *ngIf="analystForm.get('year')?.invalid && (isSubmitted || analystForm.get('year')?.touched)"
-                  class="error-msg">
-                  Year is required.
                 </div>
               </div>
 

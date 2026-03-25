@@ -54,6 +54,7 @@ export class SendInvitationComponent implements OnInit {
 
     this.analystForm = this.fb.group({
       userAssessmentMappingID:[this.analyst?.userAssessmentMappingID,[Validators.required]],
+      geographicReference: [this.analyst?.geographicReference, [Validators.required]],
       userID: [{ value: this.analyst?.userID, disabled:  userDisabled }, [Validators.required]],
       role:[{ value: roleValue, disabled: true },  [Validators.required]],
       dueDate: [this.formatDate(this.analyst?.dueDate), [Validators.required]],
