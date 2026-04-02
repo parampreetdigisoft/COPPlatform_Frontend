@@ -10,6 +10,8 @@ import { CityVM } from 'src/app/core/models/CityVM';
 import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
 import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseDto';
 import { GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto, AnalyticalLayerResponseDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
+import { GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse } from 'src/app/core/models/GetUserByRoleResponse';
 import { PaginationUserRequest } from 'src/app/core/models/PaginationRequest';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
@@ -71,6 +73,16 @@ export class EvaluatorService {
   }
   public getCityQuestionHistory(request: UserCityRequstDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getCityQuestionHistory`, request).pipe(map(x => x as GetCityQuestionHistoryReponseDto));
+  }
+
+  public getAssignedInvitations() {
+    return this.http.get(`AssessmentResponse/getAssignedInvitations`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
+  }
+
+  public getInviations(request: GetInviatationRequestDto) {
+    return this.http
+      .getWithQueryParams(`User/getInviations`, request)
+      .pipe(map((x) => x as PaginationResponse<GetInviatationResponseDto>));
   }
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
     return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));

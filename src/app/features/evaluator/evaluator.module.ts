@@ -15,14 +15,21 @@ const routes: Routes = [
     component: EvaluatorComponent,
     data: { roles: [] },
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: EvaluatorDashboardComponent },
       { path: 'assigned-city', component: AssignedCityComponent },
       { path: 'make-assessment', component: MakeAssessmentComponent },
       { path: 'assessment-result', component: AssessmentResultComponent },
       { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent }
     ]
-  }
+  },
+  {
+    path: "invitations",
+    loadComponent: () =>
+      import("./container/assigned-city/assigned-city.component").then(
+        (m) => m.AssignedCityComponent
+      ),
+  },
 ];
 
 @NgModule({
@@ -30,7 +37,6 @@ const routes: Routes = [
     EvaluatorComponent,
     AssessmentResultComponent,
     MakeAssessmentComponent,
-    AssignedCityComponent,
     EvaluatorDashboardComponent,
     AssessmentViewResultComponent
   ],

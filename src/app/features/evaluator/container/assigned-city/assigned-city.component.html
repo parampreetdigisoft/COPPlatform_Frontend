@@ -1,34 +1,95 @@
 <div class="heading_area">
-  <div class="row justify-content-between align-items-center">
-    <div class="col-md-auto">
-      <h3 class="page_head">Assigned Cities</h3>
-    </div>
-  </div>
+	<div class="row justify-content-between align-items-center gap-2">
+		<ng-container>
+			<div class="col-md-auto">
+				<h3 class="page_head">
+					Assigned Assessments
+				</h3>
+			</div>
+
+
+			<div class="col-md-6">
+				<div class="compare_select input_field input_flex">
+					<select [(ngModel)]="selectedYear"
+						(change)="getInviations()"
+						name="selectedYear"
+						class="form-control">
+						<option *ngFor="let year of commonService.applicateYears"
+							[value]="year">
+							{{ year }}
+						</option>
+					</select>
+					<ng-select [items]="invitations"
+						[multiple]="false"
+						[searchable]="true"
+						[placeholder]="userAssessmentMappingID ? '' : 'Search by location'"
+						[(ngModel)]="userAssessmentMappingID"
+						[searchFn]="customSearchFn"
+						(change)="getInviations()"
+						bindValue="userAssessmentMappingID"
+						bindLabel="userAssessmentMappingID"
+						class="form-control analyst_multi_select">
+						<ng-template ng-label-tmp
+							let-item="item"
+							class="select_item">
+							{{ item.geographicReference}} ({{ item.year }})
+						</ng-template>
+						<ng-template ng-option-tmp
+							let-item="item">
+							{{ item.geographicReference}} ({{ item.year }})
+								—
+								{{ item.assignedBy }}
+						</ng-template>
+					</ng-select>
+				</div>
+			</div>
+		</ng-container>
+
+
+	</div>
 </div>
 
+
 <div class="table_outer">
-  <table class="table table-striped" >
-    <thead>
-      <tr>
-        <th>S.No</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Score</th>
-        <th>Analyst</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let city of citiesResponse?.data; let i = index">
-        <td>{{((currentPage-1) * pageSize ) +(i+1)}}</td>
-        <td>{{city.cityName}}</td>
-        <td>{{city.state}}</td>
-        <td>{{(city.score ?? 0).toFixed(1)}}%</td>
-        <td>{{city.assignedBy}}</td>
-      </tr>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>S.No.</th>
+				<th>
+					Geographic Reference
+				</th>
+				<th>Assigned By</th>
+				<th>Assessment Year</th>
+				<th>Due Date</th>
+				<th>Pillars Involved</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let analyst of analystResponse?.data; let i = index">
+				<td>
+					{{ (currentPage - 1) * pageSize + (i + 1) }}
+				</td>
+				<td>
+					{{ analyst.geographicReference }}
+				</td>
+				<td>
+					{{ analyst.assignedByName }}
+				</td>
+				<td>{{analyst.year}}</td>
+				<td>
+					<app-date-viewer [date]="analyst.dueDate"></app-date-viewer>
+				</td>
+				<td>
+					{{analyst.pillars.length }}
+				</td>
 
-    </tbody>
-  </table>
-  <app-pagination [totalPage]="totalRecords" [currentPage]="currentPage" [pageSize]="pageSize" [isLoader]="isLoader"
-    (pageChange)="getCities($event)"></app-pagination>
 
+			</tr>
+		</tbody>
+	</table>
+	<app-pagination [totalPage]="totalRecords"
+		[currentPage]="currentPage"
+		[pageSize]="pageSize"
+		[isLoader]="isLoader"
+		(pageChange)="getInviations($event)"></app-pagination>
 </div>

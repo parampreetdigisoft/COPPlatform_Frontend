@@ -3,23 +3,34 @@
 		<div class="col">
 			<h3 class="page_head">Assesment</h3>
 		</div>
-
-
 		<div class="col-lg-auto">
 			<div class="header_btns">
-
-
 				<div *ngIf="selectedInvitation"
-					class="due-date-box">
-					<span class="label">Due Date:</span>
-					<span [ngClass]="{
-							'text-danger': isDueSoon(selectedInvitation?.dueDate)
-						}"
-						class="value">
-						{{ selectedInvitation.dueDate | date:'dd MMM yyyy' }}
-					</span>
-				</div>
+					class="due-date-card">
 
+					<div class="assigned">
+						<span class="avatar">
+							{{ selectedInvitation.assignedBy?.charAt(0) }}
+						</span>
+
+						<div class="info">
+							<div class="name">
+								{{ selectedInvitation.assignedBy }}
+							</div>
+
+							<div class="due">
+								<span class="label">Due:</span>
+								<span [ngClass]="{
+									'urgent': isDueSoon(selectedInvitation?.dueDate),
+									'normal': !isDueSoon(selectedInvitation?.dueDate)
+									}"
+									class="date">
+									{{ selectedInvitation.dueDate | date:'dd MMM yyyy' }}
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div class="compare_select input_field input_flex">
 					<ng-select [items]="assignedInvitations"
@@ -40,8 +51,8 @@
 						<ng-template ng-option-tmp
 							let-item="item">
 							{{ item.geographicReference}} ({{ item.year }})
-              —
-              {{ item.assignedBy }}
+								—
+								{{ item.assignedBy }}
 						</ng-template>
 					</ng-select>
 				</div>
@@ -49,6 +60,8 @@
 		</div>
 	</div>
 </div>
+
+
 
 
 <div class="body_faq">
@@ -73,7 +86,6 @@
 			</div>
 		</div>
 
-
 		<div #scrollContainer
 			class="faq_main_section">
 			<form [formGroup]="form">
@@ -91,7 +103,6 @@
 								{{ i + 1 }}. {{ questions[i].questionText }}
 							</p>
 
-
 							<select (change)="onOptionChange($event, i)"
 								class="form-select faq_select"
 								formControlName="questionOptionID">
@@ -99,7 +110,7 @@
 								<option *ngFor="let o of questions[i].questionOptions"
 									[value]="o.optionID">
 									{{ o.scoreValue != null ? o.scoreValue + " - " : "" }}
-                  {{ o.optionText }}
+									{{ o.optionText }}
 								</option>
 							</select>
 							<select (change)="onHistoryOptionChange($event, i)"
@@ -113,7 +124,6 @@
 									{{ o.optionText }}
 								</option>
 							</select>
-
 
 							<div class="faqtextarea">
 								<textarea (blur)="autoSaveSingleAssessemnt(i)"
@@ -132,8 +142,6 @@
 						</div>
 					</div>
 				</div>
-
-
 				<div [class.loading-bottom]="isLoader"
 					class="next_btn">
 					<button [disabled]="!this.userAssessmentMappingID || this.userAssessmentMappingID == 0"
@@ -147,7 +155,6 @@
 				</div>
 			</form>
 
-
 			<div *ngIf="isLoader"
 				class="loader_main">
 				<div class="loader"></div>
@@ -156,16 +163,9 @@
 	</div>
 </div>
 
-
-<!-- <app-file-upload-modal (fileUploaded)="handleFileUpload($event)"></app-file-upload-modal> -->
-
-
-<app-prompt [title]="this.IsLastPillar? 'Submit Pillar' : 'Save Pillar'"
-	[message]="
-      this.IsLastPillar
-      ? 'Are you sure you want to submit this invitation? After submission, changes can’t be made directly. To edit later, you’ll need to request it from the Admin.'
-      : 'Are you sure you want to save this pillar?'"
-	[confirmText]="this.IsLastPillar? 'Submit' : 'Save'"
+<app-prompt [title]="'Save Pillar'"
+	[message]="'Are you sure you want to save this pillar?'"
+	[confirmText]="'Save'"
 	[cancelText]="'Cancel'"
 	(confirm)="SaveAssessment()">
 </app-prompt>

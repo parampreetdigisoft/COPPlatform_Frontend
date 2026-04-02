@@ -323,7 +323,6 @@ selectedInvitation: any;
   }
 
   autoSaveSingleAssessemnt(index: number) {
-    debugger
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitaion first");
       return;

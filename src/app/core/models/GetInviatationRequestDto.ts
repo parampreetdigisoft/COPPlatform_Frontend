@@ -15,7 +15,7 @@ export interface GetInviatationResponseDto  extends PublicUserResponse {
     fullName: string;
     email: string;
     role: string;
-    createdByName?: string | null;
+    assignedByName?: string | null;
 }
 
 export interface GetInviatationRequestDto extends PaginationRequest {

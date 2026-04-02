@@ -113,18 +113,18 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       });
     }
   }
+  
+  isDueSoon(dueDate: Date): boolean {
+    if (!dueDate) return false;
 
-  GetAllPillars() {
-    this.adminService.getAllPillars().subscribe((pillars) => {
-      this.pillars = pillars;
-    });
-  }
-  isDueSoon(date: string): boolean {
-    const due = new Date(date);
     const today = new Date();
-    const diff = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
-    return diff <= 3; 
+    const due = new Date(dueDate);
+
+    const diffDays = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+    return diffDays <= 3; // highlight if within 3 days
   }
+
   getAssignedInvitations() {
     this.adminService.getAssignedInvitations().subscribe((res) => {
       if (res.succeeded) {
@@ -156,7 +156,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
 
   cityChanged() {
     this.selectedPillar = undefined;
-    this.pillars = [];        
+    this.pillars = [];
     this.getQuestionsByCityId();
   }
 

@@ -16,6 +16,7 @@ import { UserRoleValue } from "src/app/core/enums/UserRole";
 import { AdminService } from "../../admin.service";
 import { AssessmentPhase } from "src/app/core/enums/AssessmentPhase";
 import { CommonService } from "src/app/core/services/common.service";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 declare var bootstrap: any;
 @Component({
   selector: "app-assesment",
@@ -26,7 +27,7 @@ export class AssesmentComponent implements OnInit {
   selectedYear = new Date().getFullYear();
   isLoader: boolean = false;
   isOpendialog = false;
-  selectedcityID: number | any = "";
+  userAssessmentMappingID: number | null = null;
   selectedRoleID: UserRoleValue | any = "";
   selectedAssessment: GetAssessmentResponse | any = "";
   changeAssessment: ChangeAssessmentStatusRequestDto | any = "";
@@ -38,7 +39,8 @@ export class AssesmentComponent implements OnInit {
   loading: boolean = false;
   evaluators: PublicUserResponse[] | null = [];
   userofSelecteCityResponse: GetAssessmentResponse[] = [];
-
+  invitations: GetAssignedAssessmentResponseDto[] = [];
+  
   rolesList = [
     { name: "Analyst", role: UserRoleValue.Analyst },
     { name: "Evaluator", role: UserRoleValue.Evaluator },
@@ -60,7 +62,7 @@ export class AssesmentComponent implements OnInit {
       let cid = params.get("cityID");
       if (rid && cid) {
         this.selectedRoleID = rid;
-        this.selectedcityID = cid;
+        this.userAssessmentMappingID = Number(cid);
       }
     });
     this.getAssessments();
@@ -85,9 +87,11 @@ export class AssesmentComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      userAssessmentMappingID: this.selectedcityID,
       year: this.selectedYear,
     };
+    if(this.userAssessmentMappingID){
+      payload.userAssessmentMappingID = this.userAssessmentMappingID;
+    }
     this.adminService.getAssessmentResults(payload).subscribe((assessments) => {
       this.assessmentsResponse = assessments;
       this.totalRecords = assessments.totalRecords;
@@ -98,14 +102,13 @@ export class AssesmentComponent implements OnInit {
   }
   getAllCitiesByUserId() {
     this.adminService
-      .getAllCitiesByUserId(this.userService?.userInfo?.userID)
+      .getAssignedInvitations()
       .subscribe({
         next: (res) => {
-          this.cities = res.result;
-          if (this.cities) {
-            //this.selectedcityID = this.cities?.length > 0 ? this.cities[0].cityID : null
+          if (res.succeeded) {
+            this.invitations = res.result ?? [];
           } else {
-            this.toaster.showWarning("No city assigned");
+            this.toaster.showWarning(res.errors.join(', '));
           }
         },
       });
@@ -202,5 +205,13 @@ export class AssesmentComponent implements OnInit {
           this.toaster.showError("Failed to changed access");
         },
       });
+  }
+    customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+    term = term.toLowerCase();
+    return (
+      item.geographicReference?.toLowerCase()?.includes(term) ||
+      item.assignedBy?.toLowerCase()?.includes(term) ||
+      (item.year || '').toString().includes(term)
+    );
   }
 }
