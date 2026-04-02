@@ -35,7 +35,14 @@ const routes: Routes = [
           ),
         canActivate: [RoleGuard],
         data: { role: UserRole.Evaluator },
-      }
+      },
+      {
+        path: "executive",
+        loadChildren: () =>
+          import("./features/executive/executive.module").then((m) => m.ExecutiveModule),
+        canActivate: [RoleGuard],
+        data: { role: UserRole.Executive },
+      },
     ],
   },
   {

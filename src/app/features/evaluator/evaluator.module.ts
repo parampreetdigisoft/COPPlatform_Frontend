@@ -8,6 +8,7 @@ import { SharedModule } from 'src/app/shared/share.module';
 import { AssignedCityComponent } from './container/assigned-city/assigned-city.component';
 import { AssessmentViewResultComponent } from './container/assessment-view-result/assessment-view-result.component';
 import { EvaluatorDashboardComponent } from './container/evaluator-dashboard/evaluator-dashboard.component';
+import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
 
 const routes: Routes = [
   {
@@ -43,6 +44,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     SharedModule,
+    DateViewerComponent,
     RouterModule.forChild(routes)
   ]
 })

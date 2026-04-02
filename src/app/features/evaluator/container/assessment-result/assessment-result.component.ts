@@ -12,6 +12,7 @@ import { SortDirection } from "src/app/core/enums/SortDirection";
 import { CommonService } from "src/app/core/services/common.service";
 import { AssessmentPhase } from "src/app/core/enums/AssessmentPhase";
 import { SendRequestMailToUpdateCity } from "src/app/core/models/AnalystVM";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 
 @Component({
   selector: "app-assessment-result",
@@ -21,13 +22,14 @@ import { SendRequestMailToUpdateCity } from "src/app/core/models/AnalystVM";
 export class AssessmentResultComponent implements OnInit {
   currentYear = new Date().getFullYear();
   selectedYear = this.currentYear;
-  selectedcityID: number | any = "";
+  userAssessmentMappingID: number | null = null;
   assessmentsResponse: PaginationResponse<GetAssessmentResponse> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
-  cities: CityVM[] | null = [];
   isLoader: boolean = false;
+  invitations: GetAssignedAssessmentResponseDto[] = [];
+
   constructor(
     private evaluatorService: EvaluatorService,
     public commonService: CommonService,
@@ -40,6 +42,7 @@ export class AssessmentResultComponent implements OnInit {
     this.getAllCitiesByUserId();
     this.getAssessments();
   }
+  
 
   goToAssessment(assessment: GetAssessmentResponse) {
     this.router.navigate([
@@ -60,9 +63,11 @@ export class AssessmentResultComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      userAssessmentMappingID: this.selectedcityID,
       year: this.selectedYear,
     };
+    if(this.userAssessmentMappingID){
+      payload.userAssessmentMappingID = this.userAssessmentMappingID;
+    }
     this.evaluatorService
       .getAssessmentResults(payload)
       .subscribe((assessments) => {
@@ -75,15 +80,10 @@ export class AssessmentResultComponent implements OnInit {
   }
   getAllCitiesByUserId() {
     this.evaluatorService
-      .getAllCitiesByUserId(this.userService?.userInfo?.userID)
+      .getAssignedInvitations()
       .subscribe({
         next: (res) => {
-          this.cities = res.result;
-          if (this.cities) {
-            //this.selectedcityID = this.cities?.length > 0 ? this.cities[0].cityID : null
-          } else {
-            this.toaster.showWarning("No city assigned");
-          }
+          this.invitations = res.result ?? [];  
         },
       });
   }
@@ -145,4 +145,13 @@ export class AssessmentResultComponent implements OnInit {
       },
     });
   }
+    customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+      term = term.toLowerCase();
+      return (
+        item.geographicReference?.toLowerCase()?.includes(term) ||
+        item.assignedBy?.toLowerCase()?.includes(term) ||
+        (item.year || '').toString().includes(term)
+      );
+    }
+    
 }

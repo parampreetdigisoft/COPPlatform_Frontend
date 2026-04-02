@@ -236,7 +236,6 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
             });
           }, 300);
           if (res.succeeded) {
-
             if (this.IsLastPillar) {
               this.adminService.userCityMappingIDSubject$.next(null);
             } else {
@@ -322,6 +321,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       (item.year || '').toString().includes(term)
     );
   }
+  
   onHistoryOptionChange(event: any, index: number) {
     const userId = +event.target.value;
     const selectedOption = this.pillerQuestions?.questions[

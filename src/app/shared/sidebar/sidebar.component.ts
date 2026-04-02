@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { StorageKeyEnum } from 'src/app/core/enums/StorageKeyEnum';
 import { AssessmentWithProgressVM } from 'src/app/core/models/AssessmentResponse';
 import { UserInfo } from 'src/app/core/models/UserInfo';
 import { UserService } from 'src/app/core/services/user.service';
@@ -49,8 +48,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get isEvaluator(): boolean {
     return this.userRole() === 'evaluator';
   }
-  get isCityUser(): boolean {
-    return this.userRole() === 'cityuser';
+  get isExecutive(): boolean {
+    return this.userRole() === 'executive';
   }
 
   logout() {

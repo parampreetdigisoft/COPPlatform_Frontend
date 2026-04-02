@@ -255,6 +255,104 @@
     margin-bottom: 20px;
 }
 
+
+
+:host {
+  display: block;
+  overflow: hidden;
+}
+
+.faq_sidebar_item.active .current-active span.faq_inner_svg {
+    background-color: var(--Secondary-Color) !important;
+    border-color: var(--Secondary-Color) !important;
+}
+
+
+.faq_sidebar_item.active .current-active.faq_sidebar_item_inner p {
+    color: var(--Dark-Bg-Color) !important;
+}
+.faq_sidebar_item.active
+{
+    cursor: pointer;
+}
+
+
+::ng-deep .analyst_multi_select .ng-option-selected {
+  background-color: #e8f0ff !important;
+  color: #304a43 !important;
+  font-weight: 600;
+}
+
+/* Optional: hover style */
+::ng-deep .analyst_multi_select .ng-option:hover {
+  background-color: #f2f6ff !important;
+}
+
+::ng-deep .compare_select .ng-select-container {
+  border: none !important;
+  background-color: #ffffff !important;
+  min-height: auto !important;
+  height: 100% !important;
+}
+
+::ng-deep .compare_select .ng-select-container:hover {
+  box-shadow: none !important;
+}
+
+::ng-deep .compare_select .ng-select.ng-select-focused:not(.ng-select-opened)>.ng-select-container {
+  box-shadow: none !important;
+}
+
+.compare_select .analyst_multi_select {
+  flex: 1;
+  height: auto;
+  background-color: #ffffff;
+  min-height: 36px;
+  align-items: center;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  appearance: none !important;
+  border-radius: 12px !important;
+  padding: 6px 10px 6px 3px !important;
+  border: 1px solid #d7d7d7 !important;
+}
+::ng-deep .compare_select .ng-value-container .ng-value {
+  white-space: nowrap;
+  padding: 2px 5px !important;
+  border-radius: 5px !important;
+  background-color: #304a43 !important;
+  color: #ffffff !important;
+}
+
+
+.due-date-box {
+  background: #f5f7fa;
+  border-left: 4px solid #007bff;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.due-date-box .label {
+  font-weight: 600;
+  color: #555;
+}
+
+.due-date-box .value {
+  font-weight: 500;
+  color: #000;
+}
+
+
+
+
 @media only screen and (max-width:1550px){
     .heading_area .input_field .form-control {
     width: 180px !important;
@@ -330,46 +428,4 @@
         padding: 20px 10px 10px ;
     }
     
-}
-
-
-:host {
-  display: block;
-  overflow: hidden;
-}
-
-.faq_sidebar_item.active .current-active span.faq_inner_svg {
-    background-color: var(--Secondary-Color) !important;
-    border-color: var(--Secondary-Color) !important;
-}
-
-
-.faq_sidebar_item.active .current-active.faq_sidebar_item_inner p {
-    color: var(--Dark-Bg-Color) !important;
-}
-.faq_sidebar_item.active
-{
-    cursor: pointer;
-}
-
-.due-date-box {
-  background: #f5f7fa;
-  border-left: 4px solid #007bff;
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-}
-
-.due-date-box .label {
-  font-weight: 600;
-  color: #555;
-}
-
-.due-date-box .value {
-  font-weight: 500;
-  color: #000;
 }

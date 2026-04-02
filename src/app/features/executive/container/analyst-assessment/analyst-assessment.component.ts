@@ -16,35 +16,39 @@ import {
   AddAssessmentDto,
   AddAssessmentResponseDto,
 } from "src/app/core/models/AssessmentRequest";
+
 import { environment } from "src/environments/environment";
 import { CommonService } from "src/app/core/services/common.service";
-import { AssignedAssessmentPillarMappingDto, GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
-import { EvaluatorService } from "../../evaluator.service";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { ExecutiveService } from "../../executive.service";
+import { CommonModule } from "@angular/common";
+import { SharedModule } from "src/app/shared/share.module";
 
 @Component({
-  selector: "app-make-assessment",
-  templateUrl: "./make-assessment.component.html",
-  styleUrl: "./make-assessment.component.css",
+  standalone: true,
+  selector: "app-analyst-assessment",
+  templateUrl: "./analyst-assessment.component.html",
+  styleUrls: ["./analyst-assessment.component.css"],
+  imports: [CommonModule, SharedModule]
 })
-export class MakeAssessmentComponent implements OnInit, OnDestroy {
+export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   pillars: PillarsVM[] = [];
-  cities: CityVM[] = []; 
+  cities: CityVM[] = []; // ✅ fixed type
   userAssessmentMappingID: number = 0;
   pillerQuestions: GetQuestionByCityMappingRespones | null = null;
   form!: FormGroup;
   pillarDisplayOrder: number = 1;
-  selectedPillar?: AssignedAssessmentPillarMappingDto;
+  selectedPillar?: PillarsVM;
   @ViewChild("scrollContainer") scrollContainer!: ElementRef;
   isloading = false;
   isUploading = false;
   isLoader: boolean = false;
   urlBase = environment.apiUrl;
-  assignedInvitations: GetAssignedAssessmentResponseDto[] = [];
-  selectedPillarMappings: AssignedAssessmentPillarMappingDto[] = [];
+  assignedInvitations: GetAssignedAssessmentResponseDto[] = []
   selectedInvitation: any;
 
   constructor(
-    private evaluatorService: EvaluatorService,
+    private adminService: ExecutiveService,
     private userService: UserService,
     private toaster: ToasterService,
     private fb: FormBuilder,
@@ -109,27 +113,30 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       });
     }
   }
+  
+  isDueSoon(dueDate: Date): boolean {
+    if (!dueDate) return false;
 
-  GetAllPillars() {
-    this.evaluatorService.getAllPillars().subscribe((pillars) => {
-      this.pillars = pillars;
-    });
+    const today = new Date();
+    const due = new Date(dueDate);
+
+    const diffDays = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+    return diffDays <= 3; // highlight if within 3 days
   }
 
   getAssignedInvitations() {
-    this.evaluatorService.getAssignedInvitations().subscribe((res) => {
+    this.adminService.getAssignedInvitations().subscribe((res) => {
       if (res.succeeded) {
         this.assignedInvitations = res.result ?? [];
         if (this.assignedInvitations.length) {
           this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
-          this.selectedPillarMappings = this.assignedInvitations[0].userPillarMappings;
-          this.selectedPillar = this.selectedPillarMappings[0];
           this.getQuestionsByCityId();
         }
       }
     });
   }
-  pillarChanged(pillar?: AssignedAssessmentPillarMappingDto) {
+  pillarChanged(pillar?: PillarsVM) {
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitation first");
       return;
@@ -140,7 +147,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       this.getQuestionsByCityId();
     }
     else {
-      this.selectedPillar = this.selectedPillarMappings.find((x) => x.pillarID == this.pillerQuestions?.pillarID);
+      this.selectedPillar = this.pillars.find((x) => x.pillarID == this.pillerQuestions?.pillarID);
       if (this.pillerQuestions && this.pillerQuestions?.submittedPillarDisplayOrder < (this.selectedPillar?.displayOrder ?? 0)) {
         this.pillarDisplayOrder = this.selectedPillar?.displayOrder ?? 1;
       }
@@ -149,14 +156,8 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
 
   cityChanged() {
     this.selectedPillar = undefined;
+    this.pillars = [];
     this.getQuestionsByCityId();
-  }
-
-  isDueSoon(date: string): boolean {
-    const due = new Date(date);
-    const today = new Date();
-    const diff = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
-    return diff <= 3;
   }
 
   getQuestionsByCityId() {
@@ -174,16 +175,16 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     if (this.selectedPillar) {
       payload.pillarID = this.selectedPillar.pillarID;
     }
-
     this.selectedInvitation = this.assignedInvitations.find(x => x.userAssessmentMappingID == this.userAssessmentMappingID);
 
     this.pillerQuestions = null;
     this.isLoader = true;
-    this.evaluatorService.getQuestionsByCityId(payload).subscribe({
+    this.adminService.getQuestionsByCityId(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
         if (res.succeeded) {
           this.pillerQuestions = res.result;
+          this.pillars = res.result?.pillars ?? [];
           this.pillarDisplayOrder = this.pillerQuestions?.submittedPillarDisplayOrder ?? 1;
           if (this.pillerQuestions && this.pillerQuestions?.assessmentID > 0) {
             this.getAssessmentProgressHistory();
@@ -196,17 +197,20 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
           this.toaster.showWarning("invitaion's assessment is already submitted");
         }
       },
+      error: () => {
+        this.isLoader = false;
+        this.toaster.showError("There is an error accure please try again");
+      }
     });
   }
 
   get IsLastPillar() {
-    var index = this.selectedPillarMappings.findIndex(x => x.displayOrder == Number(this.selectedPillar?.displayOrder));
+    var index = this.pillars.findIndex(x => x.displayOrder == Number(this.selectedPillar?.displayOrder));
 
-    return index == this.selectedPillarMappings.length - 1;
+    return index == this.pillars.length - 1;
   }
 
   SaveAssessment() {
-
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitaion first");
       return;
@@ -223,7 +227,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       isFinalized: false
     };
     if (this.pillerQuestions?.pillarID != null && this.pillerQuestions?.pillarID > 0) {
-      this.evaluatorService.saveAssessment(payload).subscribe({
+      this.adminService.saveAnalystAssessment(payload).subscribe({
         next: (res) => {
           setTimeout(() => {
             this.scrollContainer.nativeElement.scrollTo({
@@ -232,12 +236,11 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
             });
           }, 300);
           if (res.succeeded) {
-
             if (this.IsLastPillar) {
-              this.evaluatorService.userCityMappingIDSubject$.next(null);
+              this.adminService.userCityMappingIDSubject$.next(null);
             } else {
               if (this.selectedPillar)
-                this.selectedPillar = this.selectedPillarMappings.find(x => x.displayOrder > Number(this.selectedPillar?.displayOrder));
+                this.selectedPillar = this.pillars.find(x => x.displayOrder > Number(this.selectedPillar?.displayOrder));
               this.getQuestionsByCityId();
             }
             this.toaster.showSuccess(res.messages.join(", "));
@@ -258,60 +261,9 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     this.userService.assessmentProgress.next(null);
   }
 
-  ImportQuestions() {
-    if (this.userAssessmentMappingID != 0) {
-      this.isloading = true;
-      this.evaluatorService
-        .ExportQuestions(this.userAssessmentMappingID)
-        .subscribe({
-          next: (res: any) => {
-            var invitaion = this.assignedInvitations?.find(
-              (x) => x.userAssessmentMappingID == this.userAssessmentMappingID
-            );
-            this.isloading = false;
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download =
-              invitaion?.geographicReference + "_" + invitaion?.year + "_Questions.xlsx";
-            a.click();
-            this.toaster.showSuccess("Questions downloaded successfully");
-          },
-          error: () => {
-            this.isloading = false;
-            this.toaster.showError("failed to download questions try again");
-          },
-        });
-    } else {
-      this.toaster.showWarning("Please select invitaion to get questions");
-    }
-  }
-
-  handleFileUpload(file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("userID", this.userService?.userInfo?.userID?.toString());
-    this.isUploading = true;
-    this.evaluatorService.ImportAssessment(formData).subscribe({
-      next: (res) => {
-        this.selectedPillar = undefined;
-        this.isUploading = false;
-        if (res.succeeded) {
-          this.toaster.showSuccess(res.messages.join(", "));
-          this.getQuestionsByCityId();
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.isUploading = false;
-        this.toaster.showError("failed to download questions try again");
-      },
-    });
-  }
 
   getAssessmentProgressHistory() {
-    this.evaluatorService
+    this.adminService
       .getAssessmentProgressHistory(this.pillerQuestions?.assessmentID ?? 0)
       .subscribe((res) => {
         if (res.succeeded) {
@@ -323,6 +275,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
   }
 
   autoSaveSingleAssessemnt(index: number) {
+
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitaion first");
       return;
@@ -338,7 +291,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
         isAutoSave: true,
         isFinalized: false
       };
-      this.evaluatorService.saveAssessment(payload).subscribe({
+      this.adminService.saveAnalystAssessment(payload).subscribe({
         next: (res) => {
           if (res.succeeded) {
             this.questionsArray.at(index).markAsPristine();
@@ -350,6 +303,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       });
     }
   }
+
   decodeHtml(text: string | undefined): string {
     if (text) {
       const txt = document.createElement('textarea');
@@ -358,6 +312,16 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     }
     return "";
   }
+
+  customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+    term = term.toLowerCase();
+    return (
+      item.geographicReference?.toLowerCase()?.includes(term) ||
+      item.assignedBy?.toLowerCase()?.includes(term) ||
+      (item.year || '').toString().includes(term)
+    );
+  }
+  
   onHistoryOptionChange(event: any, index: number) {
     const userId = +event.target.value;
     const selectedOption = this.pillerQuestions?.questions[
@@ -376,12 +340,5 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       this.autoSaveSingleAssessemnt(index);
     }
   }
-  customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
-    term = term.toLowerCase();
-    return (
-      item.geographicReference?.toLowerCase()?.includes(term) ||
-      item.assignedBy?.toLowerCase()?.includes(term) ||
-      (item.year || '').toString().includes(term)
-    );
-  }
+
 }

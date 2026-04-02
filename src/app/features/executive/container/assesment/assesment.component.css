@@ -1,19 +1,4 @@
-.see_response {
-    border-radius: 50px;
-    border: 1px solid #7AC2AE;
-    padding: 5px 15px;
-    color: #7AC2AE;
-    /* font-family: 'Montserrat'; */
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 20px;
-    transition: 0.3s all;
-}
-.see_response:hover {
-    border: 1px solid #304A43;
-    color: #304A43;
-}
+
 .bold_num {
     color: #7AC2AE;
     font-weight: 800;
@@ -31,14 +16,35 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    width: 230px;
-    max-width: 100%;
+    
+    height: auto;
+    background-color: #ffffff;
+    min-height: 36px;
+    align-items: center;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    appearance: none!important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    border: 1px solid #d7d7d7 !important;
 }
 
 .inner_div {
     grid-gap: 20px;
 }
+.input_flex {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    grid-gap: 10px;
+}
 
+.input_flex select{
+    flex: 1;
+}
 .no_result_found {
     display: flex;
     align-items: center;
@@ -48,18 +54,7 @@
 .no_result_found h3{    
     font-weight: 700;
 }
-.input_flex {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    grid-gap: 10px;
-    justify-content: flex-end;
-}
 
-.input_flex select{
-    max-width: 234px;
-    width: 100%;
-}
 
 ::ng-deep .analyst_multi_select .ng-option-selected {
   background-color: #e8f0ff !important;

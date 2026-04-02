@@ -376,5 +376,12 @@ selectedInvitation: any;
       this.autoSaveSingleAssessemnt(index);
     }
   }
-
+  customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+    term = term.toLowerCase();
+    return (
+      item.geographicReference?.toLowerCase()?.includes(term) ||
+      item.assignedBy?.toLowerCase()?.includes(term) ||
+      (item.year || '').toString().includes(term)
+    );
+  }
 }

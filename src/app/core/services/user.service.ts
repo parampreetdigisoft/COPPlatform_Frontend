@@ -14,10 +14,10 @@ interface DecodedToken {
   tier: string;
   [key: string]: any;
 }
-
 @Injectable({
   providedIn: 'root'
 })
+
 export class UserService {
   private userInfoSource = new BehaviorSubject<UserInfo>(this.getUserInfo());
   private tokenExpirationSource = new BehaviorSubject<Date>(new Date(this.userInfo?.tokenExpirationDate));
@@ -140,7 +140,7 @@ export class UserService {
           this.router.navigate(['/evaluator/dashboard'], { state: { role: UserRole.Evaluator } });
           break;
         case UserRole.Executive.toLowerCase():
-          this.router.navigate(['/cityuser/dashboard'], { state: { role: UserRole.Executive } });
+          this.router.navigate(['/executive/assessment'], { state: { role: UserRole.Executive } });
           break;
         default:
           this.router.navigate(['/']);
