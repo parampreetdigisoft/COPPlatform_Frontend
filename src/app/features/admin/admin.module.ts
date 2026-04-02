@@ -17,8 +17,7 @@ import { QuillModule } from 'ngx-quill';
 import { AdminDashboardComponent } from './container/admin-dashboard/admin-dashboard.component';
 import { ComparisionComponent } from './container/comparision/comparision.component';
 import { TransterAssessmentComponent } from './features/transter-assessment/transter-assessment.component';
-import { KpiComparisionComponent } from './container/kpi-comparision/kpi-comparision.component';
-import { KpiLayersComponent } from './container/kpi-layers/kpi-layers.component';
+import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +40,7 @@ import { KpiLayersComponent } from './container/kpi-layers/kpi-layers.component'
     CommonModule,
     SharedModule,
     AdminRoutingModule,
+    DateViewerComponent,
     QuillModule.forRoot({
       theme: 'snow',
       format: 'html' ,

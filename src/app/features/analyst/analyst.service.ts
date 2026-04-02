@@ -83,9 +83,6 @@ export class AnalystService {
   public editEvaluator(data: UpdateInviteUserDto) {
     return this.http.post(`Auth/UpdateInviteUser`, data).pipe(map(x => x as ResultResponseDto<unknown>));
   }
-  public sendMailForEditAssessment(data: SendRequestMailToUpdateCity) {
-    return this.http.post(`Auth/sendMailForEditAssessment`, data).pipe(map(x => x as ResultResponseDto<string>));
-  }
 
   public deleteEvaluator(id: number) {
     return this.http.delete(`Auth/deleteUser/` + id).pipe(map(x => x as ResultResponseDto<boolean>));
@@ -132,12 +129,7 @@ export class AnalystService {
   public getAssessmentProgressHistory(assessmentID: number) {
     return this.http.get(`AssessmentResponse/getAssessmentProgressHistory/` + assessmentID).pipe(map(x => x as ResultResponseDto<AssessmentWithProgressVM>));
   }
-  public changeAssessmentStatus(request: ChangeAssessmentStatusRequestDto) {
-    return this.http.post(`AssessmentResponse/changeAssessmentStatus`, request).pipe(map(x => x as ResultResponseDto<string>));
-  }
-  public transferAssessment(request: TransferAssessmentRequestDto) {
-    return this.http.post(`AssessmentResponse/transferAssessment`, request).pipe(map(x => x as ResultResponseDto<string>));
-  }
+
   public getCityPillarHistory(request: UserCityPillarDashboardRequstDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getCityPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
   }

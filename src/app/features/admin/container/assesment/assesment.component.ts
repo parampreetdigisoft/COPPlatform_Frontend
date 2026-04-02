@@ -70,11 +70,11 @@ export class AssesmentComponent implements OnInit {
     this.router.navigate([
       "/admin/assessment-result",
       assessment.assessmentID,
-      assessment.userName,
+      assessment.geographicReference,
     ]);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   getAssessments(currentPage: number = 1) {
     this.assessmentsResponse = undefined;
@@ -85,9 +85,8 @@ export class AssesmentComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      cityID: this.selectedcityID,
-      role: this.selectedRoleID,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
+      userAssessmentMappingID: this.selectedcityID,
+      year: this.selectedYear,
     };
     this.adminService.getAssessmentResults(payload).subscribe((assessments) => {
       this.assessmentsResponse = assessments;
@@ -112,15 +111,15 @@ export class AssesmentComponent implements OnInit {
       });
   }
 
-  selectChangedAssessment(assessmentPhase: AssessmentPhase,assessmentID: number){
-    this.changeAssessment  =  {
+  selectChangedAssessment(assessmentPhase: AssessmentPhase, assessmentID: number) {
+    this.changeAssessment = {
       userID: this.userService.userInfo.userID,
       assessmentPhase: assessmentPhase,
       assessmentID: assessmentID,
     } as ChangeAssessmentStatusRequestDto;
   }
   changeAssessmentStatus() {
-    if(this.changeAssessment == null) {
+    if (this.changeAssessment == null) {
       this.toaster.showError("please select assessment");
     }
 
@@ -143,8 +142,8 @@ export class AssesmentComponent implements OnInit {
     this.getUsersAssignedToCity();
     this.opendialog();
   }
-  transferAssessment(payload:TransferAssessmentRequestDto) {
-    this.loading =true;
+  transferAssessment(payload: TransferAssessmentRequestDto) {
+    this.loading = true;
     if (this.selectedAssessment == null) {
       this.toaster.showError("Plese select assessment");
     }

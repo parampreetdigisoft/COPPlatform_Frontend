@@ -126,54 +126,7 @@ export class CommonService {
       .getExternalApi('https://nominatim.openstreetmap.org/search', city)
       .pipe(map((x) => x as any[]));
   }
-  getGeneratedTime(utcDate: string | Date | null | undefined): string {
-    if (!utcDate) return 'NA';
-
-    // 🔑 Ensure UTC parsing
-    const utc =
-      typeof utcDate === 'string' && !utcDate.endsWith('Z') ? utcDate + 'Z' : utcDate;
-
-    const generatedDate = new Date(utc);
-    const now = new Date();
-
-    const diffMs = now.getTime() - generatedDate.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    // Less than 1 minute
-    if (diffMinutes < 10) {
-      return 'Just now';
-    }
-
-    // Less than 1 hour
-    if (diffMinutes < 60) {
-      return `${diffMinutes} min`;
-    }
-
-    // Less than 24 hours
-    if (diffHours < 24) {
-      const remainingMinutes = diffMinutes % 60;
-      return remainingMinutes > 0
-        ? `${diffHours} hr ${remainingMinutes} min`
-        : `${diffHours} hr`;
-    }
-
-    // 24 hours or more → show days + hours
-    const remainingHours = diffHours % 24;
-    return remainingHours > 0
-      ? `${diffDays} day ${remainingHours} hr`
-      : `${diffDays} day`;
-  }
-  researchStatusClass(date: Date): string {
-    const diffHours =
-      (Date.now() - new Date(date).getTime()) / (1000 * 60 * 60);
-
-    if (diffHours < 24) return 'just-now';
-    if (diffHours <= 24 * 3) return 'fresh';
-    if (diffHours <= 24 * 10) return 'recent';
-    return 'old';
-  }
+    
   get PillarColors() {
     return [
       "#a2c3ba",

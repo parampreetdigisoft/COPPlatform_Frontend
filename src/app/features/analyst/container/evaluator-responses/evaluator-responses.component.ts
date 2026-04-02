@@ -8,7 +8,6 @@ import { GetAssessmentResponse } from "src/app/core/models/AssessmentResponse";
 import {
   ChangeAssessmentStatusRequestDto,
   GetAssessmentRequestDto,
-  TransferAssessmentRequestDto,
 } from "src/app/core/models/AssessmentRequest";
 import { SortDirection } from "src/app/core/enums/SortDirection";
 import { AnalystService } from "../../analyst.service";
@@ -17,10 +16,11 @@ import {
   PublicUserResponse,
 } from "src/app/core/models/UserInfo";
 import {
-  AssessmentPhase } from "src/app/core/enums/AssessmentPhase";
+  AssessmentPhase
+} from "src/app/core/enums/AssessmentPhase";
 import { CommonService } from "src/app/core/services/common.service";
-import { SendRequestMailToUpdateCity } from "src/app/core/models/AnalystVM";
 import { UserRoleValue } from "src/app/core/enums/UserRole";
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 
 @Component({
   selector: "app-evaluator-responses",
@@ -38,10 +38,11 @@ export class EvaluatorResponsesComponent implements OnInit {
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
-  cities: CityVM[] | null = [];
   evaluators: PublicUserResponse[] | null = [];
   assessmentUserID: number | any = 0;
   isLoader: boolean = false;
+  invitations: GetAssignedAssessmentResponseDto[] = [];
+
   constructor(
     private analystService: AnalystService,
     private userService: UserService,
@@ -49,7 +50,7 @@ export class EvaluatorResponsesComponent implements OnInit {
     public commonService: CommonService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -73,11 +74,11 @@ export class EvaluatorResponsesComponent implements OnInit {
     this.router.navigate([
       "/analyst/assessment-result",
       assessment.assessmentID,
-      assessment.userName,
+      assessment.geographicReference,
     ]);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   assessmentPhaseAction(assessment: GetAssessmentResponse) {
     switch (assessment.assessmentPhase) {
@@ -87,33 +88,6 @@ export class EvaluatorResponsesComponent implements OnInit {
             assessment.userAssessmentMappingID
           );
           this.router.navigate(["analyst/analyst-assessment"]);
-        }
-        break;
-      }
-      case AssessmentPhase.EditApproved: {
-        if (this.assessmentUserID) {
-          this.analystService.userCityMappingIDSubject$.next(
-            assessment.userAssessmentMappingID
-          );
-          this.router.navigate(["analyst/analyst-assessment"]);
-        }
-        break;
-      }
-      case AssessmentPhase.EditRequested:
-        break;
-      case AssessmentPhase.EditRejected: {
-        this.sendMailForEditAssessment(
-          assessment.userAssessmentMappingID,
-          assessment.assignedByUserId
-        );
-        break;
-      }
-      case AssessmentPhase.Completed: {
-        if (this.assessmentUserID) {
-          this.sendMailForEditAssessment(
-            assessment.userAssessmentMappingID,
-            assessment.assignedByUserId
-          );
         }
         break;
       }
@@ -128,11 +102,8 @@ export class EvaluatorResponsesComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      cityID: this.selectedcityID,
-      subUserID: this.assessmentUserID
-        ? this.assessmentUserID
-        : this.selecteduserID,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
+      userAssessmentMappingID: this.selectedcityID,
+      year: this.selectedYear,
     };
     this.analystService
       .getAssessmentResults(payload)
@@ -146,14 +117,13 @@ export class EvaluatorResponsesComponent implements OnInit {
   }
   getAllCitiesByUserId() {
     this.analystService
-      .getAllCitiesByUserId(this.userService?.userInfo?.userID)
+      .getAssignedInvitations()
       .subscribe({
         next: (res) => {
-          this.cities = res.result;
-          if (this.cities) {
-            //this.selectedcityID = this.cities?.length > 0 ? this.cities[0].cityID : null
+          if (res.succeeded) {
+            this.invitations = res.result ?? [];
           } else {
-            this.toaster.showWarning("No city assigned");
+            this.toaster.showWarning(res.errors.join(', '));
           }
         },
       });
@@ -161,7 +131,7 @@ export class EvaluatorResponsesComponent implements OnInit {
   GetEvaluatorByAnalyst() {
     let payload: GetAssignUserDto = {
       searchedUserID: this.userService.userInfo.userID,
-      userRole:UserRoleValue.Evaluator
+      userRole: UserRoleValue.Evaluator
     };
     this.analystService.GetEvaluatorByAnalyst(payload).subscribe({
       next: (res) => {
@@ -169,76 +139,19 @@ export class EvaluatorResponsesComponent implements OnInit {
       },
     });
   }
-  sendMailForEditAssessment(userAssessmentMappingID: number, mailToUserID: number) {
-    let payload: SendRequestMailToUpdateCity = {
-      userID: this.userService.userInfo.userID,
-      userAssessmentMappingID: userAssessmentMappingID,
-      mailToUserID: mailToUserID,
-    };
-    this.analystService.sendMailForEditAssessment(payload).subscribe({
-      next: (res) => {
-        if (res.succeeded) {
-          this.toaster.showSuccess(res.messages.join(", "));
-          this.getAssessments(this.currentPage);
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.toaster.showError("Failed to provide access");
-      },
-    });
-  }
 
-  selectChangedAssessment(assessmentPhase: AssessmentPhase,assessmentID: number){
-    this.changeAssessment  =  {
+
+  selectChangedAssessment(assessmentPhase: AssessmentPhase, assessmentID: number) {
+    this.changeAssessment = {
       userID: this.userService.userInfo.userID,
       assessmentPhase: assessmentPhase,
       assessmentID: assessmentID,
     } as ChangeAssessmentStatusRequestDto;
   }
-  changeAssessmentStatus() {
-    if(this.changeAssessment == null) {
-      this.toaster.showError("please select assessment");
-    }
 
-    this.analystService.changeAssessmentStatus(this.changeAssessment).subscribe({
-      next: (res) => {
-        if (res.succeeded) {
-          this.getAssessments(this.currentPage);
-          this.toaster.showSuccess(res.messages.join(", "));
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.toaster.showError("Failed to changed access");
-      },
-    });
-  }
 
-  selectAssessement(selectedAssessment : GetAssessmentResponse){
+  selectAssessement(selectedAssessment: GetAssessmentResponse) {
     this.selectedAssessment = selectedAssessment;
   }
-  transferAssessment() {
-    if(this.selectedAssessment ==null){
-      this.toaster.showError("Plese select assessment");
-    }
-    let payload: TransferAssessmentRequestDto = {
-      transferToUserID: this.userService.userInfo.userID,
-      assessmentID: this.selectedAssessment.assessmentID,
-    };
-    this.analystService.transferAssessment(payload).subscribe({
-      next: (res) => {
-        if (res.succeeded) {
-          this.toaster.showSuccess(res.messages.join(", "));
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.toaster.showError("Failed to transfer assessment");
-      },
-    });
-  }
+
 }

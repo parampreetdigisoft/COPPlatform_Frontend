@@ -45,6 +45,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   isLoader: boolean = false;
   urlBase = environment.apiUrl;
   assignedInvitations: GetAssignedAssessmentResponseDto[] = []
+  selectedInvitation: any;
 
   constructor(
     private adminService: AdminService,
@@ -86,6 +87,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
             q.isSelected ? option?.optionID : "",
             Validators.required,
           ],
+          historyQuestionOptionID: [""],
           score: [q.isSelected ? option?.scoreValue : ""],
           justification: [
             q.isSelected ? option?.justification : "",
@@ -117,7 +119,12 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       this.pillars = pillars;
     });
   }
-
+  isDueSoon(date: string): boolean {
+    const due = new Date(date);
+    const today = new Date();
+    const diff = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+    return diff <= 3; 
+  }
   getAssignedInvitations() {
     this.adminService.getAssignedInvitations().subscribe((res) => {
       if (res.succeeded) {
@@ -168,13 +175,14 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     if (this.selectedPillar) {
       payload.pillarID = this.selectedPillar.pillarID;
     }
+    this.selectedInvitation = this.assignedInvitations.find(x => x.userAssessmentMappingID == this.userAssessmentMappingID);
+
     this.pillerQuestions = null;
     this.isLoader = true;
     this.adminService.getQuestionsByCityId(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
         if (res.succeeded) {
-          debugger
           this.pillerQuestions = res.result;
           this.pillars = res.result?.pillars ?? [];
           this.pillarDisplayOrder = this.pillerQuestions?.submittedPillarDisplayOrder ?? 1;
@@ -254,57 +262,6 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     this.userService.assessmentProgress.next(null);
   }
 
-  ImportQuestions() {
-    if (this.userAssessmentMappingID != 0) {
-      this.isloading = true;
-      this.adminService
-        .ExportQuestions(this.userAssessmentMappingID)
-        .subscribe({
-          next: (res: any) => {
-            var invitaion = this.assignedInvitations?.find(
-              (x) => x.userAssessmentMappingID == this.userAssessmentMappingID
-            );
-            this.isloading = false;
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download =
-              invitaion?.assignedBy + "_" + invitaion?.year + "_Questions.xlsx";
-            a.click();
-            this.toaster.showSuccess("Questions downloaded successfully");
-          },
-          error: () => {
-            this.isloading = false;
-            this.toaster.showError("failed to download questions try again");
-          },
-        });
-    } else {
-      this.toaster.showWarning("Please select invitaion to get questions");
-    }
-  }
-
-  handleFileUpload(file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("userID", this.userService?.userInfo?.userID?.toString());
-    this.isUploading = true;
-    this.adminService.ImportAssessment(formData).subscribe({
-      next: (res) => {
-        this.selectedPillar = undefined;
-        this.isUploading = false;
-        if (res.succeeded) {
-          this.toaster.showSuccess(res.messages.join(", "));
-          this.getQuestionsByCityId();
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.isUploading = false;
-        this.toaster.showError("failed to download questions try again");
-      },
-    });
-  }
 
   getAssessmentProgressHistory() {
     this.adminService
@@ -347,6 +304,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       });
     }
   }
+
   decodeHtml(text: string | undefined): string {
     if (text) {
       const txt = document.createElement('textarea');
@@ -355,4 +313,32 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     }
     return "";
   }
+
+  customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+    term = term.toLowerCase();
+    return (
+      item.geographicReference?.toLowerCase()?.includes(term) ||
+      item.assignedBy?.toLowerCase()?.includes(term) ||
+      (item.year || '').toString().includes(term)
+    );
+  }
+  onHistoryOptionChange(event: any, index: number) {
+    const userId = +event.target.value;
+    const selectedOption = this.pillerQuestions?.questions[
+      index
+    ].history.find((o) => o.userID === userId);
+
+    if (selectedOption) {
+      const formGroup = this.questionsArray.at(index) as FormGroup;
+      formGroup.patchValue({
+        questionOptionID: selectedOption.optionID,
+        score: selectedOption.scoreValue,
+        source: selectedOption.source,
+        justification: selectedOption.justification,
+        historyQuestionOptionID: selectedOption.userID
+      });
+      this.autoSaveSingleAssessemnt(index);
+    }
+  }
+
 }

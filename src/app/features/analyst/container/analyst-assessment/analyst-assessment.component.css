@@ -351,3 +351,25 @@
 {
     cursor: pointer;
 }
+
+.due-date-box {
+  background: #f5f7fa;
+  border-left: 4px solid #007bff;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.due-date-box .label {
+  font-weight: 600;
+  color: #555;
+}
+
+.due-date-box .value {
+  font-weight: 500;
+  color: #000;
+}

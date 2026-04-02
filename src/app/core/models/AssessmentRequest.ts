@@ -28,10 +28,9 @@ export interface GetAssessmentQuestoinRequestDto extends PaginationUserRequest{
 
 
 export interface GetAssessmentRequestDto extends PaginationUserRequest{
-  subUserID?: number | null;
-  cityID?: number | null;
+  userAssessmentMappingID?: number | null;
   role?: UserRoleValue | null;
-  updatedAt?: string;
+  year?: number;
 }
 
 

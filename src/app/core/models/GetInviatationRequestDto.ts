@@ -6,7 +6,7 @@ import { PublicUserResponse } from "./UserInfo";
 export interface GetInviatationResponseDto  extends PublicUserResponse {
     userAssessmentMappingID : number;
     year : number;
-    dueDate : Date | null;
+    dueDate : Date;
     numOfUser : number;
     pillars: PillarsVM[];
     updatedAt:string;

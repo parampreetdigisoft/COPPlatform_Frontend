@@ -20,7 +20,7 @@ import { SendRequestMailToUpdateCity } from "src/app/core/models/AnalystVM";
 })
 export class AssessmentResultComponent implements OnInit {
   currentYear = new Date().getFullYear();
-  selectedYear= this.currentYear;
+  selectedYear = this.currentYear;
   selectedcityID: number | any = "";
   assessmentsResponse: PaginationResponse<GetAssessmentResponse> | undefined;
   totalRecords: number = 0;
@@ -34,7 +34,7 @@ export class AssessmentResultComponent implements OnInit {
     private userService: UserService,
     private toaster: ToasterService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAllCitiesByUserId();
@@ -45,11 +45,11 @@ export class AssessmentResultComponent implements OnInit {
     this.router.navigate([
       "/evaluator/assessment-result",
       assessment.assessmentID,
-      assessment.userName,
+      assessment.geographicReference
     ]);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   getAssessments(currentPage: number = 1) {
     this.isLoader = true;
@@ -60,8 +60,8 @@ export class AssessmentResultComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      cityID: this.selectedcityID,
-      updatedAt:this.commonService.getStartOfYearLocal(this.selectedYear)
+      userAssessmentMappingID: this.selectedcityID,
+      year: this.selectedYear,
     };
     this.evaluatorService
       .getAssessmentResults(payload)
@@ -98,7 +98,7 @@ export class AssessmentResultComponent implements OnInit {
         this.router.navigate(["evaluator/make-assessment"]);
         break;
       }
-      case  AssessmentPhase.EditApproved: {
+      case AssessmentPhase.EditApproved: {
         this.evaluatorService.userCityMappingIDSubject$.next(
           assessment.userAssessmentMappingID
         );
@@ -107,17 +107,17 @@ export class AssessmentResultComponent implements OnInit {
       }
       case AssessmentPhase.EditRequested:
         break;
-        case AssessmentPhase.EditRejected : {
+      case AssessmentPhase.EditRejected: {
         this.sendMailForEditAssessment(
           assessment.userAssessmentMappingID,
-          assessment.assignedByUserId
+          assessment.userID
         );
         break;
       }
-      case AssessmentPhase.Completed : {
+      case AssessmentPhase.Completed: {
         this.sendMailForEditAssessment(
           assessment.userAssessmentMappingID,
-          assessment.assignedByUserId
+          assessment.userID
         );
         break;
       }

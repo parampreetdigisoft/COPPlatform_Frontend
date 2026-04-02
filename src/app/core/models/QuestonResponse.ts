@@ -47,10 +47,13 @@ export interface AssessmentQuestionResponse {
   questionText: string;
   isSelected: boolean;
   questionOptions: AssessmentQuestionOptionResonse[];
+  history: AssessmentQuestionOptionResonse[];
 }
 
 export interface AssessmentQuestionOptionResonse  extends QuestionOption {
   isSelected: boolean;
   justification:string
   source:string
+  userID:number
+  fullName:string
 }

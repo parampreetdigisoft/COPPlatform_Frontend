@@ -41,6 +41,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   urlBase = environment.apiUrl;
   assignedInvitations: GetAssignedAssessmentResponseDto[] = []
   selectedPillarMappings: AssignedAssessmentPillarMappingDto[] = [];
+selectedInvitation: any;
 
   constructor(
     private analystService: AnalystService,
@@ -82,6 +83,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
             q.isSelected ? option?.optionID : "",
             Validators.required,
           ],
+          historyQuestionOptionID: [""],
           score: [q.isSelected ? option?.scoreValue : ""],
           justification: [
             q.isSelected ? option?.justification : "",
@@ -150,6 +152,13 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     this.getQuestionsByCityId();
   }
 
+  isDueSoon(date: string): boolean {
+    const due = new Date(date);
+    const today = new Date();
+    const diff = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+    return diff <= 3; 
+  }
+  
   getQuestionsByCityId() {
     if (
       !this.userAssessmentMappingID ||
@@ -165,6 +174,9 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     if (this.selectedPillar) {
       payload.pillarID = this.selectedPillar.pillarID;
     }
+
+    this.selectedInvitation = this.assignedInvitations.find(x => x.userAssessmentMappingID == this.userAssessmentMappingID);
+
     this.pillerQuestions = null;
     this.isLoader = true;
     this.analystService.getQuestionsByCityId(payload).subscribe({
@@ -261,7 +273,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
             const a = document.createElement("a");
             a.href = url;
             a.download =
-              invitaion?.assignedBy + "_" + invitaion?.year + "_Questions.xlsx";
+              invitaion?.geographicReference + "_" + invitaion?.year + "_Questions.xlsx";
             a.click();
             this.toaster.showSuccess("Questions downloaded successfully");
           },
@@ -311,7 +323,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   }
 
   autoSaveSingleAssessemnt(index: number) {
-
+    debugger
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitaion first");
       return;
@@ -347,4 +359,23 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     }
     return "";
   }
+  onHistoryOptionChange(event: any, index: number) {
+    const userId = +event.target.value;
+    const selectedOption = this.pillerQuestions?.questions[
+      index
+    ].history.find((o) => o.userID === userId);
+
+    if (selectedOption) {
+      const formGroup = this.questionsArray.at(index) as FormGroup;
+      formGroup.patchValue({
+        questionOptionID: selectedOption.optionID,
+        score: selectedOption.scoreValue,
+        source: selectedOption.source,
+        justification: selectedOption.justification,
+        historyQuestionOptionID: selectedOption.userID
+      });
+      this.autoSaveSingleAssessemnt(index);
+    }
+  }
+
 }

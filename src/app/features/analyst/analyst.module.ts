@@ -11,6 +11,7 @@ import { EvaluatorResponsesComponent } from './container/evaluator-responses/eva
 import { EvaluatorResponseViewComponent } from './container/evaluator-response-view/evaluator-response-view.component';
 import { AnalystDashboardComponent } from './container/analyst-dashboard/analyst-dashboard.component';
 import { ComparisionComponent } from './container/comparision/comparision.component';
+import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
 const routes: Routes = [
   {
     path: '',
@@ -21,9 +22,9 @@ const routes: Routes = [
       { path: 'dashboard', component: AnalystDashboardComponent },
       { path: 'assigned-city', component: AssignedCityComponent },
       { path: 'evaluator-view', component: EvaluatorViewComponent },
-      { path: 'evaluator-response/:assessmentUserID', component: EvaluatorResponsesComponent },
-      { path: 'evaluator-response', component: EvaluatorResponsesComponent },
-      { path: 'evaluator-response/:userID/:cityID', component: EvaluatorResponsesComponent },
+      { path: 'evaluations/:assessmentUserID', component: EvaluatorResponsesComponent },
+      { path: 'evaluations', component: EvaluatorResponsesComponent },
+      { path: 'evaluations/:userID/:cityID', component: EvaluatorResponsesComponent },
       { path: 'analyst-assessment', component: AnalystAssessmentComponent },
       { path: 'assessment-result/:assessmentID/:userName', component: EvaluatorResponseViewComponent },
       { path: 'evaluator-Comparision', component: ComparisionComponent },
@@ -62,6 +63,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     SharedModule,
+    DateViewerComponent,
     RouterModule.forChild(routes)
   ]
 })

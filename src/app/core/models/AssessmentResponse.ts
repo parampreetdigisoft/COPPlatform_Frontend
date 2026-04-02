@@ -4,19 +4,14 @@ export interface GetAssessmentResponse {
   assessmentID:number;
   userAssessmentMappingID:number
   createdAt:Date | string;
-  cityID: number;
-  state: string;
-  cityName: string;
-  isActive: boolean;
+  geographicReference: string;
+  role: string;
+  year: number;
   userID: number;
-  userName: string;
-  score?: number |null;   // float in C# maps to number in TS
-  assignedByUser: string;
-  assignedByUserId: number;
+  dueDate: Date;
+  analystName: string;
   assessmentPhase?:AssessmentPhase;
-  assessmentYear: number;
-  totalUnknown?: number;
-  totalNA?: number;
+  score?: number |null;   
 }
 
 export interface GetAssessmentQuestionResponseDto {

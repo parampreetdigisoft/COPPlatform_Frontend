@@ -16,11 +16,12 @@ import { GetAssignUserDto, PublicUserResponse } from "src/app/core/models/UserIn
 import { UpdateInvitationUserDto } from "src/app/core/models/UpdateInviteUserDto";
 import { AnalystService } from "../../analyst.service";
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { DateViewerComponent } from "src/app/shared/standAlone/date-viewer/date-viewer.component";
 declare var bootstrap: any;
 
 @Component({
   standalone: true,
-  imports: [CommonModule, SharedModule, SendInvitationComponent],
+  imports: [CommonModule, SharedModule, SendInvitationComponent,DateViewerComponent],
   selector: 'app-invitations',
   templateUrl: './invitations.component.html',
   styleUrl: './invitations.component.css'

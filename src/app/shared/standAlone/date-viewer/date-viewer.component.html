@@ -1,0 +1,15 @@
+<ng-container *ngIf="date() as d; else noData">
+  <span
+    class="research_date"
+    [ngClass]="getDueStatusClass(d)"
+    [utcToLocalTooltip]="d"
+    matTooltip
+    tooltipFormat="fullDate"
+  >
+    {{ getDueTime(d) }}
+  </span>
+</ng-container>
+
+<ng-template #noData>
+  <span class="research_date no-data">N/A</span>
+</ng-template>
