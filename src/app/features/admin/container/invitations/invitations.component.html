@@ -66,9 +66,9 @@
         <td>{{ analyst.fullName }}</td>
         <td>{{ analyst.role }}</td>
         <td>{{analyst.year}}</td>
-         <td>{{analyst.dueDate | date}}</td>
-         <td>{{analyst.numOfUser}}</td>
-         <td>{{analyst.pillars.length }}</td>
+        <td><app-date-viewer [date]="analyst.dueDate"></app-date-viewer></td>
+        <td>{{analyst.numOfUser}}</td>
+        <td>{{analyst.pillars.length }}</td>
 
         <td *ngIf="selectedRoleID!=3">
           <div class="action_icons">

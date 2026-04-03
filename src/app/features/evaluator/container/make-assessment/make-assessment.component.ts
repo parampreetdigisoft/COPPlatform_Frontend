@@ -130,6 +130,7 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     });
   }
   pillarChanged(pillar?: AssignedAssessmentPillarMappingDto) {
+    if(this.isLoader) return;
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitation first");
       return;

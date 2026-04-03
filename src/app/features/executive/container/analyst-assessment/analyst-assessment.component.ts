@@ -137,6 +137,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
     });
   }
   pillarChanged(pillar?: PillarsVM) {
+    if(this.isLoader) return;
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitation first");
       return;

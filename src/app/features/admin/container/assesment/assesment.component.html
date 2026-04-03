@@ -120,40 +120,4 @@
   ></app-pagination>
 </div>
 
-<!-- Modal -->
-<ng-container *ngIf="isOpendialog">
-  <div
-    class="modal fade modal_design"
-    id="exampleModal"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden=""
-  >
-    <app-transter-assessment
-      [assesment]="selectedAssessment"
-      (closeModal)="closeModal()"
-      [userofSelecteCityResponse]="userofSelecteCityResponse"
-      [loading]="loading"
-      (assesmentChange)="transferAssessment($event)"
-    >
-    </app-transter-assessment>
-  </div>
-</ng-container>
 
-<app-prompt
-  [title]="'Approve Request'"
-  [uniqueId]="'ApproveRequestModal'"
-  [message]="'Are you sure you want to Approve request?'"
-  [confirmText]="'Approve'"
-  [cancelText]="'Cancel'"
-  (confirm)="changeAssessmentStatus()"
-></app-prompt>
-
-<app-prompt
-  [title]="'Cancel Request'"
-  [uniqueId]="'CancelRequestModal'"
-  [message]="'Are you sure you want to Cancel request?'"
-  [confirmText]="'Confirm'"
-  [cancelText]="'Cancel'"
-  (confirm)="changeAssessmentStatus()"
-></app-prompt>

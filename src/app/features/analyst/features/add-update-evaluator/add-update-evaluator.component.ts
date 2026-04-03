@@ -57,6 +57,7 @@ export class AddUpdateEvaluatorComponent {
          ...this.evaluatorForm.value,
          userID: this.evaluator?.userID ?? 0,
          cityID: this.evaluatorForm.value.city,
+         role:Number(this.evaluatorForm.value.role)
        };
        this.evaluatorChange.emit(cityData);
      }

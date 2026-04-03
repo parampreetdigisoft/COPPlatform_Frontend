@@ -7,8 +7,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { GetAssessmentResponse } from "src/app/core/models/AssessmentResponse";
 import {
   ChangeAssessmentStatusRequestDto,
-  GetAssessmentRequestDto,
-  TransferAssessmentRequestDto,
+  GetAssessmentRequestDto
 } from "src/app/core/models/AssessmentRequest";
 import { SortDirection } from "src/app/core/enums/SortDirection";
 import { PublicUserResponse } from "src/app/core/models/UserInfo";
@@ -140,32 +139,7 @@ export class AssesmentComponent implements OnInit {
       },
     });
   }
-  selectAssessement(selectedAssessment: GetAssessmentResponse) {
-    this.selectedAssessment = selectedAssessment;
-    this.getUsersAssignedToCity();
-    this.opendialog();
-  }
-  transferAssessment(payload: TransferAssessmentRequestDto) {
-    this.loading = true;
-    if (this.selectedAssessment == null) {
-      this.toaster.showError("Plese select assessment");
-    }
-    this.adminService.transferAssessment(payload).subscribe({
-      next: (res) => {
-        this.closeModal();
-        if (res.succeeded) {
-          this.getAssessments(this.currentPage);
-          this.toaster.showSuccess(res.messages.join(", "));
-        } else {
-          this.toaster.showError(res.errors.join(", "));
-        }
-      },
-      error: () => {
-        this.closeModal();
-        this.toaster.showError("Failed to transfer assessment");
-      },
-    });
-  }
+
 
   opendialog() {
     this.isOpendialog = true;

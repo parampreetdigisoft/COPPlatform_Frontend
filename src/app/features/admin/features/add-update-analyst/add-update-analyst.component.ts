@@ -70,6 +70,7 @@ export class AddUpdateAnalystComponent implements OnInit {
         ...this.analystForm.value,
         userID: this.analyst?.userID ?? 0,
         cityID: this.analystForm.value.city,
+        role:Number(this.analystForm.value.role)
       };
       this.analystChange.emit(cityData);
     }
