@@ -18,16 +18,12 @@ export class DateViewerComponent {
   getDueTime(utcDate: string | Date | null | undefined): string {
     if (!utcDate) return 'N/A';
 
-    // Ensure UTC parsing
-    const utc =
-      typeof utcDate === 'string' && !utcDate.endsWith('Z')
-        ? utcDate + 'Z'
-        : utcDate;
+    const dueDate = this.parseUTCDate(utcDate);
 
-    const dueDate = new Date(utc);
+    dueDate.setHours(23, 59, 59, 999);
+
     const now = new Date();
-
-    const diffMs = dueDate.getTime() - now.getTime(); // 🔥 reversed
+    const diffMs = dueDate.getTime() - now.getTime();
     const isOverdue = diffMs < 0;
 
     const absMs = Math.abs(diffMs);
@@ -47,18 +43,10 @@ export class DateViewerComponent {
     }
 
     // ✅ UPCOMING
+    if (diffMinutes < 10) return 'Due soon';
 
-    // Less than 10 min
-    if (diffMinutes < 10) {
-      return 'Due soon';
-    }
+    if (diffMinutes < 60) return `Due in ${diffMinutes} min`;
 
-    // Less than 1 hour
-    if (diffMinutes < 60) {
-      return `Due in ${diffMinutes} min`;
-    }
-
-    // Less than 24 hours
     if (diffHours < 24) {
       const remainingMinutes = diffMinutes % 60;
       return remainingMinutes > 0
@@ -66,34 +54,46 @@ export class DateViewerComponent {
         : `Due in ${diffHours} hr`;
     }
 
-    // Days
     const remainingHours = diffHours % 24;
     return remainingHours > 0
       ? `Due in ${diffDays} day ${remainingHours} hr`
       : `Due in ${diffDays} day`;
   }
 
+  parseUTCDate(input: string | Date): Date {
+    if (input instanceof Date) return new Date(input);
 
-getDueStatusClass(utcDate: string | Date | null | undefined): string {
-  if (!utcDate) return 'overdue';
+    // If format is YYYY-MM-DD → manually construct UTC date
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+      const [y, m, d] = input.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    }
 
-  const utc =
-    typeof utcDate === 'string' && !utcDate.endsWith('Z')
-      ? utcDate + 'Z'
-      : utcDate;
+    // Otherwise trust ISO string
+    return new Date(input);
+  }
 
-  const dueDate = new Date(utc);
-  const now = new Date();
 
-  const diffMs = dueDate.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
-  const diffHours = diffMs / (1000 * 60 * 60);
+  getDueStatusClass(utcDate: string | Date | null | undefined): string {
+    if (!utcDate) return 'overdue';
 
-  if (diffMs < 0) return 'overdue';            // ❌ missed
-  if (diffMinutes < 60) return 'urgent';       // 🔥 < 1 hr
-  if (diffHours < 24) return 'due-soon';       // ⚠ < 1 day
+    const utc =
+      typeof utcDate === 'string' && !utcDate.endsWith('Z')
+        ? utcDate + 'Z'
+        : utcDate;
 
-  return 'on-track';                           // ✅ safe
-}
+    const dueDate = new Date(utc);
+    const now = new Date();
+
+    const diffMs = dueDate.getTime() - now.getTime();
+    const diffMinutes = diffMs / (1000 * 60);
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffMs < 0) return 'overdue';            // ❌ missed
+    if (diffMinutes < 60) return 'urgent';       // 🔥 < 1 hr
+    if (diffHours < 24) return 'due-soon';       // ⚠ < 1 day
+
+    return 'on-track';                           // ✅ safe
+  }
 
 }

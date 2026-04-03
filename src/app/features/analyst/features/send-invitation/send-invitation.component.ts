@@ -75,6 +75,14 @@ export class SendInvitationComponent implements OnInit,OnChanges {
     this.analystForm.get('year')?.valueChanges.subscribe(f=>{
       this.setPillar(f);
     });
+
+    if(this.analyst){
+     this.analystForm.get('userAssessmentMappingID')
+      ?.setValidators([Validators.required]);
+
+      this.analystForm.get('userAssessmentMappingID')
+      ?.updateValueAndValidity();
+    }
   }
 
   setPillar(year:number){

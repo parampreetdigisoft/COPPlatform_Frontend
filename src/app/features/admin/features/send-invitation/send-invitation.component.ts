@@ -45,7 +45,7 @@ export class SendInvitationComponent implements OnInit {
   constructor(private fb: FormBuilder, private userService: UserService, public commonService:CommonService) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+   this.initializeForm();
   }
 
   initializeForm() {
@@ -53,7 +53,7 @@ export class SendInvitationComponent implements OnInit {
     const userDisabled=this.analyst && this.analyst?.userID > 0;
 
     this.analystForm = this.fb.group({
-      userAssessmentMappingID:[this.analyst?.userAssessmentMappingID,[Validators.required]],
+      userAssessmentMappingID:[this.analyst?.userAssessmentMappingID],
       geographicReference: [this.analyst?.geographicReference, [Validators.required]],
       userID: [{ value: this.analyst?.userID, disabled:  userDisabled }, [Validators.required]],
       role:[{ value: roleValue, disabled: true },  [Validators.required]],
@@ -61,6 +61,14 @@ export class SendInvitationComponent implements OnInit {
       year:[ { value: userDisabled ? this.analyst?.year  :this.selectedYear, disabled: userDisabled }, [Validators.required]],
       pillarIDs: [this.analyst?.pillars?.map((x) => x?.pillarID) ?? [], [Validators.required]],
     });
+
+    if(this.analyst){
+     this.analystForm.get('userAssessmentMappingID')
+      ?.setValidators([Validators.required]);
+
+    this.analystForm.get('userAssessmentMappingID')
+      ?.updateValueAndValidity();
+    }
   }
    
   formatDate(date: any): string {
@@ -71,7 +79,7 @@ export class SendInvitationComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges): void {
     this.alertMsg = "";
     this.isSubmitted = false;
-    //this.initializeForm();
+   // this.initializeForm();
   } 
 
   onSubmit() {

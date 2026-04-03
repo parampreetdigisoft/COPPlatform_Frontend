@@ -15,55 +15,11 @@ app-admin-dashboard app-ag-bar:nth-child(3) {
     flex: 1;
 }
 
-/* .dashboard_card_inner span {
-    display: inline-block;
-    background-color: #304a43;
-}
-.dashboard_card_inner span {
-    display: flex;
-    background-color: #efbf04;
-    padding: 15px;
-    border-radius: 10px;
-    width: 60px;
-    height: 60px;
-    align-items: center;
-    justify-content: center;
-} */
 
-/* .dashboard_card {
-    width: 100%;
-    display: block;
-    position: relative;
-    z-index: 5;
-    padding: 18px;
-    border-radius: 15px;
-    overflow: hidden;
-    transition: 0.3s all;
-    background-color: #304a43 !important;
-    background-image: url(https://veridianurbansystems.com/image-36.png);
-    background-position: bottom left;
-    background-repeat: no-repeat;
-    background-size: 80%;
-    background-blend-mode: soft-light;
-    box-shadow: 0px 7px 20px 0px rgb(0 0 0 / 30%);
-} */
 .dashboard_cards {
     width: 100%;
 }
-/* .dashboard_number h4 {
-    color: #ffffff;
-    line-height: 40px;
-    margin: 20px 0 10px;
-    font-weight: 600;
-    font-size: 22px;
-    margin-bottom: 8px;
-} */
 
-/* .dashboard_number h5 {
-    color: #ffffff;
-    font-size: 20px;
-    line-height: normal;
-} */
 .dashboard_card:after {
     content: '';
     position: absolute;

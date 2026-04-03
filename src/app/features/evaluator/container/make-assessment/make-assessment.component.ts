@@ -126,6 +126,10 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
           this.selectedPillar = this.selectedPillarMappings[0];
           this.getQuestionsByCityId();
         }
+        else{
+          this.isLoader=false;
+          this.toaster.showWarning("You don’t have any assigned assessments yet. Please reach out to the administrator.");
+        }
       }
     });
   }
