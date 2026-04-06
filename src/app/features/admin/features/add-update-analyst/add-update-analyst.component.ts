@@ -66,11 +66,12 @@ export class AddUpdateAnalystComponent implements OnInit {
   onSubmit() {
     this.isSubmitted = true;
     if (this.analystForm.valid) {
+      let formValue = this.analystForm.getRawValue();
       const cityData: UpdateInviteUserDto = {
         ...this.analystForm.value,
         userID: this.analyst?.userID ?? 0,
-        cityID: this.analystForm.value.city,
-        role:Number(this.analystForm.value.role)
+        cityID: formValue.city,
+        role:Number(formValue.role)
       };
       this.analystChange.emit(cityData);
     }
