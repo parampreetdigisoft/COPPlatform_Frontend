@@ -59,10 +59,13 @@ export class ResetPasswordComponent {
   }
 
   public onSubmit() {
+    debugger
     this.resetPasswordForm?.patchValue({
       passwordToken: this.params['PasswordToken']
     });
-    this.resetPassword.emit(this.resetPasswordForm)
+    if (this.resetPasswordForm.valid) {     
+      this.resetPassword.emit(this.resetPasswordForm);
+    }
   }
 
   popUpEvent() {

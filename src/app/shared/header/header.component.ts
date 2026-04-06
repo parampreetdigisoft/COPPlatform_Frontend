@@ -43,21 +43,32 @@ export class HeaderComponent implements OnInit {
 
   updateUserEvent(event: any) {
     this.loading = true;
+    const email = event.get("Email");
     this.commonService.updateUser(event).subscribe({
       next: (res) => {
         this.closeModal();
         if (res.succeeded && res.result) {
-          this.toaster.showSuccess(res?.messages.join(", "));
-          this.userService.updateUser(res.result);
-          this.getUserInfo();
-          this.userinfo = this.userService.userInfo;
+          
+          if(this.userService.userInfo.email == email){
+            this.userService.updateUser(res.result);
+            this.getUserInfo();
+            this.userinfo = this.userService.userInfo;
+            this.toaster.showSuccess(res?.messages.join(", "));
+          }
+          else {
+            this.toaster.showSuccess("Please Check your email and verify");
+            setTimeout(() => {
+              this.userService.logout();
+            }, 1000);
+          }
+
         } else {
           this.toaster.showError(res?.errors.join(", "));
         }
       },
       error: () => {
         this.closeModal();
-        this.toaster.showError("Failed to delete analyst");
+        this.toaster.showError("Failed to update profile details. Please try again");
       },
     });
   }

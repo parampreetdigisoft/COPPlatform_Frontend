@@ -29,8 +29,18 @@
             </div>
           </div>
           <div class="input_field">
-            <label>Email.*</label>
-            <input type="text" readonly formControlName="email" [disabled]="true" class="form-control" />
+            <label class="form-label">Email</label>
+            <input type="email" formControlName="email"  placeholder="name@example.com" class="form-control" />
+
+            @if ( userForm.get('email')?.invalid && (userForm.get('email')?.touched || isSubmitted)) 
+            {
+              @if (userForm.get('email')?.errors?.['required']) {
+                <div class="error-msg">Email is required.</div>
+              }
+              @else if (userForm.get('email')?.errors?.['email']) {
+                <div class="error-msg">Please enter a valid email.</div>
+              }
+            }
           </div>
           <div class="input_field">
             <label>Phone No.*</label>

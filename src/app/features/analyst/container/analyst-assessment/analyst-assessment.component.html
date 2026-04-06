@@ -84,7 +84,7 @@
 	<div class="body_faq_inner">
 		<div class="faq_sidebar">
 			<div class="faq_sidebar_inner">
-				<div *ngFor="let piller of selectedPillarMappings; let i = index"
+				<div *ngFor="let piller of pillars; let i = index"
 					[class.active]="piller.displayOrder <= pillarDisplayOrder"
 					class="faq_sidebar_item">
 					<div [ngClass]="selectedPillar?.displayOrder == piller.displayOrder ? 'current-active' : ''"

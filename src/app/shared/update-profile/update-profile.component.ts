@@ -42,16 +42,17 @@ export class UpdateProfileComponent implements OnInit, OnChanges {
       this.userForm = this.fb.group({
         fullName: [this.userinfo.fullName, [Validators.required]],
         phone: [this.userinfo.phone, [Validators.required]],
-        email: [this.userinfo.email, [Validators.required]],
+        email: [this.userinfo.email, [Validators.required, Validators.email]],
         profileImage: [],
         is2FAEnabled:[this.userinfo.is2FAEnabled]
       });
     }
   }
-  updateUser(fullName: string, email: string,is2FAEnabled:boolean, profileImage?: File) {
+  updateUser(fullName: string, email: string, phone: string,is2FAEnabled:boolean, profileImage?: File) {
     const formData = new FormData();
     formData.append("FullName", fullName);
-    formData.append("Phone", email);
+    formData.append("Phone", phone);
+    formData.append("Email", email);
     formData.append("UserID", `${this.userinfo?.userID ?? 0}`);
     formData.append("Is2FAEnabled", `${is2FAEnabled ?? 0}`);
     if (profileImage) {
@@ -64,7 +65,8 @@ export class UpdateProfileComponent implements OnInit, OnChanges {
     this.isSubmitted = true;
     if (this.userForm.valid) {
       var form = this.userForm.value;
-      this.updateUser(form.fullName, form.phone,form.is2FAEnabled, form.profileImage);
+      this.updateUser(form.fullName, form.email, form.phone,form.is2FAEnabled, form.profileImage);
+
     }
   }
 
