@@ -97,7 +97,6 @@ export class QuestionComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.adminService.addUpdateQuestion(question).subscribe({
       next: (res) => {
-        debugger
         this.closeModal();
         if (res.succeeded) {
           this.GetQuestions(question.questionID > 0 ? this.currentPage : 1);
