@@ -38,7 +38,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
     });
   }
   GetQuestions(currentPage: number = 1) {
-    this.questions= [];
+    this.questions = [];
     this.isLoader = true;
     let payload: GetQuestionRequest = {
       sortDirection: SortDirection.DESC,
@@ -63,10 +63,10 @@ export class QuestionComponent implements OnInit, OnDestroy {
     this.GetQuestions(1);
   }
 
-  editQuestion(question: GetQuestionResponse | null, isOpen:boolean =true) {
+  editQuestion(question: GetQuestionResponse | null, isOpen: boolean = true) {
     this.selectedQuestion = question;
-    if(isOpen){
-     this.opendialog();
+    if (isOpen) {
+      this.opendialog();
     }
   }
   deleteQuestion() {
@@ -84,6 +84,12 @@ export class QuestionComponent implements OnInit, OnDestroy {
       }
     });
   }
+  toggleCriticalStatus() {
+    if (this.selectedQuestion) {
+      this.selectedQuestion.isCritical = !(this.selectedQuestion.isCritical ?? false);
+      this.addUpdateQuestion(this.selectedQuestion);
+    }
+  }
   addUpdateQuestion(question: AddQuestionRequest | null) {
     if (!question) {
       return;
@@ -91,6 +97,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.adminService.addUpdateQuestion(question).subscribe({
       next: (res) => {
+        debugger
         this.closeModal();
         if (res.succeeded) {
           this.GetQuestions(question.questionID > 0 ? this.currentPage : 1);
@@ -118,7 +125,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
       if (modalEl) {
         let modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (!modalInstance) {
-          modalInstance = new bootstrap.Modal(modalEl); 
+          modalInstance = new bootstrap.Modal(modalEl);
         }
         modalInstance.show(); // ✅ use show()
       }
@@ -131,9 +138,17 @@ export class QuestionComponent implements OnInit, OnDestroy {
       homeTab.click();
     }
     const modalEl = document.getElementById('exampleModal');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    modalInstance.hide();
-    this.isOpendialog =false;
+
+    if (modalEl) {
+      let modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+      }
+
+      modalInstance.hide();
+    }
+
+    this.isOpendialog = false;
   }
   ngOnDestroy(): void {
 

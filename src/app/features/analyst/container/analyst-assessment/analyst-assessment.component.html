@@ -21,7 +21,7 @@
 					<ng-select [items]="assignedInvitations"
 						[multiple]="false"
 						[searchable]="true"
-						[placeholder]="assignedInvitations.length ? '' : 'Search by location'"
+						[placeholder]="assignedInvitations.length || userAssessmentMappingID==0 ? '' : 'Search by location'"
 						[(ngModel)]="userAssessmentMappingID"
 						[searchFn]="customSearchFn"
 						(change)="cityChanged()"
@@ -30,7 +30,7 @@
 						class="form-control analyst_multi_select">
 						<ng-template ng-label-tmp
 							let-item="item"
-							class="select_item">
+							class="select_item" >
 							{{ item.geographicReference}} ({{ item.year }})
 						</ng-template>
 						<ng-template ng-option-tmp

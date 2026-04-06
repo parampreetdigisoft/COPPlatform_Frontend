@@ -37,3 +37,7 @@
   display: inline-block;
   margin-top: 6px;
 }
+a:hover svg {
+  transform: scale(1.1);
+  transition: 0.2s ease;
+}

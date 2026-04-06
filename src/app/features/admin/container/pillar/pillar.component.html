@@ -40,6 +40,37 @@
                                     fill="#7AC2AE" />
                             </svg>
                         </a>
+                        <a style="cursor: pointer;" (click)="editPillar(pillar); $event.preventDefault()"
+                            data-bs-toggle="modal" data-bs-target="#markAsLock">
+                            <ng-container *ngIf="pillar.isLocked; else unlocked">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                    <!-- Lock body -->
+                                    <rect x="5" y="11" width="14" height="10" rx="2" fill="#dc3545" />
+
+                                    <!-- Lock shackle -->
+                                    <path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#fff" stroke-width="2" />
+
+                                    <!-- Keyhole -->
+                                    <circle cx="12" cy="16" r="1.5" fill="#fff" />
+                                </svg>
+                            </ng-container>
+
+                            <ng-template #unlocked>
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                    <rect x="5" y="11" width="14" height="10" rx="2"
+                                        [attr.fill]="pillar.isLocked ? '#dc3545' : '#28a745'" />
+
+                                    <!-- Shackle -->
+                                    <path *ngIf="pillar.isLocked" d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#fff"
+                                        stroke-width="2" />
+
+                                    <path *ngIf="!pillar.isLocked" d="M16 11V8a4 4 0 0 0-7-2" stroke="#fff"
+                                        stroke-width="2" />
+
+                                    <circle cx="12" cy="16" r="1.5" fill="#fff" />
+                                </svg>
+                            </ng-template>
+                        </a>
                     </div>
                 </td>
             </tr>
@@ -53,3 +84,9 @@
     <app-update-pillar [pillar]="selectedPillar" (pillarChange)="addUpdatePillar($event)"
         [loading]="loading"></app-update-pillar>
 </div>
+
+<app-prompt [title]="selectedPillar?.isLocked ? 'Unlock Pillar' : 'Lock Pillar'" [uniqueId]="'markAsLock'" [message]="selectedPillar?.isLocked 
+      ? 'Are you sure you want to unlock this pillar? Users will regain access.' 
+      : 'Are you sure you want to lock this pillar? Users will lose access.'"
+    [confirmText]="selectedPillar?.isLocked ? 'Unlock' : 'Lock'" [cancelText]="'Cancel'" (confirm)="togglePillarLock()">
+</app-prompt>

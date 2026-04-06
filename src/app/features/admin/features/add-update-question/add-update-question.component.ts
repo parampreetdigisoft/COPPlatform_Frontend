@@ -100,7 +100,8 @@ export class AddUpdateQuestionComponent implements OnChanges, OnInit {
     if (this.questionForm.valid) {
       const data: AddQuestionRequest = {
         ...this.questionForm.value,
-        questionID: this.question?.questionID ?? 0
+        questionID: this.question?.questionID ?? 0,
+        isCritical:false
       };
       this.questionChange.emit(data);
     }
@@ -193,6 +194,7 @@ export class AddUpdateQuestionComponent implements OnChanges, OnInit {
           questionID: 0,
           pillarID: pillar.pillarID,
           questionText: questionText,
+          isCritical:false,
           questionOptions: [
             {
               optionID: 0,

@@ -34,6 +34,7 @@ export interface AddQuestionRequest {
   questionID: number;
   pillarID: number;
   questionText: string;
+  isCritical : boolean;
   questionOptions: QuestionOption[];
 }
 export interface AddBulkQuestionsDto {

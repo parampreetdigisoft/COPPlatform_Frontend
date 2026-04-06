@@ -55,7 +55,6 @@
         <th>DueDate</th>
         <th>Analyst</th>
         <th>Score</th>
-        <th>Status</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -71,7 +70,6 @@
         <td>
           <span class="bold_num">{{ assessment.score ?? 0 }}</span>
         </td>
-        <td>{{ assessment.assessmentPhase==5 ? 'Completed' :'InProgress' }}</td>
         <td>
           <div class="action_icons">
             <a

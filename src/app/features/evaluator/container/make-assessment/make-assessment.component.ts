@@ -20,6 +20,7 @@ import { environment } from "src/environments/environment";
 import { CommonService } from "src/app/core/services/common.service";
 import { AssignedAssessmentPillarMappingDto, GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 import { EvaluatorService } from "../../evaluator.service";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "app-make-assessment",
@@ -28,7 +29,7 @@ import { EvaluatorService } from "../../evaluator.service";
 })
 export class MakeAssessmentComponent implements OnInit, OnDestroy {
   pillars: PillarsVM[] = [];
-  cities: CityVM[] = []; 
+  cities: CityVM[] = [];
   userAssessmentMappingID: number = 0;
   pillerQuestions: GetQuestionByCityMappingRespones | null = null;
   form!: FormGroup;
@@ -48,10 +49,20 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private toaster: ToasterService,
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private commonService: CommonService
   ) { }
 
   ngOnInit(): void {
+
+    this.route.queryParamMap.subscribe((params) => {
+      const assessmentMappingID = params.get('userAssessmentMappingID');
+
+      if (assessmentMappingID) {
+        this.userAssessmentMappingID = Number(assessmentMappingID);
+      }
+    });
+
     this.isLoader = true;
     this.formInitialized();
     this.getAssignedInvitations();
@@ -121,20 +132,31 @@ export class MakeAssessmentComponent implements OnInit, OnDestroy {
       if (res.succeeded) {
         this.assignedInvitations = res.result ?? [];
         if (this.assignedInvitations.length) {
-          this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
-          this.selectedPillarMappings = this.assignedInvitations[0].userPillarMappings;
+          if (!this.userAssessmentMappingID || this.userAssessmentMappingID != 0) {
+            let assignedInvitation = this.assignedInvitations.find(x => x.userAssessmentMappingID == this.userAssessmentMappingID);
+            if (assignedInvitation) {
+              this.selectedPillarMappings = assignedInvitation.userPillarMappings;
+              this.userAssessmentMappingID = assignedInvitation.userAssessmentMappingID;
+            } else {
+              this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
+              this.selectedPillarMappings = this.assignedInvitations[0].userPillarMappings;
+            }
+          }
+          else {
+            this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
+            this.selectedPillarMappings = this.assignedInvitations[0].userPillarMappings;
+          }
           this.selectedPillar = this.selectedPillarMappings[0];
           this.getQuestionsByCityId();
-        }
-        else{
-          this.isLoader=false;
-          this.toaster.showWarning("You don’t have any assigned assessments yet. Please reach out to the administrator.");
+        } else {
+          this.isLoader = false;
+          this.toaster.showWarning("You don’t have any assigned assessments yet. Please reach out to the analyst.");
         }
       }
     });
   }
   pillarChanged(pillar?: AssignedAssessmentPillarMappingDto) {
-    if(this.isLoader) return;
+    if (this.isLoader) return;
     if (!this.userAssessmentMappingID || this.userAssessmentMappingID == 0) {
       this.toaster.showWarning("Please select invitation first");
       return;

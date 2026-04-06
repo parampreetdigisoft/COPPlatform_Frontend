@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AdminService } from '../../admin.service';
 import { ToasterService } from 'src/app/core/services/toaster.service';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
-declare var bootstrap: any; 
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-pillar',
@@ -12,7 +12,7 @@ declare var bootstrap: any;
 export class PillarComponent implements OnInit, OnDestroy {
 
   pillars: PillarsVM[] = [];
-  selectedPillar: PillarsVM | null = null;  
+  selectedPillar: PillarsVM | null = null;
   loading: boolean = false;
   isLoader: boolean = false;
 
@@ -27,34 +27,41 @@ export class PillarComponent implements OnInit, OnDestroy {
     this.isLoader = true;
     this.adminService.getAllPillars().subscribe(pillars => {
       this.pillars = pillars.map(p => ({
-      ...p,
-      expand: false,
-      showToggle: this.isLongText(p.description)
-    }));
+        ...p,
+        expand: false,
+        showToggle: this.isLongText(p.description)
+      }));
       this.isLoader = false;
     });
   }
 
-isLongText(html: string): boolean {
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
-  const text = temp.innerText || temp.textContent || "";
-  return text.split(/\s+/).length > 40; // approx 4 lines
-}
+  isLongText(html: string): boolean {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const text = temp.innerText || temp.textContent || "";
+    return text.split(/\s+/).length > 40; // approx 4 lines
+  }
+
+  togglePillarLock() {
+    if (this.selectedPillar) {
+      this.selectedPillar.isLocked = !this.selectedPillar?.isLocked;
+      this.addUpdatePillar(this.selectedPillar);
+    }
+  }
 
   addUpdatePillar(piller: PillarsVM | any) {
-    if(!this.selectedPillar || piller.pillarID ==0 || piller.pillarID ==null){
-       this.toaster.showWarning('No selected pillar');
-       return;
+    if (!this.selectedPillar || piller.pillarID == 0 || piller.pillarID == null) {
+      this.toaster.showWarning('No selected pillar');
+      return;
     }
     if (this.selectedPillar.pillarName.length < 5) {
       this.toaster.showError('pillarName cannot be to short');
       return;
     }
-    this.loading =true;
-    this.adminService.editAllPillars(this.selectedPillar.pillarID , piller).subscribe({
-      next:()=>{
-     this.closeModal();
+    this.loading = true;
+    this.adminService.editAllPillars(this.selectedPillar.pillarID, piller).subscribe({
+      next: () => {
+        this.closeModal();
         this.toaster.showSuccess('Pillar updated successfully');
         this.GetAllPillars();
       },
@@ -64,7 +71,7 @@ isLongText(html: string): boolean {
     });
   }
 
-  editPillar(piller: PillarsVM){
+  editPillar(piller: PillarsVM) {
     this.selectedPillar = piller;
   }
 
@@ -73,14 +80,21 @@ isLongText(html: string): boolean {
   }
 
   closeModal() {
-    this.loading =false;
+    this.loading = false;
     const modalEl = document.getElementById('exampleModal');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    modalInstance.hide();
+
+    if (modalEl) {
+      let modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+      }
+      modalInstance.hide();
+    }
     setTimeout(() => {
       this.selectedPillar = null;
     }, 100);
   }
+
   decodeHtml(text: string): string {
     const txt = document.createElement('textarea');
     txt.innerHTML = text;

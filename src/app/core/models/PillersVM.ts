@@ -8,4 +8,5 @@ export interface PillarsVM {
   reliability: boolean;
   expand?: boolean;
   showToggle?: boolean;
+  isLocked: boolean;
 }
