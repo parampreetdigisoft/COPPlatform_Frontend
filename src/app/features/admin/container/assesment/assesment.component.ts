@@ -39,7 +39,7 @@ export class AssesmentComponent implements OnInit {
   evaluators: PublicUserResponse[] | null = [];
   userofSelecteCityResponse: GetAssessmentResponse[] = [];
   invitations: GetAssignedAssessmentResponseDto[] = [];
-  
+
   rolesList = [
     { name: "Analyst", role: UserRoleValue.Analyst },
     { name: "Evaluator", role: UserRoleValue.Evaluator },
@@ -52,7 +52,7 @@ export class AssesmentComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     public commonService: CommonService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAllCitiesByUserId();
@@ -88,7 +88,7 @@ export class AssesmentComponent implements OnInit {
       userId: this.userService?.userInfo?.userID,
       year: this.selectedYear,
     };
-    if(this.userAssessmentMappingID){
+    if (this.userAssessmentMappingID) {
       payload.userAssessmentMappingID = this.userAssessmentMappingID;
     }
     this.adminService.getAssessmentResults(payload).subscribe((assessments) => {
@@ -139,8 +139,6 @@ export class AssesmentComponent implements OnInit {
       },
     });
   }
-
-
   opendialog() {
     this.isOpendialog = true;
     setTimeout(() => {
@@ -180,7 +178,7 @@ export class AssesmentComponent implements OnInit {
         },
       });
   }
-    customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
+  customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
     term = term.toLowerCase();
     return (
       item.geographicReference?.toLowerCase()?.includes(term) ||
