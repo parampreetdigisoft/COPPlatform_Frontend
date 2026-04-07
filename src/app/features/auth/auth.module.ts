@@ -5,7 +5,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { AccountComponent } from './account/account.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './presentation/login/login.component';
-import { SignUpComponent } from './presentation/sign-up/sign-up.component';
 import { ConfirmMailComponent } from './presentation/confirm-mail/confirm-mail.component';
 import { AccountPopUpComponent } from './presentation/account-pop-up/account-pop-up.component';
 import { ResetPasswordComponent } from './presentation/reset-password/reset-password.component';
@@ -21,7 +20,6 @@ const routes: Routes = [{
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent, data: { roles: 'login' } },
     { path: 'clientPortalLogin', component: LoginComponent, data: { roles: 'clientPortalLogin' } },
-    { path: 'sign-up', component: SignUpComponent, data: { roles: 'sign-up' } },
     { path: 'forgot-password', component: ForgotPasswordComponent, data: { roles: 'forgot-password' } },
     { path: 'confirm-mail', component: ConfirmMailComponent, data: { roles: 'confirm-mail' } },
     { path: 'reset-password', component: ResetPasswordComponent, data: { roles: 'reset-password' } },
@@ -31,7 +29,6 @@ const routes: Routes = [{
 @NgModule({
   declarations: [
     AccountComponent,
-    SignUpComponent,
     LoginComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,

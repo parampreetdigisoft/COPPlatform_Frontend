@@ -5,7 +5,6 @@ import { filter, map, mergeMap, Subject } from 'rxjs';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from '../auth.service';
 import { ToasterService } from 'src/app/core/services/toaster.service';
-import { CityUserSignUpDto } from '../model/CityUserSignUpDto';
 import { CommonService } from 'src/app/core/services/common.service';
 import { StorageKeyEnum } from 'src/app/core/enums/StorageKeyEnum';
 
@@ -70,16 +69,10 @@ export class AccountComponent implements OnInit {
               this.loading = false;
               if (res.succeeded) {
                 if (res.result?.userID) {
-                  if ((this.roleName === 'clientPortalLogin' && res?.result?.role == 'CityUser') || (this.roleName === 'login' && res?.result?.role != 'CityUser')) {
-                    this.toasterService.showSuccess('Login successful');
-                    this.userService.RedirectBasedOnRole();
-                  }
-                  else {
-                    this.toasterService.showError('Invalid credentials, please try again');
-                    this.userService.logoutNotRedirect();
-                  }
+                  this.toasterService.showSuccess('Login successful');
+                  this.userService.RedirectBasedOnRole();
                 }
-                else if (this.roleName === 'clientPortalLogin') {
+                else if (this.roleName) {
                   localStorage.setItem(StorageKeyEnum.UserKey, event.value.email ?? '');
                   this.toasterService.showSuccess(res?.messages?.join(", "));
                   this.router.navigate(['/auth/2fa-verification']);
@@ -121,33 +114,6 @@ export class AccountComponent implements OnInit {
               this.loading = false;
             },
           })
-      }
-    }
-  }
-  public cityUserSignUp(event: CityUserSignUpDto) {
-    if (!this.loading) {
-      if (event) {
-        this.loading = true;
-        this.authService
-          .cityUserSignUp(event)
-          .subscribe({
-            next: (res) => {
-              this.loading = false;
-              if (res.succeeded) {
-                this.toasterService.showSuccess(res.messages.join(", "));
-                setTimeout(() => {
-                  this.userService.RedirectBasedOnRole();
-                }, 500);
-              } else {
-                this.toasterService.showError(res?.errors?.join(', '));
-                this.userService.RedirectBasedOnRole();
-              }
-            },
-            error: () => {
-              this.loading = false;
-              this.toasterService.showError('There is an error please try again!');
-            },
-          });
       }
     }
   }

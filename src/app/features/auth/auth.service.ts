@@ -46,18 +46,6 @@ export class AuthService {
     return this.http.post(`Auth/changePassword`, data).pipe(map(x => x as ResultResponseDto<any>),);
   }
 
-  public cityUserSignUp(data: CityUserSignUpDto) {
-    return this.http
-      .post(`Auth/CityUserSignUp`, data)
-      .pipe(
-        map(x => x as ResultResponseDto<UserInfo | any>),
-        tap((user) => {
-          if (user?.result?.userID) {
-            this.userService.userInfo = user.result;
-          }
-
-        }));
-  }
   public getAllCities() {
     return this.http
       .get(`Public/getAllCities`)
