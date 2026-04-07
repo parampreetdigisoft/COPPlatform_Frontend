@@ -45,10 +45,10 @@
                             <ng-container *ngIf="pillar.isLocked; else unlocked">
                                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                                     <!-- Lock body -->
-                                    <rect x="5" y="11" width="14" height="10" rx="2" fill="#dc3545" />
+                                    <rect x="5" y="11" width="14" height="10" rx="2" fill="#d2a049" />
 
                                     <!-- Lock shackle -->
-                                    <path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#fff" stroke-width="2" />
+                                    <path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#d2a049" stroke-width="2" />
 
                                     <!-- Keyhole -->
                                     <circle cx="12" cy="16" r="1.5" fill="#fff" />
@@ -58,13 +58,13 @@
                             <ng-template #unlocked>
                                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                                     <rect x="5" y="11" width="14" height="10" rx="2"
-                                        [attr.fill]="pillar.isLocked ? '#dc3545' : '#28a745'" />
+                                        [attr.fill]="pillar.isLocked ? '#dc3545' : '#d2a049'" />
 
                                     <!-- Shackle -->
-                                    <path *ngIf="pillar.isLocked" d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#fff"
+                                    <path *ngIf="pillar.isLocked" d="M8 11V8a4 4 0 1 1 8 0v3" stroke="#d2a049"
                                         stroke-width="2" />
 
-                                    <path *ngIf="!pillar.isLocked" d="M16 11V8a4 4 0 0 0-7-2" stroke="#fff"
+                                    <path *ngIf="!pillar.isLocked" d="M16 11V8a4 4 0 0 0-7-2" stroke="#d2a049"
                                         stroke-width="2" />
 
                                     <circle cx="12" cy="16" r="1.5" fill="#fff" />
