@@ -42,7 +42,7 @@
     width: 1px;
     height: 50px;
     display: block;
-    background-color: #7AC2AE;
+    background-color: #326cc1;
     position: absolute;
     left: 24px;
     bottom: -30px;
@@ -137,15 +137,15 @@
 }
 
 .faq_sidebar_item.active .faq_sidebar_item_inner:after {
-    background-color: #304a43;
+    background-color: #032961;
 }
 .faq_sidebar_item.active .faq_sidebar_item_inner svg > rect {
-    fill: #304A43;
+    fill: #032961;
 }
 .faq_inner_svg {
     border-radius: 15px;
     border: 1px solid rgba(0,0,0,.02);
-    background: #7ac2ae;
+    background: #326cc1;
     z-index: 2;
     height: 50px;
     width: 50px;
@@ -210,7 +210,7 @@
 
 
 .faq_sidebar_item.active .faq_inner_svg {
-    /* background: #304A43; */
+    /* background: #032961; */
 }
 .heading_area .input_field {
     flex: 1;
@@ -278,7 +278,7 @@
 
 ::ng-deep .analyst_multi_select .ng-option-selected {
   background-color: #e8f0ff !important;
-  color: #304a43 !important;
+  color: #032961 !important;
   font-weight: 600;
 }
 
@@ -322,7 +322,7 @@
   white-space: nowrap;
   padding: 2px 5px !important;
   border-radius: 5px !important;
-  background-color: #304a43 !important;
+  background-color: #032961 !important;
   color: #ffffff !important;
 }
 

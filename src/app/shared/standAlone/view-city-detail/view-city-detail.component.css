@@ -119,14 +119,14 @@
 .cus_table .table th {
     background: #efbf07;
     font-weight: 600;
-    color: #304a43;
+    color: #032961;
     font-size: 14px;
     white-space: nowrap;
 }
 
 
 .cus_table .score_label_tab {
-    background: #304a43;
+    background: #032961;
     color: #ffffff;
     padding: 0.3rem 0.5rem;
     border-radius: 0.5rem;
@@ -164,7 +164,7 @@ h4.kpi_head_col {
     font-size: 2.2rem;
     font-weight: 600;
     margin-bottom: 2rem;
-    color: #304a43;
+    color: #032961;
 }
 
 
@@ -232,7 +232,7 @@ span:empty, div:empty{
 
 .kpi_custom_table th {
   background-color: #efbf07;
-  color: #304a43;
+  color: #032961;
   font-weight: 600;
   padding: 8px;
   border: 1px solid #e5e7eb;
@@ -278,19 +278,19 @@ span:empty, div:empty{
     border-radius: 15px;
 }
 .active_row td {
-    background-color: #304a43;
+    background-color: #032961;
     color: #ffffff;
 }
 .active_row td .score_label_tab {
     background-color: #44625a !important;
 }
 .last_data td {
-    background-color: #304a43;
+    background-color: #032961;
     color: #ffffff;
 }
 .last_data td span {
     color: #000000;
-    background-color: #efbf04;
+    background-color: #d2a049;
     white-space: nowrap;
     padding: 5px 8px;
     border-radius: 30px;
