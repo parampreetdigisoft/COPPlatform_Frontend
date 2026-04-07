@@ -7,18 +7,18 @@
 
 :root
 {
-	--Primary-Color:#397b69;
-	--Secondary-Color:#EFBF04;
-	--Hover-Primary-color: #408f79;
+	--Primary-Color:#204f95;
+	--Secondary-Color:#d2a049;
+	--Hover-Primary-color: #2e65b6;
     --White-Color: #ffffff;
 	--Text-Color:#2C2C2C;
 	--Border-Color:#E4E4E4;
 	--background-Color:#F7F7F7;
 	--Light-Text-Color:#525856;
-	--Light-Bg-Color:#7AC2AE;
-	--Dark-Bg-Color:#304A43;
+	--Light-Bg-Color:#326cc1;
+	--Dark-Bg-Color:#032961;
 	--Light-Border-Color:rgba(0, 0, 0, 0.02);
-	--Green-text-Color:#304A43;
+	--Green-text-Color:#032961;
 }
 
 html, body, div, span, applet, object, iframe,
@@ -359,7 +359,7 @@ padding-right: 40px;
     box-shadow: none;
     outline: 0;
     background-color: #ffffff;
-    border-color: #304a4345;
+    border-color: #03296145;
 }
 
 .modal_tabs .nav-pills .nav-link.active, .modal_tabs  .nav-pills .show>.nav-link
@@ -385,9 +385,9 @@ padding-right: 40px;
 
 .outline_btn {
     border-radius: 50px;
-    border: 1px solid #7AC2AE;
+    border: 1px solid #326cc1;
     padding: 5px 15px;
-    color: #7ac2ae;
+    color: #326cc1;
     /* font-family: Montserrat; */
     font-size: 12px;
     font-style: normal;
@@ -449,7 +449,7 @@ padding-right: 40px;
 
 @keyframes l3 {to{transform: rotate(1turn)}}
 .bold_num {
-    color: #7AC2AE;
+    color: #326cc1;
     font-weight: 700 !important;
 }
 
@@ -614,7 +614,7 @@ padding-right: 40px;
     font-size: 20px;
 }
 .dashboard_number h5 {
-    color: #12352f;
+    color: #032961;
     font-size: 28px;
     line-height: normal;
     font-weight: 700;
@@ -683,7 +683,7 @@ padding-right: 40px;
 .action_td input[type="checkbox"] {
     width: 20px;
     height: 20px;
-    accent-color: #397b69;
+    accent-color: #204f95;
     border-radius: 5px;
 }
 .heading_area .input_field.input_flex {
@@ -692,11 +692,11 @@ padding-right: 40px;
 .modal_design .modal-body .ng-value {
     padding: 2px 5px !important;
     border-radius: 5px !important;
-    background-color: #304a43 !important;
+    background-color: #032961 !important;
     color: #ffffff !important;
 }
 .modal_design .tab-pane label .text-primary {
-    color: #397b69 !important;
+    color: #204f95 !important;
 }
 
 

@@ -1,6 +1,6 @@
 
 .bold_num {
-    color: #7AC2AE;
+    color: #326cc1;
     font-weight: 800;
 }
 .input_field {
@@ -58,7 +58,7 @@
 
 ::ng-deep .analyst_multi_select .ng-option-selected {
   background-color: #e8f0ff !important;
-  color: #304a43 !important;
+  color: #032961 !important;
   font-weight: 600;
 }
 
@@ -102,6 +102,6 @@
   white-space: nowrap;
   padding: 2px 5px !important;
   border-radius: 5px !important;
-  background-color: #304a43 !important;
+  background-color: #032961 !important;
   color: #ffffff !important;
 }

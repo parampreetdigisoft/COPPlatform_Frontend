@@ -1,8 +1,8 @@
 .see_response {
     border-radius: 50px;
-    border: 1px solid #7AC2AE;
+    border: 1px solid #326cc1;
     padding: 5px 15px;
-    color: #7AC2AE;
+    color: #326cc1;
     /* font-family: 'Montserrat'; */
     font-size: 12px;
     font-style: normal;
@@ -11,8 +11,8 @@
     transition: 0.3s all;
 }
 .see_response:hover {
-    border: 1px solid #304A43;
-    color: #304A43;
+    border: 1px solid #032961;
+    color: #032961;
 }
 .input_field {
     margin-bottom: 0;
