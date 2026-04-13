@@ -124,7 +124,11 @@
 				</div>
 				<div class="card-hero">
 					<div class="hero-number">
-						{{ cardHistory?.averagePillarScore ?? 0 }}
+						{{ cardHistory?.averagePillarScore != null 
+							? (cardHistory?.averagePillarScore == 100 
+								? cardHistory?.averagePillarScore?.toFixed(0) 
+								: cardHistory?.averagePillarScore?.toFixed(2)) 
+							: 0 }}%
 					</div>
 					<div class="hero-sub">Average Score</div>
 				</div>
@@ -160,8 +164,12 @@
 				<div class="card-divider"></div>
 				<div class="card-stats-row">
 					<div class="stat-col">
-						<div class="pillar-score blue-accent">
-							{{ cardHistory?.highestPillarScore?.value ?? 0 }}
+						<div class="pillar-score blue-accent">						
+							{{ cardHistory?.highestPillarScore?.value != null 
+							? (cardHistory?.highestPillarScore?.value == 100 
+								? cardHistory?.highestPillarScore?.value?.toFixed(0) 
+								: cardHistory?.highestPillarScore?.value?.toFixed(2)) 
+							: 0 }}%
 						</div>
 						<div class="pillar-name">
 							{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}
@@ -170,7 +178,11 @@
 					</div>
 					<div class="stat-col">
 						<div class="pillar-score muted">
-							{{ cardHistory?.lowestPillarScore?.value ?? 0 }}
+						{{ cardHistory?.lowestPillarScore?.value != null 
+							? (cardHistory?.lowestPillarScore?.value == 100 
+								? cardHistory?.lowestPillarScore?.value?.toFixed(0) 
+								: cardHistory?.lowestPillarScore?.value?.toFixed(2)) 
+							: 0 }}%
 						</div>
 						<div class="pillar-name muted-name">
 							{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}
