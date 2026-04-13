@@ -14,6 +14,26 @@ export interface CityHistoryDto {
   finalizeCity: number;
   unFinalize: number;
 }
+
+export interface CardHistoryDto {
+  totalExecutives: number;
+  totalAnalysts: number;
+  totalEvaluators: number;
+
+  totalAssessments: number;
+  totalCompletedAssessments: number;
+  totalInProgressAssessments: number;
+
+  averagePillarScore: number;
+  highestPillarScore: PillarCardDetailsDto;
+  lowestPillarScore: PillarCardDetailsDto;
+}
+export interface PillarCardDetailsDto {
+  pillarID: number;
+  pillarName: string;
+  value: number;
+}
+
 export interface GetCityQuestionHistoryReponseDto
   extends GetCitySubmitionHistoryReponseDto {
   pillars: CityPillarQuestionHistoryReponseDto[];
@@ -48,4 +68,8 @@ export interface UserCityRequstDto extends UserCityPillarDashboardRequstDto {
 export interface UserCityPillarDashboardRequstDto {
   cityID: number;
   updatedAt: string;
+}
+
+export interface UserAssessmentPillarDashboardRequstDto {
+  userAssessmentMappingID: number;
 }

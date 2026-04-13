@@ -1,31 +1,53 @@
 <ng-container *ngIf="!isLoader">
+  
   <div class="heading_area">
-    <div class="row justify-content-between align-items-center gap-2">
-      <div class="col-md-auto">
-        <h3 class="page_head">Evaluator Comparision</h3>
-      </div>
-      <div class="col-md-6">
-        <div class="input_field input_flex">
-          <select [(ngModel)]="selectedPillarID" name="piller" class="form-control" (change)="getResponsesByUserId()">
-            <option value="">All Pillars</option>
-            <option *ngFor="let piller of pillers" [value]="piller.pillarID">
-              {{ piller.pillarName }}
-            </option>
-          </select>
-          <select [(ngModel)]="selectedYear" name="selectedYear" class="form-control" (change)="getResponsesByUserId()">
-            <option *ngFor="let year of commonService.applicateYears" [value]="year">
-              {{ year }}
-            </option>
-          </select>
-          <select [(ngModel)]="selectedCities" name="cityID" class="form-control" (change)="getResponsesByUserId()">
-            <option *ngFor="let city of cities" [value]="city.cityID">
-              {{ city.cityName }}
-            </option>
-          </select>
-        </div>
+  <div class="row justify-content-between align-items-center gap-2">
+    <div class="col-md-auto">
+      <h3 class="page_head">Evaluation Results</h3>
+    </div>
+    <div class="col-md-6">
+      <div class="compare_select input_field input_flex">
+        <select
+          [(ngModel)]="selectedYear"
+          name="selectedYear"
+          class="form-control"
+          (change)="getResponsesByUserId()"
+        >
+          <option
+            *ngFor="let year of commonService.applicateYears"
+            [value]="year"
+          >
+            {{ year }}
+          </option>
+        </select>
+        <ng-select [items]="invitations"
+						[multiple]="false"
+						[searchable]="true"
+						[placeholder]="selectedinvitations ? '' : 'Search by location'"
+						[(ngModel)]="selectedinvitations"
+						[searchFn]="customSearchFn"
+						(change)="getResponsesByUserId()"
+						bindValue="userAssessmentMappingID"
+						bindLabel="geographicReference"
+						class="form-control analyst_multi_select">
+						<ng-template ng-label-tmp
+							let-item="item"
+							class="select_item">
+							{{ item.geographicReference}} ({{ item.year }})
+						</ng-template>
+						<ng-template ng-option-tmp
+							let-item="item">
+							{{ item.geographicReference}} ({{ item.year }})
+								—
+								{{ item.assignedBy }}
+						</ng-template>
+					</ng-select>                 
       </div>
     </div>
   </div>
+</div>
+
+
  <div class="pillar-comparison-container">
     <div class="outer_graph">
       <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
@@ -38,7 +60,7 @@
     <ng-container *ngIf="totalRecords > pageSize">
       <div class="pagination-wrapper">
         <app-pagination [totalPage]="totalRecords" [currentPage]="currentPage" [pageSize]="pageSize"
-          [isLoader]="isLoader" (pageChange)="compareCities($event)">
+          [isLoader]="isLoader" (pageChange)="compareinvitations($event)">
         </app-pagination>
       </div>
     </ng-container>

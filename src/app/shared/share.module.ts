@@ -24,6 +24,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { UpdateProfileComponent } from "./update-profile/update-profile.component";
 import { ViewKpiLayerComponent } from "./view-kpi-layer/view-kpi-layer.component";
 import { NgApexchartsModule } from "ng-apexcharts";
+import { SparklineScoreComponent } from "./standAlone/sparkline-score/sparkline-score.component";
+import { CircularScoreComponent } from "./standAlone/circular-score/circular-score.component";
 
 @NgModule({
   declarations: [
@@ -54,7 +56,9 @@ import { NgApexchartsModule } from "ng-apexcharts";
     MatTooltipModule ,
     NgApexchartsModule,
     PaginationComponent,
-    PromptComponent
+    PromptComponent,
+    SparklineScoreComponent,
+    CircularScoreComponent
   ],
   exports: [
     HeaderComponent,
@@ -78,7 +82,9 @@ import { NgApexchartsModule } from "ng-apexcharts";
     MatSortModule,
     MatTooltipModule,
     ViewKpiLayerComponent,
-    NgApexchartsModule
+    NgApexchartsModule,
+    SparklineScoreComponent,
+    CircularScoreComponent
   ],
 })
 export class SharedModule {}

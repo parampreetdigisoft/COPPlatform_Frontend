@@ -41,7 +41,7 @@ export interface GetCityPillarHistoryRequestDto {
   updatedAt:string;
 }
 export interface GetCityPillarHistoryRequestNewDto extends PaginationUserRequest {
-  cityID: number;
+  userAssessmentMappingID: number;
   pillarID?: number;
   updatedAt:string;
 }

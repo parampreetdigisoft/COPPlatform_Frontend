@@ -4,15 +4,14 @@ import {
   ViewEncapsulation,
   ViewChild,
   AfterViewInit,
+  signal,
+  computed,
 } from "@angular/core";
-
 import { AdminService } from "../../admin.service";
 import { ToasterService } from "src/app/core/services/toaster.service";
 import { UserService } from "src/app/core/services/user.service";
-import { CityVM } from "src/app/core/models/CityVM";
-import { CityHistoryDto, UserCityRequstDto } from "../../../../core/models/cityHistoryDto";
+import { CardHistoryDto, UserAssessmentPillarDashboardRequstDto } from "../../../../core/models/cityHistoryDto";
 import { CommonService } from "src/app/core/services/common.service";
-import { Router } from "@angular/router";
 import {
   ApexNonAxisChartSeries,
   ApexPlotOptions,
@@ -26,7 +25,8 @@ import {
   ApexYAxis,
   ApexStates,
 } from "ng-apexcharts";
-import { AiCityPillarDashboardResponseDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
+import { AiCityPillarDashboardResponseDto, CityPillarDashboardPillarValueDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -62,86 +62,93 @@ export type PillarChartOptions = {
 })
 export class AdminDashboardComponent implements OnInit, AfterViewInit {
   selectedYear = new Date().getFullYear();
-  cities: CityVM[] | null = [];
-  selectedCities: number | any = "";
-  cityHistory: CityHistoryDto | null = null;
-  cityQuestionHistoryReponse: AiCityPillarDashboardResponseDto | null = null;
+  assignedInvitations: GetAssignedAssessmentResponseDto[] = []
+  assignedInvitation: number | any = "";
+  cardHistory: CardHistoryDto | null = null;
   isLoader: boolean = false;
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions!: Partial<ChartOptions>;
   @ViewChild("chartPillar") chartPillar!: ChartComponent;
   public chartPillarOptions: Partial<PillarChartOptions> = {};
 
+  assessmentHistoryReponse = signal<AiCityPillarDashboardResponseDto | null>(null);
+  totalQuestions = computed(() =>
+    this.assessmentHistoryReponse()?.pillars?.reduce((sum: number, x: CityPillarDashboardPillarValueDto) => sum + (x.totalQuestions ?? 0), 0) ?? 0
+  );
+  totalAns = computed(() =>
+    this.assessmentHistoryReponse()?.pillars?.reduce(
+      (sum: number, x: CityPillarDashboardPillarValueDto) =>
+        sum + (x.totalAns ?? 0), 0) ?? 0
+  );
+  completionRate = computed(() => {
+    const total = this.totalQuestions();
+    return total > 0 ? (this.totalAns() * 100) / total : 0;
+  });
+  assessmentScore = computed(() => this.assessmentHistoryReponse()?.scoreProgress ?? 0);
+
   constructor(
     private adminService: AdminService,
     private toaster: ToasterService,
     private userService: UserService,
-    public commonService: CommonService,
-    private router: Router
+    public commonService: CommonService
   ) { }
 
   ngOnInit(): void {
     this.isLoader = true;
-    this.getAllCitiesByUserId();
-    this.GetCityHistory();
+    this.getCardDetails();
+    this.getAssignedInvitations();
   }
 
   ngAfterViewInit() { }
 
-  getAllCitiesByUserId() {
+  getAssignedInvitations() {
     this.adminService
-      .getAllCitiesByUserId(this.userService?.userInfo?.userID)
-      .subscribe({
-        next: (res) => {
-          this.cities = res.result;
-          this.isLoader = false;
-          if (this.cities && this.cities.length > 0) {
-            this.isLoader = true;
-            this.selectedCities = this.cities[0].cityID;
-            this.getCityPillarHistory();
-          }
-        },
-      });
+    .getAssignedInvitations()
+    .subscribe({
+      next: (res) => {
+        this.assignedInvitations = res.result ?? [];
+        if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+          this.assignedInvitation = this.assignedInvitations[0].userAssessmentMappingID;
+          this.getDashboardPillarHistory();
+        }
+      },
+    });
   }
 
   yearChanged() {
-    this.getCityPillarHistory();
-    this.GetCityHistory();
+    this.getDashboardPillarHistory();
+    this.getCardDetails();
   }
 
-  GetCityHistory() {
+  getCardDetails() {
     this.adminService
-      .getCityHistory(
-        this.userService?.userInfo?.userID ?? 0,
-        this.commonService.getStartOfYearLocal(this.selectedYear)
-      )
-      .subscribe({
-        next: (res) => {
-          this.cityHistory = res.result;
-          this.GetApexPieOptions();
-        },
-      });
+    .getCardDetails()
+    .subscribe({
+      next: (res) => {
+        this.cardHistory = res.result;
+        this.isLoader = false;
+      },
+      error:()=> this.isLoader = false
+    });
   }
 
-  getCityPillarHistory() {
+  getDashboardPillarHistory() {
     if (
       this.userService?.userInfo?.userID == null ||
-      !this.selectedCities ||
-      this.selectedCities === "" ||
-      this.selectedCities == null
+      !this.assignedInvitation ||
+      this.assignedInvitation === "" ||
+      this.assignedInvitation == null
     ) {
       return;
     }
-    let request: UserCityRequstDto = {
-      userID: this.userService?.userInfo?.userID ?? 0,
-      cityID: this.selectedCities,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
+    let request: UserAssessmentPillarDashboardRequstDto = {
+      userAssessmentMappingID: this.assignedInvitation
     };
-    this.adminService.getCityPillarHistory(request).subscribe({
+    this.adminService.getDashboardPillarHistory(request).subscribe({
       next: (res) => {
         this.isLoader = false;
-        this.cityQuestionHistoryReponse = res.result;
-        if (this.cityQuestionHistoryReponse) {
+        this.assessmentHistoryReponse.set(res.result);
+        if (this.assessmentHistoryReponse()) {
           this.buildPillarComparisonChart();
         }
       },
@@ -150,150 +157,42 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       },
     });
   }
-  goToCityAnalysis() {
-    // If cityID exists, pass it as a query parameter
-    const queryParams: any = {};
-    if (this.selectedCities > 0) {
-      queryParams.cityID = this.selectedCities;
-    }
-
-    this.router.navigate(["/admin/ai/city-analysis"], { queryParams });
-  }
 
   ExportCityPillar() {
-    let city = this.cities?.find((x) => x.cityID == this.selectedCities);
-    if (this.cityQuestionHistoryReponse?.pillars && city) {
-      var exportData = this.cityQuestionHistoryReponse?.pillars.map((x) => {
+    let invitation = this.assignedInvitations?.find((x) => x.userAssessmentMappingID == this.assignedInvitation);
+    if (this.assessmentHistoryReponse()?.pillars && invitation) {
+      var exportData = this.assessmentHistoryReponse()?.pillars.map((x) => {
         return {
-          CityName: city?.cityName,
-          PillarName: x.pillarName,
-          AIScore: x.aiValue?.toFixed(2),
-          EvaluationScore: x.evaluationValue?.toFixed(2)
+          ['Geographic Reference']: invitation?.geographicReference,
+          ['Year']: invitation?.year,
+          ['Pillar Name']: x.pillarName,
+          ['Score %']: x.scoreProgress?.toFixed(2),
+          ['Completion Rate %']: x.completionRate?.toFixed(2),
+          ['Total Answered']: x.totalAns?.toFixed(0),
+          ['Total Questions']: x.totalQuestions?.toFixed(0)
         };
-      });
+      }) as any;
       this.commonService.exportExcel(exportData);
     } else {
       this.toaster.showWarning("Please select city to export the records");
     }
   }
-  GetApexPieOptions() {
-    const total = this.cityHistory?.totalCity ?? 0;
-    const active = this.cityHistory?.activeCity ?? 0;
-    const inprogress = this.cityHistory?.inprocessCity ?? 0;
-    const complete = this.cityHistory?.compeleteCity ?? 0;
 
-    const finalizeCity = this.cityHistory?.finalizeCity ?? 0;
-    const unFinalize = this.cityHistory?.unFinalize ?? 0;
-
-    this.chartOptions = {
-      series: [
-        (total / total) * 100,
-        (active / total) * 100,
-        (inprogress / total) * 100,
-        (complete / total) * 100,
-        (finalizeCity / total) * 100,
-        (unFinalize / total) * 100,
-      ],
-
-      chart: {
-        height: 380,
-        type: "radialBar",
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        radialBar: {
-          startAngle: 20,
-          endAngle: 300,
-          offsetY: 100,
-          offsetX: 10,
-          hollow: {
-            margin: 0,
-            size: "40%",
-            background: "#25453f0d",
-            image: undefined,
-            position: "front",
-          },
-          dataLabels: {
-            show: true,
-            name: {
-              show: true,
-              offsetY: -10,
-            },
-            value: {
-              show: true,
-              offsetY: 10,
-              formatter: (value: number) => {
-                return `${((value * total) / 100).toFixed(0)}`;
-              },
-            },
-            total: {
-              show: true,
-              label: "Total City",
-              formatter: (value: any) => {
-                return `${total}`;
-              },
-            },
-          },
-        },
-      },
-      colors: [
-        "#141f1c",
-        "#a2c3ba",
-        "#2d4e46",
-        "#657e78",
-        "#9aebc9",
-        "#69a080",
-      ],
-      labels: [
-        "Total",
-        "Manual Active",
-        "Manual In Progress",
-        "Manual Completed",
-        "AI Finalized",
-        "AI Pending Review"
-      ],
-      legend: {
-        show: true,
-        floating: true,
-        fontSize: "16px",
-        position: "left",
-        offsetX: 0,
-        offsetY: 10,
-        labels: {
-          useSeriesColors: true,
-        },
-        formatter: function (seriesName: any, opts: any) {
-          return (
-            seriesName +
-            ":  " +
-            `${(
-              (opts.w.globals.series[opts.seriesIndex] * total) /
-              100
-            ).toFixed(0)}`
-          );
-        },
-        itemMargin: {
-          horizontal: 3,
-        },
-      },
-    };
-  }
 
   buildPillarComparisonChart() {
-    const data = [...(this.cityQuestionHistoryReponse?.pillars ?? [])];
+
+    const data = [...(this.assessmentHistoryReponse()?.pillars ?? [])];
 
     const categories = this.buildUniqueCategories(data);
-    const aiSeries = data.map(x => x.aiValue);
-    const evaluatorSeries = data.map(x => x.evaluationValue);
+    const aiSeries = data.map(x => x.completionRate);
+    const evaluatorSeries = data.map(x => x.scoreProgress);
     this.chartPillarOptions = {
       series: [{
-        name: 'AI Progress',
+        name: 'Completion Rate',
         data: aiSeries
       },
       {
-        name: 'Evaluator',
+        name: 'Score',
         data: evaluatorSeries
       }],
 
@@ -314,17 +213,15 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       },
 
       dataLabels: {
-        enabled: false,
+        enabled: true,
         formatter: (val: number, opts) => {
-          const pillar = data[opts.dataPointIndex];
-
           return `${Math.round(val)}%`;
         },
         offsetY: -10,
         style: {
           fontSize: '11px',
           fontWeight: 500,
-          colors: ['#bcc0bf']
+          colors: ['#4f75f5']
         },
         background: {
           enabled: true,
@@ -332,7 +229,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           padding: 6,
           borderRadius: 4,
           borderWidth: 1,
-          borderColor: '#a4a5a5',
+          borderColor: '#76bbfc',
           opacity: 0.95
         }
       },
@@ -340,7 +237,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       stroke: {
         curve: 'smooth',
         width: 3,
-        colors: ['#4a7167', '#334e4e']
+        colors: ['#4f91ee', '#0948a0']
       },
 
       fill: {
@@ -353,17 +250,17 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           colorStops: [
             {
               offset: 0,
-              color: '#79a89b',
+              color: '#8fb8ec',
               opacity: 0.8
             },
             {
               offset: 50,
-              color: '#8eb5ab',
+              color: '#75a2dd',
               opacity: 0.5
             },
             {
               offset: 100,
-              color: '#a2c3ba',
+              color: '#658fc0',
               opacity: 0.2
             }
           ]
@@ -372,8 +269,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
       markers: {
         size: data.map(p => 4),
-        colors: data.map(p => this.PillarColorByScore(p.aiValue)),
-        strokeColors: '#fff',
+        colors: data.map(p => this.PillarColorByScore(p.completionRate)),
+        strokeColors: '#8abfeb',
         strokeWidth: 2,
         hover: {
           size: 8,
@@ -389,7 +286,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           style: {
             fontSize: '11px',
             fontWeight: 500,
-            colors: '#6b7280'
+            colors: '#7a97cf'
           }
         },
         axisBorder: {
@@ -408,7 +305,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           style: {
             fontSize: '13px',
             fontWeight: 600,
-            color: '#4b5563'
+            color: '#3f7cd1'
           }
         },
         min: 0,
@@ -418,13 +315,13 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           formatter: (val) => val >= 0 ? `${Math.round(val)}%` : '',
           style: {
             fontSize: '12px',
-            colors: '#6b7280'
+            colors: '#244586'
           }
         }
       },
 
       grid: {
-        borderColor: '#e5e7eb',
+        borderColor: '#4778da',
         strokeDashArray: 4,
         xaxis: {
           lines: { show: false }
@@ -439,19 +336,18 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
         custom: ({ dataPointIndex }) => {
           const pillar = data[dataPointIndex];
 
-          const progressColor = this.PillarColorByScore(pillar.aiValue);
-          const evaluatorProgressColor = this.PillarColorByScore(pillar.evaluationValue);
-          const progressPercent = pillar.aiValue ?? 0;
-          const evaluatorProgressPercent = pillar.evaluationValue ?? 0;
-          const avgScore = ((progressPercent + evaluatorProgressPercent) / 2);
+          const completionRateColor = this.PillarColorByScore(pillar.completionRate);
+          const evaluatorProgressColor = this.PillarColorByScore(pillar.scoreProgress);
+          const completionRate = pillar.completionRate ?? 0;
+          const evaluatorProgressPercent = pillar.scoreProgress ?? 0;
 
-          const statusText = avgScore >= 75 ? 'Excellent Performance' :
-            avgScore >= 50 ? 'Strong Progress' :
-              avgScore >= 25 ? 'Steady Growth' : 'Early Stage';
+          const statusText = evaluatorProgressPercent >= 75 ? 'Excellent Performance' :
+            evaluatorProgressPercent >= 50 ? 'Strong Progress' :
+              evaluatorProgressPercent >= 25 ? 'Steady Growth' : 'Early Stage';
 
-          const statusIcon = avgScore >= 75 ? '🌟' :
-            avgScore >= 50 ? '📈' :
-              avgScore >= 25 ? '⚡' : '🌱';
+          const statusIcon = evaluatorProgressPercent >= 75 ? '🌟' :
+            evaluatorProgressPercent >= 50 ? '📈' :
+              evaluatorProgressPercent >= 25 ? '⚡' : '🌱';
 
           return `
           <div style="
@@ -460,7 +356,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
             background: #ffffff;
             border-radius: 14px;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-            border-left: 4px solid ${progressColor};
+            border-left: 4px solid ${completionRateColor};
             font-family: 'Inter', system-ui, sans-serif;
             position: relative;
             overflow: hidden;
@@ -472,7 +368,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
               right: -30px;
               width: 120px;
               height: 120px;
-              background: ${progressColor};
+              background: ${completionRateColor};
               opacity: 0.08;
               border-radius: 50%;
             "></div>
@@ -500,11 +396,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                     align-items: center;
                     gap: 6px;
                     padding: 4px 10px;
-                    background: ${progressColor}15;
+                    background: ${completionRateColor}15;
                     border-radius: 12px;
                     font-size: 11px;
                     font-weight: 600;
-                    color: ${progressColor};
+                    color: ${completionRateColor};
                   ">
                     ${statusIcon} ${statusText}
                   </div>
@@ -512,55 +408,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                 <div style="
                   font-size: 28px;
                   font-weight: 800;
-                  color: ${progressColor};
+                  color: ${completionRateColor};
                   line-height: 1;
                   margin-left:5px;
                 ">
-                  ${avgScore.toFixed(0)}%
-                </div>
-              </div>
-
-              <!-- Progress Bar -->
-              <div style="margin-bottom: 14px;">
-                <div style="
-                  display: flex;
-                  justify-content: space-between;
-                  margin-bottom: 8px;
-                  font-size: 11px;
-                  text-transform: uppercase;
-                  letter-spacing: 0.8px;
-                  font-weight: 600;
-                  color: #6b7280;
-                ">
-                  <span>AI</span>
-                  <span>${progressPercent.toFixed(1)}%</span>
-                </div>
-                <div style="
-                  width: 100%;
-                  height: 10px;
-                  background: #e5e7eb;
-                  border-radius: 10px;
-                  overflow: hidden;
-                  position: relative;
-                ">
-                  <div style="
-                    width: ${progressPercent}%;
-                    height: 100%;
-                    background: linear-gradient(90deg, ${progressColor} 0%, ${progressColor}cc 100%);
-                    border-radius: 10px;
-                    position: relative;
-                    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-                  ">
-                    <div style="
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      bottom: 0;
-                      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-                      animation: shimmer 2s infinite;
-                    "></div>
-                  </div>
+                  ${evaluatorProgressPercent.toFixed(0)}%
                 </div>
               </div>
 
@@ -575,7 +427,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                   font-weight: 600;
                   color: #6b7280;
                 ">
-                  <span>Evaluation</span>
+                  <span>Score</span>
                   <span>${evaluatorProgressPercent.toFixed(1)}%</span>
                 </div>
                 <div style="
@@ -607,6 +459,49 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                 </div>
               </div>
 
+              <!-- Progress Bar -->
+              <div style="margin-bottom: 14px;">
+                <div style="
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 8px;
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.8px;
+                  font-weight: 600;
+                  color: #6b7280;
+                ">
+                  <span>Completion Rate</span>
+                  <span>${completionRate.toFixed(1)}%</span>
+                </div>
+                <div style="
+                  width: 100%;
+                  height: 10px;
+                  background: #e5e7eb;
+                  border-radius: 10px;
+                  overflow: hidden;
+                  position: relative;
+                ">
+                  <div style="
+                    width: ${completionRate}%;
+                    height: 100%;
+                    background: linear-gradient(90deg, ${completionRateColor} 0%, ${completionRateColor}cc 100%);
+                    border-radius: 10px;
+                    position: relative;
+                    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                  ">
+                    <div style="
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      bottom: 0;
+                      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+                      animation: shimmer 2s infinite;
+                    "></div>
+                  </div>
+                </div>
+              </div>
 
               <!-- Stats Grid -->
               <div style="
@@ -627,14 +522,14 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                     margin-bottom: 4px;
                     font-weight: 600;
                   ">
-                    Difference
+                    Total Questions
                   </div>
                   <div style="
                     font-size: 13px;
                     font-weight: 700;
                     color: ${evaluatorProgressColor};
                   ">
-                    ${Math.abs(progressPercent - evaluatorProgressPercent).toFixed(0)}%
+                    ${pillar.totalQuestions}
                   </div>
                 </div>
                 <div style="
@@ -649,14 +544,14 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
                     margin-bottom: 4px;
                     font-weight: 600;
                   ">
-                    Avg Score
+                    Total Answered
                   </div>
                   <div style="
                     font-size: 13px;
                     font-weight: 700;
                     color: #111827;
                   ">
-                   ${avgScore.toFixed(0)}%
+                   ${pillar.totalAns}
                   </div>
                 </div>
               </div>
@@ -680,10 +575,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   PillarColorByScore(score: any): string {
-    //let score = pillar.aiValue;
     const colors = [
-      "#a2c3ba", "#8eb5ab", "#79a89b", "#649b8c", "#578679",
-      "#4a7167", "#3c5d54", "#2f4841", "#21342f", "#141f1c"
+      "#a4c2ec", "#7f9cc7", "#6faaf7", "#5291e4", "#3189fd",
+      "#73a5e7", "#5c96e3", "#4587df", "#326cc1", "#28579b"
     ];
 
     if (score === null || score === undefined || isNaN(score)) {

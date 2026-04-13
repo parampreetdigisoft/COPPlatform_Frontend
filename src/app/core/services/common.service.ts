@@ -129,74 +129,16 @@ export class CommonService {
     
   get PillarColors() {
     return [
-      "#a2c3ba",
-      "#8eb5ab",
-      "#79a89b",
-      "#649b8c",
-      "#578679",
-      "#4a7167",
-      "#3c5d54",
-      "#2f4841",
-      "#21342f",
-      "#141f1c",
-    ];
-  }
-  get radarColors() {
-    return [
-      {
-        primary: '#1b2b27',
-        light: '#4b615b',
-        gradient: 'rgba(20, 31, 28, 0.25)'
-      },
-
-      {
-        primary: '#04775a',
-        light: '#7fa39a',
-        gradient: 'rgba(74, 113, 103, 0.25)'
-      },
-      {
-        primary: '#649b8c',
-        light: '#94beb4',
-        gradient: 'rgba(100, 155, 140, 0.25)'
-      },
-      {
-        primary: '#2f4841',
-        light: '#637f78',
-        gradient: 'rgba(47, 72, 65, 0.25)'
-      },
-      {
-        primary: '#a2c3ba',
-        light: '#c7ddd7',
-        gradient: 'rgba(162, 195, 186, 0.25)'
-      },
-      {
-        primary: '#8eb5ab',
-        light: '#b6d1ca',
-        gradient: 'rgba(142, 181, 171, 0.25)'
-      },
-      {
-        primary: '#79a89b',
-        light: '#a6c8bf',
-        gradient: 'rgba(121, 168, 155, 0.25)'
-      },
-
-      {
-        primary: '#578679',
-        light: '#89b0a6',
-        gradient: 'rgba(87, 134, 121, 0.25)'
-      },
-
-      {
-        primary: '#3c5d54',
-        light: '#6f9188',
-        gradient: 'rgba(60, 93, 84, 0.25)'
-      },
-
-      {
-        primary: '#141f1c',
-        light: '#4b615b',
-        gradient: 'rgba(20, 31, 28, 0.25)'
-      }
+      "#a3c6f7",
+      "#94b9ec",
+      "#79a3e4",
+      "#578ad8",
+      "#5b8dd8",
+      "#326cc1", 
+      "#2b5da8",
+      "#244e8f",
+      "#1d3f76",
+      "#162f5d"
     ];
   }
 

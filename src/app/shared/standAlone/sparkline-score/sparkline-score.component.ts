@@ -14,6 +14,7 @@ export class SparklineScoreComponent implements OnInit, OnChanges {
 
   @Input() value: number | null = null;
   @Input() tooltipText: string = '';
+  @Input() sign: string = '%';
   commonService = inject(CommonService);
   formattedValue: string = '';
 

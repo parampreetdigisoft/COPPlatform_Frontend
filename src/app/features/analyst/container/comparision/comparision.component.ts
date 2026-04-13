@@ -114,7 +114,7 @@ export class ComparisionComponent implements OnInit {
         this.selectedPillarID && this.selectedPillarID > 0
           ? this.selectedPillarID
           : null,
-      cityID: this.selectedCities,
+      userAssessmentMappingID: this.selectedCities,
       updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
       pageNumber: this.currentPage,
       pageSize: this.pageSize
@@ -417,14 +417,12 @@ export class ComparisionComponent implements OnInit {
         pillarID: pillar.pillarID,
       };
 
-      // Fill all users with default "0"
       this.userMap.forEach((_, userID) => {
         row[userID] = "0";
       });
 
-      // Overwrite existing users with their score
       pillar.users.forEach((u) => {
-        row[u.userID] = u.score;
+        row[u.userID] = u.compeletionRate;
       });
 
       return row;

@@ -12,8 +12,8 @@ import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto
 import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseDto';
 import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserInfo';
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
-import { InviteBulkUserDto, InviteUserDto, RegisterDto, UpdateInviteUserDto } from '../../core/models/AnalystVM';
-import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/models/cityHistoryDto';
+import { InviteBulkUserDto, RegisterDto } from '../../core/models/AnalystVM';
+import { CardHistoryDto,  UserAssessmentPillarDashboardRequstDto} from '../../core/models/cityHistoryDto';
 import { QuestionsByUserPillarsResponsetDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
@@ -81,10 +81,10 @@ export class AdminService {
       .delete(`City/delete/` + id)
       .pipe(map((x) => x as ResultResponseDto<boolean>));
   }
-  public getCityHistory(userID: number, updatedAt: string) {
+  public getCardDetails() {
     return this.http
-      .get(`City/getCityHistory/` + updatedAt)
-      .pipe(map((x) => x as ResultResponseDto<CityHistoryDto>));
+      .get(`City/GetCardDetails`)
+      .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
   }
   public exportCities() {
     return this.http.ImportFile(`City/exportCities`);
@@ -123,7 +123,7 @@ export class AdminService {
     return this.http.put(`Pillar/` + id, data).pipe(map((x) => x as PillarsVM));
   }
   public getResponsesByUserId(request: GetCityPillarHistoryRequestNewDto) {
-    return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as PaginationResponse<PillarsHistoryResponse>));
+    return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as ResultResponseDto<PillarsHistoryResponse[]>));
   }
   public getPillarsHistoryByUserId(request: GetCityPillarHistoryRequestDto) {
     return this.http
@@ -184,8 +184,8 @@ export class AdminService {
       .pipe(map((x) => x as ResultResponseDto<AssessmentWithProgressVM>));
   }
 
-  public getCityPillarHistory(request: UserCityPillarDashboardRequstDto) {
-    return this.http.getWithQueryParams(`AssessmentResponse/getCityPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
+  public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto) {
+    return this.http.getWithQueryParams(`AssessmentResponse/getDashboardPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
   }
   public changeAssessmentStatus(request: ChangeAssessmentStatusRequestDto) {
     return this.http

@@ -1,9 +1,8 @@
 export interface PillarsUserHistoryResponse {
   userID: number;
   fullName: string;
-  score: number;
   scoreProgress: number;
-  ansPillar: number;
+  compeletionRate: number;
   totalQuestion: number;
   ansQuestion: number;
 }
@@ -11,6 +10,8 @@ export interface PillarsUserHistoryResponse {
 export interface PillarsHistoryResponse {
   pillarID: number;
   pillarName: string;
+  displayOrder: number;
+  userAssessmentMappingID: number;
   users: PillarsUserHistoryResponse[];
 }
 

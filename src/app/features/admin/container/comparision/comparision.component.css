@@ -15,6 +15,10 @@ app-comparision app-ag-bar:nth-child(3) {
     flex: 1;
 }
 
+.bold_num {
+    color: #326cc1;
+    font-weight: 800;
+}
 .input_field {
     margin-bottom: 0;
 }
@@ -28,7 +32,8 @@ app-comparision app-ag-bar:nth-child(3) {
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-
+    
+    height: auto;
     background-color: #ffffff;
     min-height: 36px;
     align-items: center;
@@ -43,7 +48,9 @@ app-comparision app-ag-bar:nth-child(3) {
     border: 1px solid #d7d7d7 !important;
 }
 
-
+.inner_div {
+    grid-gap: 20px;
+}
 .input_flex {
     display: flex;
     align-items: center;
@@ -54,8 +61,68 @@ app-comparision app-ag-bar:nth-child(3) {
 .input_flex select{
     flex: 1;
 }
+.no_result_found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 60px;
+}
+.no_result_found h3{    
+    font-weight: 700;
+}
 
-/* Parent div acts like a button */
+
+::ng-deep .analyst_multi_select .ng-option-selected {
+  background-color: #e8f0ff !important;
+  color: #032961 !important;
+  font-weight: 600;
+}
+
+/* Optional: hover style */
+::ng-deep .analyst_multi_select .ng-option:hover {
+  background-color: #f2f6ff !important;
+}
+
+::ng-deep .compare_select .ng-select-container {
+  border: none !important;
+  background-color: #ffffff !important;
+  min-height: auto !important;
+  height: 100% !important;
+}
+
+::ng-deep .compare_select .ng-select-container:hover {
+  box-shadow: none !important;
+}
+
+::ng-deep .compare_select .ng-select.ng-select-focused:not(.ng-select-opened)>.ng-select-container {
+  box-shadow: none !important;
+}
+
+.compare_select .analyst_multi_select {
+  flex: 1;
+  height: auto;
+  background-color: #ffffff;
+  min-height: 36px;
+  align-items: center;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  appearance: none !important;
+  border-radius: 12px !important;
+  padding: 6px 10px 6px 3px !important;
+  border: 1px solid #d7d7d7 !important;
+}
+::ng-deep .compare_select .ng-value-container .ng-value {
+  white-space: nowrap;
+  padding: 2px 5px !important;
+  border-radius: 5px !important;
+  background-color: #032961 !important;
+  color: #ffffff !important;
+}
+
+
 .expand-toggle {
     display: flex;
     align-items: center;
@@ -74,7 +141,6 @@ app-comparision app-ag-bar:nth-child(3) {
   background: var(--Hover-Primary-color);
 }
 
-/* SVG resize */
 .expand-toggle svg {
     width: 13px;
     height: 13px;
@@ -183,19 +249,12 @@ app-comparision app-ag-bar:nth-child(3) {
 {
   padding-left: 0 !important;
   position: sticky;
-width: 500px;
+  width: 500px;
   left: 0;
   
 }
 
 
-/* .evaluater_design .mat-elevation-z8 tr th:has(:nth-child(3)),
-.evaluater_design .mat-elevation-z8 tr td:has(:nth-child(3)),
-.evaluater_design .mat-elevation-z2 tr th:has(:nth-child(3)),
-.evaluater_design .mat-elevation-z2 tr td:has(:nth-child(3))
-{
-
-} */
 
 .evaluater_design .mat-elevation-z2 tr td .expand-toggle
 {
@@ -213,10 +272,6 @@ width: 500px;
     overflow-x: auto;
 }
 
-/* .table_responsive > .mat-mdc-table
-{
-min-width: max-content;
-} */
 
 .mb_15
 {
@@ -234,12 +289,12 @@ min-width: max-content;
   justify-content: center;
   margin-top: 80px;
   text-align: center;
-  color: #6c757d; /* subtle grey */
+  color: #6c757d; 
 }
 
 .no_result_found h3 {    
-  font-weight: 600;        /* semi-bold, cleaner */
+  font-weight: 600;        
   font-size: 20px;
-  color: #495057;          /* darker grey for text */
+  color: #495057;          
   letter-spacing: 0.5px;
 }

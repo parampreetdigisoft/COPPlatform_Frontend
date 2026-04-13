@@ -429,10 +429,10 @@ padding-right: 40px;
   padding: 8px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #374f4a;
+  background: #204f95;
   --_m: 
-    conic-gradient(#0000 10%,#000),
-    linear-gradient(#000 0 0) content-box;
+    conic-gradient(#331dfa00 10%,#000),
+    linear-gradient(#030a49 0 0) content-box;
   -webkit-mask: var(--_m);
           mask: var(--_m);
   -webkit-mask-composite: source-out;
@@ -549,7 +549,7 @@ padding-right: 40px;
 .common_button[disabled] {
   background: #cfcfcf !important; /* Light gray background */
   border-color: #cfcfcf !important;
-  color: #777 !important;         /* Muted text color */
+  color: #4a81f8 !important;         /* Muted text color */
   cursor: not-allowed !important;
   opacity: 0.8;
   pointer-events: none;
