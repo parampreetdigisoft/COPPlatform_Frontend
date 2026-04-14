@@ -221,7 +221,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
         style: {
           fontSize: '11px',
           fontWeight: 500,
-          colors: ['#4f75f5']
+          colors: ['#032961']
         },
         background: {
           enabled: true,
@@ -229,7 +229,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           padding: 6,
           borderRadius: 4,
           borderWidth: 1,
-          borderColor: '#76bbfc',
+          borderColor: '#032961',
           opacity: 0.95
         }
       },
@@ -305,7 +305,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           style: {
             fontSize: '13px',
             fontWeight: 600,
-            color: '#3f7cd1'
+            color: '#032961'
           }
         },
         min: 0,

@@ -7,27 +7,21 @@
     z-index: 99;
 }
 
-.vui_header_inner
-{
-    border-radius: 10px;
-    /* border: 1px solid var(--Light-Border-Color); */
-    /* background: var(--background-Color); */
-    padding: 20px;
-    background-color: #ffffff;
-}
-
-.vui_header_inner
-{
+.vui_header_inner{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     grid-gap: 30px;
     align-items: center;
+    border-radius: 10px;
+    padding: 0px 0px 20px;
+    background-color: #ffffff;
 }
 
 .vui_dashboard_logo img
 {
     width: 205px;
+    max-width: 100%;
 }
 
 .user_detail > ul

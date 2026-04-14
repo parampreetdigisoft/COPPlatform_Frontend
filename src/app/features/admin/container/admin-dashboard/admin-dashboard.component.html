@@ -1,66 +1,68 @@
 <!-- <app-ag-bar [options]="barOptions"></app-ag-bar> -->
 <ng-container *ngIf="!isLoader">
 	<div class="db-wrap">
-		<div class="db-grid">
+		<div class="db-grid_ouuu row g-3">
 			<!-- Card 1: Assessments -->
-			<div class="db-card db-card-1">
-				<div class="card-top">
-					<span class="card-label">Assessments</span>
-					<span class="card-badge badge-teal">Live</span>
-				</div>
-				<div class="card-hero">
-					<div class="hero-number">
-						{{ cardHistory?.totalAssessments ?? 0 }}
+			<div class="col-md-3">
+				<div class="db-card">
+					<div class="card-top">
+						<span class="card-label">Assessments</span>
+						<span class="card-badge badge-teal">Live</span>
 					</div>
-					<div class="hero-sub">Total Assessments</div>
-				</div>
-				<div class="card-sparkline">
-					<svg viewBox="0 0 240 50"
-						preserveAspectRatio="none">
-						<defs>
-							<linearGradient id="spark-grad-1"
-								x1="0"
-								y1="0"
-								x2="0"
-								y2="1">
-								<stop offset="0%"
-									stop-color="#4dd9b0"
-									stop-opacity="0.3"></stop>
-								<stop offset="100%"
-									stop-color="#4dd9b0"
-									stop-opacity="0"></stop>
-							</linearGradient>
-						</defs>
-						<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15"
-							stroke="#4dd9b0"
-							stroke-width="1.5"
-							fill="none"></path>
-						<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15 L240,50 L0,50 Z"
-							fill="url(#spark-grad-1)"></path>
-						<circle cx="240"
-							cy="15"
-							r="3"
-							fill="#4dd9b0"></circle>
-					</svg>
-				</div>
-				<div class="card-divider"></div>
-				<div class="card-stats-row">
-					<div class="stat-col">
-						<div class="stat-val teal-accent">
-							{{ cardHistory?.totalCompletedAssessments ?? 0 }}
+					<div class="card-hero">
+						<div class="hero-number">
+							{{ cardHistory?.totalAssessments ?? 0 }}
 						</div>
-						<div class="stat-lbl">Completed</div>
+						<div class="hero-sub">Total Assessments</div>
 					</div>
-					<div class="stat-col">
-						<div class="stat-val muted">
-							{{ cardHistory?.totalInProgressAssessments ?? 0 }}
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50"
+							preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="spark-grad-1"
+									x1="0"
+									y1="0"
+									x2="0"
+									y2="1">
+									<stop offset="0%"
+										stop-color="#4dd9b0"
+										stop-opacity="0.3"></stop>
+									<stop offset="100%"
+										stop-color="#4dd9b0"
+										stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15"
+								stroke="#4dd9b0"
+								stroke-width="1.5"
+								fill="none"></path>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15 L240,50 L0,50 Z"
+								fill="url(#spark-grad-1)"></path>
+							<circle cx="240"
+								cy="15"
+								r="3"
+								fill="#4dd9b0"></circle>
+						</svg>
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row">
+						<div class="stat-col">
+							<div class="stat-val teal-accent">
+								{{ cardHistory?.totalCompletedAssessments ?? 0 }}
+							</div>
+							<div class="stat-lbl">Completed</div>
 						</div>
-						<div class="stat-lbl">In Progress</div>
+						<div class="stat-col">
+							<div class="stat-val muted">
+								{{ cardHistory?.totalInProgressAssessments ?? 0 }}
+							</div>
+							<div class="stat-lbl">In Progress</div>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="db-card db-card-2">
+			<div class="col-md-3">
+			<div class="db-card">
 				<div class="card-top">
 					<span class="card-label">User Roles</span>
 					<span class="card-badge badge-gold">Roles</span>
@@ -116,78 +118,88 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="db-card db-card-3">
-				<div class="card-top">
-					<span class="card-label">Pillar Scores</span>
-					<span class="card-badge badge-blue">Analytics</span>
-				</div>
-				<div class="card-hero">
-					<div class="hero-number">
-						{{ cardHistory?.averagePillarScore != null 
-							? (cardHistory?.averagePillarScore == 100 
-								? cardHistory?.averagePillarScore?.toFixed(0) 
-								: cardHistory?.averagePillarScore?.toFixed(2)) 
-							: 0 }}%
+			</div>
+			<div class="col-md-6">
+				<div class="db-card">
+					<div class="analyst_outter">
+						<div class="pillar_score_analytics">
+						<span class="card-badge badge-blue">Analytics</span>
+						<div class="card-top">
+							<span class="card-label">Pillar Scores</span>
+						</div>
+						<div class="card-hero">
+							<div class="hero-number">
+								{{ cardHistory?.averagePillarScore != null 
+									? (cardHistory?.averagePillarScore == 100 
+										? cardHistory?.averagePillarScore?.toFixed(0) 
+										: cardHistory?.averagePillarScore?.toFixed(2)) 
+									: 0 }}%
+							</div>
+							<div class="hero-sub">Average Score</div>
+						</div>
 					</div>
-					<div class="hero-sub">Average Score</div>
-				</div>
-				<div class="card-sparkline">
-					<svg viewBox="0 0 240 50"
-						preserveAspectRatio="none">
-						<defs>
-							<linearGradient id="spark-grad-3"
-								x1="0"
-								y1="0"
-								x2="0"
-								y2="1">
-								<stop offset="0%"
-									stop-color="#7eabff"
-									stop-opacity="0.25"></stop>
-								<stop offset="100%"
-									stop-color="#7eabff"
-									stop-opacity="0"></stop>
-							</linearGradient>
-						</defs>
-						<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8"
-							stroke="#7eabff"
-							stroke-width="1.5"
-							fill="none"></path>
-						<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8 L240,50 L0,50 Z"
-							fill="url(#spark-grad-3)"></path>
-						<circle cx="240"
-							cy="8"
-							r="3"
-							fill="#7eabff"></circle>
-					</svg>
-				</div>
-				<div class="card-divider"></div>
-				<div class="card-stats-row">
-					<div class="stat-col">
-						<div class="pillar-score blue-accent">						
-							{{ cardHistory?.highestPillarScore?.value != null 
-							? (cardHistory?.highestPillarScore?.value == 100 
-								? cardHistory?.highestPillarScore?.value?.toFixed(0) 
-								: cardHistory?.highestPillarScore?.value?.toFixed(2)) 
-							: 0 }}%
-						</div>
-						<div class="pillar-name">
-							{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}
-						</div>
-						<div class="stat-lbl">Highest</div>
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50"
+							preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="spark-grad-3"
+									x1="0"
+									y1="0"
+									x2="0"
+									y2="1">
+									<stop offset="0%"
+										stop-color="#7eabff"
+										stop-opacity="0.25"></stop>
+									<stop offset="100%"
+										stop-color="#7eabff"
+										stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8"
+								stroke="#7eabff"
+								stroke-width="1.5"
+								fill="none"></path>
+							<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8 L240,50 L0,50 Z"
+								fill="url(#spark-grad-3)"></path>
+							<circle cx="240"
+								cy="8"
+								r="3"
+								fill="#7eabff"></circle>
+						</svg>
 					</div>
-					<div class="stat-col">
-						<div class="pillar-score muted">
-						{{ cardHistory?.lowestPillarScore?.value != null 
-							? (cardHistory?.lowestPillarScore?.value == 100 
-								? cardHistory?.lowestPillarScore?.value?.toFixed(0) 
-								: cardHistory?.lowestPillarScore?.value?.toFixed(2)) 
-							: 0 }}%
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row">
+						<div class="stat-col">
+							<div class="pillar-score blue-accent">						
+								{{ cardHistory?.highestPillarScore?.value != null 
+								? (cardHistory?.highestPillarScore?.value == 100 
+									? cardHistory?.highestPillarScore?.value?.toFixed(0) 
+									: cardHistory?.highestPillarScore?.value?.toFixed(2)) 
+								: 0 }}%
+							</div>
+							<div class="pillar_scores">
+								<div class="pillar-name">
+									{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}
+								</div>
+								<div class="stat-lbl">Highest</div>
+							</div>
 						</div>
-						<div class="pillar-name muted-name">
-							{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}
+						<div class="stat-col lowest_sec">
+							<div class="pillar-score lowest_title">
+							{{ cardHistory?.lowestPillarScore?.value != null 
+								? (cardHistory?.lowestPillarScore?.value == 100 
+									? cardHistory?.lowestPillarScore?.value?.toFixed(0) 
+									: cardHistory?.lowestPillarScore?.value?.toFixed(2)) 
+								: 0 }}%
+							</div>
+							<div class="pillar_scores lowest_descript">
+								<div class="pillar-name ">
+									{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}
+								</div>
+								<div class="stat-lbl">Lowest</div>
+							</div>
 						</div>
-						<div class="stat-lbl">Lowest</div>
 					</div>
 				</div>
 			</div>
