@@ -73,12 +73,23 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   assessmentHistoryReponse = signal<AiCityPillarDashboardResponseDto | null>(null);
   totalQuestions = computed(() =>
-    this.assessmentHistoryReponse()?.pillars?.reduce((sum: number, x: CityPillarDashboardPillarValueDto) => sum + (x.totalQuestions ?? 0), 0) ?? 0
+    Math.round(
+      this.assessmentHistoryReponse()?.pillars?.reduce(
+        (sum: number, x: CityPillarDashboardPillarValueDto) =>
+          sum + (x.totalQuestions ?? 0),
+        0
+      ) ?? 0
+    )
   );
+
   totalAns = computed(() =>
-    this.assessmentHistoryReponse()?.pillars?.reduce(
-      (sum: number, x: CityPillarDashboardPillarValueDto) =>
-        sum + (x.totalAns ?? 0), 0) ?? 0
+    Math.round(
+      this.assessmentHistoryReponse()?.pillars?.reduce(
+        (sum: number, x: CityPillarDashboardPillarValueDto) =>
+          sum + (x.totalAns ?? 0),
+        0
+      ) ?? 0
+    )
   );
   completionRate = computed(() => {
     const total = this.totalQuestions();
@@ -103,16 +114,16 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   getAssignedInvitations() {
     this.adminService
-    .getAssignedInvitations()
-    .subscribe({
-      next: (res) => {
-        this.assignedInvitations = res.result ?? [];
-        if (this.assignedInvitations && this.assignedInvitations.length > 0) {
-          this.assignedInvitation = this.assignedInvitations[0].userAssessmentMappingID;
-          this.getDashboardPillarHistory();
-        }
-      },
-    });
+      .getAssignedInvitations()
+      .subscribe({
+        next: (res) => {
+          this.assignedInvitations = res.result ?? [];
+          if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+            this.assignedInvitation = this.assignedInvitations[0].userAssessmentMappingID;
+            this.getDashboardPillarHistory();
+          }
+        },
+      });
   }
 
   yearChanged() {
@@ -122,14 +133,14 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   getCardDetails() {
     this.adminService
-    .getCardDetails()
-    .subscribe({
-      next: (res) => {
-        this.cardHistory = res.result;
-        this.isLoader = false;
-      },
-      error:()=> this.isLoader = false
-    });
+      .getCardDetails()
+      .subscribe({
+        next: (res) => {
+          this.cardHistory = res.result;
+          this.isLoader = false;
+        },
+        error: () => this.isLoader = false
+      });
   }
 
   getDashboardPillarHistory() {
@@ -607,4 +618,5 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       return label;
     });
   }
+
 }

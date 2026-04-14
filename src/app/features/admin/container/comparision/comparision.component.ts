@@ -55,7 +55,7 @@ export class ComparisionComponent implements OnInit {
   pillersHistory: PillarsHistoryResponse[] = [];
   questionsByUserPillars: QuestionsByUserPillarsResponsetDto[] = [];
   invitations: GetAssignedAssessmentResponseDto[] | null = [];
-  selectedinvitations: number | any = "";
+  selectedInvitations: number | any = "";
   selectedPillarID: number | any = "";
   isLoader: boolean = false;
   isPillarHistroyDownloading: boolean = false;
@@ -70,7 +70,7 @@ export class ComparisionComponent implements OnInit {
   currentPage: number = 1;
   totalRecords: number = 0;
   pillarColumns: string[] = [];
-
+  invitationsSelect?:GetAssignedAssessmentResponseDto | null;  
   /**
    * Blue-shade palette based on #326cc1.
    * Provides enough distinct shades for up to 14 users.
@@ -119,8 +119,10 @@ export class ComparisionComponent implements OnInit {
         next: (res) => {
           this.isLoader = false;
           this.invitations = res.result ?? [];
+          console.log(this.invitations);
           if (this.invitations && this.invitations.length > 0) {
-            this.selectedinvitations = this.invitations[0].userAssessmentMappingID;
+            this.selectedInvitations = this.invitations[0].userAssessmentMappingID;
+            this.invitationsSelect = this.invitations.find(x => x.userAssessmentMappingID == this.selectedInvitations);
             this.getResponsesByUserId();
           }
         },
@@ -133,9 +135,9 @@ export class ComparisionComponent implements OnInit {
   getResponsesByUserId() {
     if (
       this.userService?.userInfo?.userID == null ||
-      !this.selectedinvitations ||
-      this.selectedinvitations === "" ||
-      this.selectedinvitations == null
+      !this.selectedInvitations ||
+      this.selectedInvitations === "" ||
+      this.selectedInvitations == null
     ) {
       return;
     }
@@ -146,7 +148,7 @@ export class ComparisionComponent implements OnInit {
         this.selectedPillarID && this.selectedPillarID > 0
           ? this.selectedPillarID
           : null,
-      userAssessmentMappingID: this.selectedinvitations,
+      userAssessmentMappingID: this.selectedInvitations,
       updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
       pageNumber: this.currentPage,
       pageSize: this.pageSize
@@ -192,8 +194,8 @@ export class ComparisionComponent implements OnInit {
 
       pillar.users.forEach((u) => {
         row[u.userID] = {
-          scoreProgress : u.scoreProgress,
-          compeletionRate : u.compeletionRate
+          scoreProgress: u.scoreProgress,
+          compeletionRate: u.compeletionRate
         };
       });
 
@@ -232,16 +234,16 @@ export class ComparisionComponent implements OnInit {
   getQuestionsHistoryByPillar(pillarID: number) {
     if (
       this.userService?.userInfo?.userID == null ||
-      !this.selectedinvitations ||
-      this.selectedinvitations === "" ||
-      this.selectedinvitations == null
+      !this.selectedInvitations ||
+      this.selectedInvitations === "" ||
+      this.selectedInvitations == null
     ) {
       return;
     }
     this.questionsByUserPillars = [];
     const payload: GetQuesiontAssessmentHistoryRequestDto = {
       pillarID: pillarID,
-      userAssessmentMappingID: this.selectedinvitations
+      userAssessmentMappingID: this.selectedInvitations
     };
     this.adminService.getQuestionsHistoryByPillar(payload).subscribe({
       next: (res) => {
@@ -261,9 +263,9 @@ export class ComparisionComponent implements OnInit {
   exportPillarsHistoryByUserId() {
     if (
       this.userService?.userInfo?.userID == null ||
-      !this.selectedinvitations ||
-      this.selectedinvitations === "" ||
-      this.selectedinvitations == null ||
+      !this.selectedInvitations ||
+      this.selectedInvitations === "" ||
+      this.selectedInvitations == null ||
       this.pillarColumns?.length == 0
     ) {
       return;
@@ -271,7 +273,7 @@ export class ComparisionComponent implements OnInit {
     this.isPillarHistroyDownloading = true;
     const payload: GetCityPillarHistoryRequestDto = {
       userID: this.userService?.userInfo?.userID,
-      cityID: this.selectedinvitations,
+      cityID: this.selectedInvitations,
       updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear)
     };
     if (this.selectedPillarID) {
@@ -418,14 +420,14 @@ export class ComparisionComponent implements OnInit {
         bar: {
           horizontal: false,
           columnWidth: categories.length <= 4 ? '25%' :
-                       categories.length <= 8 ? '45%' : '65%',
+            categories.length <= 8 ? '45%' : '65%',
           borderRadius: 4,
-          borderRadiusApplication: 'end',        
-          borderRadiusWhenStacked: 'last',        
+          borderRadiusApplication: 'end',
+          borderRadiusWhenStacked: 'last',
           dataLabels: {
             position: 'top',
             total: {
-              enabled: true,                      
+              enabled: true,
               formatter: (val: any) => val > 0 ? val.toFixed(1) + '%' : '',
               style: {
                 fontSize: '11px',
@@ -438,7 +440,7 @@ export class ComparisionComponent implements OnInit {
       },
 
       dataLabels: {
-        enabled: false                            
+        enabled: false
       },
 
       stroke: {
@@ -492,11 +494,11 @@ export class ComparisionComponent implements OnInit {
         theme: 'light',
         y: {
           formatter: (val: number, opts: any) => {
-            const seriesIndex: number   = opts?.seriesIndex ?? 0;
+            const seriesIndex: number = opts?.seriesIndex ?? 0;
             const dataPointIndex: number = opts?.dataPointIndex ?? 0;
 
             const evaluatorName = uniqueEvaluators[seriesIndex];
-            const pillarData    = tooltipData[dataPointIndex];
+            const pillarData = tooltipData[dataPointIndex];
 
             if (!pillarData || val === 0) return '—';
 
@@ -551,5 +553,15 @@ export class ComparisionComponent implements OnInit {
       responsive: [],
       fill: { opacity: 1 }
     };
+  }
+  isDueSoon(dueDate?: string): boolean {
+    if (!dueDate) return false;
+
+    const today = new Date();
+    const due = new Date(dueDate);
+
+    const diffDays = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+    return diffDays <= 3; // highlight if within 3 days
   }
 }

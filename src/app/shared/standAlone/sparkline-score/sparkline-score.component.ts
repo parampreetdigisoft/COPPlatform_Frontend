@@ -23,12 +23,16 @@ export class SparklineScoreComponent implements OnInit, OnChanges {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (this.value === null || isNaN(this.value)) {
-      this.formattedValue = 'NA';
-      return;
-    }
+    this.formattedValue = 'NA';
+    return;
+  }
 
-    const val = Number(this.value);
-    this.formattedValue = val == 100 ? val.toFixed(0) : val.toFixed(2);
+  const val = Number(this.value);
+
+  this.formattedValue =
+    val % 1 === 0
+      ? val.toString()
+      : val.toFixed(2);
   }
   getColor(value: number): string {
     const colors = this.commonService.PillarColors;

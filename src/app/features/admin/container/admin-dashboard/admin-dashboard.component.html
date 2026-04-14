@@ -281,12 +281,12 @@
 			<app-circular-score [value]="completionRate()"></app-circular-score>
 		</div>
 		<div class="assessment-card">
-			Answered: {{totalAns()}}
+			Answered: {{totalAns()| number:'1.0-0'}}
 			<app-sparkline-score [value]="totalAns()"
 				[sign]="''"></app-sparkline-score>
 		</div>
 		<div class="assessment-card">
-			Total Questions: {{totalQuestions()}}
+			Total Questions: {{totalQuestions()| number:'1.0-0'}}
 			<app-sparkline-score [value]="totalQuestions()"
 				[sign]="''"></app-sparkline-score>
 		</div>
