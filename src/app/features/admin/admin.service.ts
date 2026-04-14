@@ -20,7 +20,7 @@ import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM
 import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingRespones, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
-import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, GetQuesiontAssessmentHistoryRequestDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
@@ -154,7 +154,7 @@ export class AdminService {
       .delete(`Question/delete/` + id)
       .pipe(map((x) => x as boolean));
   }
-  public getQuestionsHistoryByPillar(request: GetCityPillarHistoryRequestDto) {
+  public getQuestionsHistoryByPillar(request: GetQuesiontAssessmentHistoryRequestDto) {
     return this.http
       .getWithQueryParams(`Question/getQuestionsHistoryByPillar`, request)
       .pipe(

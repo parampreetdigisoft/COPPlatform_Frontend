@@ -3,23 +3,10 @@
   <div class="heading_area">
   <div class="row justify-content-between align-items-center gap-2">
     <div class="col-md-auto">
-      <h3 class="page_head">Evaluation Results</h3>
+      <h3 class="page_head">Evaluation Score Overview</h3>
     </div>
-    <div class="col-md-6">
-      <div class="compare_select input_field input_flex">
-        <select
-          [(ngModel)]="selectedYear"
-          name="selectedYear"
-          class="form-control"
-          (change)="getResponsesByUserId()"
-        >
-          <option
-            *ngFor="let year of commonService.applicateYears"
-            [value]="year"
-          >
-            {{ year }}
-          </option>
-        </select>
+    <div class="col-md-3">
+      <div class="compare_select input_field input_flex">       
         <ng-select [items]="invitations"
 						[multiple]="false"
 						[searchable]="true"
@@ -67,7 +54,7 @@
   </div>
   <div class="row justify-content-between align-items-end mb-4">
     <div class="col-md-auto">
-      <h3 class="page_head mt-5 mb-3">Evaluator Details</h3>
+      <h3 class="page_head mt-5 mb-3">Pillar Metrics</h3>
     </div>
     <div class="col-md-auto" >
       <button class="common_button mb_15" [disabled]="isPillarHistroyDownloading" (click)="exportPillarsHistoryByUserId()">
@@ -105,10 +92,27 @@
                   </span>
                 </ng-container>
                 <ng-container *ngIf="column !== 'pillarName'">
-                  <span class="pillar_name">
-                    Total Score :
-                    <span class="score_col">{{ element[column] ?? "-" }}</span>
-                  </span>
+                  <div class="pillar_name">
+                    
+                    <div>
+                      Score:
+                      <span class="score_col">
+                        {{ element[column]?.scoreProgress != null 
+                            ? (element[column].scoreProgress | number:'1.1-1') 
+                            : '-' }}
+                      </span>
+                    </div>
+
+                    <div>
+                      Completion:
+                      <span class="score_col">
+                        {{ element[column]?.compeletionRate != null 
+                            ? (element[column].compeletionRate | number:'1.1-1') 
+                            : '-' }}
+                      </span>
+                    </div>
+
+                  </div>
                 </ng-container>
               </div>
             </td>

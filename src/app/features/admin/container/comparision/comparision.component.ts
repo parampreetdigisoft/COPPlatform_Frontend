@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ToasterService } from "src/app/core/services/toaster.service";
 import { UserService } from "src/app/core/services/user.service";
 import { CommonService } from "src/app/core/services/common.service";
-import { GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto } from "src/app/core/models/AssessmentRequest";
+import { GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, GetQuesiontAssessmentHistoryRequestDto } from "src/app/core/models/AssessmentRequest";
 import { PillarsVM } from "src/app/core/models/PillersVM";
 import { MatTableDataSource } from "@angular/material/table";
 import {
@@ -187,11 +187,14 @@ export class ComparisionComponent implements OnInit {
       };
 
       this.userMap.forEach((_, userID) => {
-        row[userID] = "0";
+        row[userID] = {};
       });
 
       pillar.users.forEach((u) => {
-        row[u.userID] = u.scoreProgress;
+        row[u.userID] = {
+          scoreProgress : u.scoreProgress,
+          compeletionRate : u.compeletionRate
+        };
       });
 
       return row;
@@ -236,11 +239,9 @@ export class ComparisionComponent implements OnInit {
       return;
     }
     this.questionsByUserPillars = [];
-    const payload: GetCityPillarHistoryRequestDto = {
-      userID: this.userService?.userInfo?.userID,
+    const payload: GetQuesiontAssessmentHistoryRequestDto = {
       pillarID: pillarID,
-      cityID: this.selectedinvitations,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear)
+      userAssessmentMappingID: this.selectedinvitations
     };
     this.adminService.getQuestionsHistoryByPillar(payload).subscribe({
       next: (res) => {
@@ -309,16 +310,7 @@ export class ComparisionComponent implements OnInit {
     );
   }
 
-  /**
-   * Builds a STACKED bar chart where:
-   *  - X-axis = 14 pillars (always shown, even if no data).
-   *  - Each series = one unique evaluator/user.
-   *  - Each bar segment = that user's scoreProgress for that pillar.
-   *  - Color = unique blue shade per user.
-   *  - Tooltip = scoreProgress (%) + completionRate (%) + answered/total questions.
-   */
   GetPillarBarOptions() {
-    // ─── 1. Build a map: pillarID → { pillarName, evaluators: Map<userName, data> }
     const pillarMap = new Map<number, {
       pillarName: string;
       evaluators: Map<string, {
@@ -428,12 +420,12 @@ export class ComparisionComponent implements OnInit {
           columnWidth: categories.length <= 4 ? '25%' :
                        categories.length <= 8 ? '45%' : '65%',
           borderRadius: 4,
-          borderRadiusApplication: 'end',        // only top of full stack rounded
-          borderRadiusWhenStacked: 'last',        // round only the topmost segment
+          borderRadiusApplication: 'end',        
+          borderRadiusWhenStacked: 'last',        
           dataLabels: {
             position: 'top',
             total: {
-              enabled: true,                      // show total at top of stack
+              enabled: true,                      
               formatter: (val: any) => val > 0 ? val.toFixed(1) + '%' : '',
               style: {
                 fontSize: '11px',
@@ -446,7 +438,7 @@ export class ComparisionComponent implements OnInit {
       },
 
       dataLabels: {
-        enabled: false                            // individual segment labels off; total label above handles it
+        enabled: false                            
       },
 
       stroke: {
@@ -481,7 +473,7 @@ export class ComparisionComponent implements OnInit {
 
       yaxis: {
         title: {
-          text: 'Score (%)',
+          text: 'Completion Rate (%)',
           style: { fontSize: '13px', fontWeight: 600, color: '#475569' }
         },
         labels: {
@@ -511,19 +503,18 @@ export class ComparisionComponent implements OnInit {
             const ev = pillarData.evaluators[evaluatorName];
             if (!ev) return '—';
 
-            const completion = typeof ev.compeletionRate === 'number'
-              ? ev.compeletionRate.toFixed(1)
-              : ev.compeletionRate;
+            const score = typeof ev.score === 'number'
+              ? ev.score.toFixed(1)
+              : ev.score;
 
             return (
-              `Score: ${Number(val).toFixed(1)}%` +
-              ` | Completion: ${completion}%` +
+              `Completion: ${val.toFixed(1)}%` +
+              ` | Score: ${Number(score).toFixed(1)}%` +
               ` (${ev.ansQuestion}/${ev.totalQuestion} questions)`
             );
           }
         }
       },
-
       legend: {
         position: 'top',
         horizontalAlign: 'center',
@@ -537,7 +528,6 @@ export class ComparisionComponent implements OnInit {
         },
         itemMargin: { horizontal: 12, vertical: 8 }
       },
-
       grid: {
         borderColor: '#e2e8f0',
         strokeDashArray: 4,
@@ -545,7 +535,6 @@ export class ComparisionComponent implements OnInit {
         yaxis: { lines: { show: true } },
         padding: { top: 0, right: 20, bottom: 0, left: 10 }
       },
-
       colors
     };
   }

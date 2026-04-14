@@ -19,7 +19,7 @@ export interface PillarsTableRow {
   callRecords?: any;
   pillarName: string;
   pillarID: number;
-  [key: string]: string | number;
+  [key: string]: string | number | object;
 }
 export interface QuestionTableRow {
   question: string;

@@ -54,3 +54,7 @@ export interface TransferAssessmentRequestDto {
   assessmentID: number;
   transferToUserID: number;
 }
+export interface GetQuesiontAssessmentHistoryRequestDto {
+  userAssessmentMappingID: number;
+  pillarID: number;
+}
