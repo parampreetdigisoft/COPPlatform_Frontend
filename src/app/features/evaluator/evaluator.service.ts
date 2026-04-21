@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpService } from 'src/app/core/http/http.service';
 import { SendRequestMailToUpdateCity } from 'src/app/core/models/AnalystVM';
-import { AddAssessmentDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { AddAssessmentDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { CityHistoryDto, GetCityQuestionHistoryReponseDto, UserCityRequstDto } from 'src/app/core/models/cityHistoryDto';
 import { CityVM } from 'src/app/core/models/CityVM';
@@ -17,7 +17,7 @@ import { PaginationUserRequest } from 'src/app/core/models/PaginationRequest';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
 import { CityMappingPillerRequestDto } from 'src/app/core/models/QuestionRequest';
-import { GetQuestionByCityMappingRespones } from 'src/app/core/models/QuestonResponse';
+import { GetQuestionByCityMappingResponse } from 'src/app/core/models/QuestionResponse';
 import { ResultResponseDto } from 'src/app/core/models/ResultResponseDto';
 
 @Injectable({
@@ -62,7 +62,7 @@ export class EvaluatorService {
   public getAssessmentResults(payload: GetAssessmentRequestDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getAssessmentResults`, payload).pipe(map(x => x as PaginationResponse<GetAssessmentResponse>));
   }
-  public getAssessmentQuestoins(payload: GetAssessmentQuestoinRequestDto) {
+  public getAssessmentQuestoins(payload: GetAssessmentQuestionRequestDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getAssessmentQuestoins`, payload).pipe(map(x => x as PaginationResponse<GetAssessmentQuestionResponseDto>));
   }
   public ImportAssessment(formData: FormData) {
@@ -85,7 +85,7 @@ export class EvaluatorService {
       .pipe(map((x) => x as PaginationResponse<GetInviatationResponseDto>));
   }
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
-    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
+    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingResponse>));
   }
   public ExportQuestions(userAssessmentMappingID: number) {
     return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);

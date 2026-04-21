@@ -9,7 +9,7 @@ import { PillarsVM } from "src/app/core/models/PillersVM";
 import { CityVM } from "src/app/core/models/CityVM";
 import { UserService } from "src/app/core/services/user.service";
 import { CityMappingPillerRequestDto } from "src/app/core/models/QuestionRequest";
-import { GetQuestionByCityMappingRespones } from "src/app/core/models/QuestonResponse";
+import { GetQuestionByCityMappingResponse } from "src/app/core/models/QuestionResponse";
 import { ToasterService } from "src/app/core/services/toaster.service";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import {
@@ -35,7 +35,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   pillars: PillarsVM[] = [];
   cities: CityVM[] = []; // ✅ fixed type
   userAssessmentMappingID: number = 0;
-  pillerQuestions: GetQuestionByCityMappingRespones | null = null;
+  pillerQuestions: GetQuestionByCityMappingResponse | null = null;
   form!: FormGroup;
   pillarDisplayOrder: number = 1;
   selectedPillar?: PillarsVM;
@@ -197,12 +197,12 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
           this.pillarChanged();
           this.loadQuestions();
         } else {
-          this.toaster.showWarning("invitaion's assessment is already submitted");
+          this.toaster.showWarning("Invitation's assessment is already submitted");
         }
       },
       error: () => {
         this.isLoader = false;
-        this.toaster.showError("There is an error accure please try again");
+        this.toaster.showError("There is an error occurred, please try again");
       }
     });
   }

@@ -3,7 +3,7 @@ import { AdminService } from '../../admin.service';
 import { ToasterService } from 'src/app/core/services/toaster.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
-import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
+import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
 import { SortDirection } from 'src/app/core/enums/SortDirection';
 declare var bootstrap: any;
 

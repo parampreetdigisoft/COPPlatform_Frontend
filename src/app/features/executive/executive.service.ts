@@ -14,13 +14,13 @@ import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserIn
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
 import { InviteBulkUserDto, InviteUserDto, RegisterDto, UpdateInviteUserDto } from '../../core/models/AnalystVM';
 import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/models/cityHistoryDto';
-import { QuestionsByUserPillarsResponsetDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
+import { QuestionsByUserPillarsResponseDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
-import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingRespones, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestonResponse';
+import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingResponse, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
-import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
@@ -158,7 +158,7 @@ export class ExecutiveService {
     return this.http
       .getWithQueryParams(`Question/getQuestionsHistoryByPillar`, request)
       .pipe(
-        map((x) => x as ResultResponseDto<QuestionsByUserPillarsResponsetDto[]>)
+        map((x) => x as ResultResponseDto<QuestionsByUserPillarsResponseDto[]>)
       );
   }
   public saveAssessment(payload: CityPillerRequestDto) {
@@ -171,7 +171,7 @@ export class ExecutiveService {
       .getWithQueryParams(`AssessmentResponse/getAssessmentResults`, payload)
       .pipe(map((x) => x as PaginationResponse<GetAssessmentResponse>));
   }
-  public getAssessmentQuestoins(payload: GetAssessmentQuestoinRequestDto) {
+  public getAssessmentQuestoins(payload: GetAssessmentQuestionRequestDto) {
     return this.http
       .getWithQueryParams(`AssessmentResponse/getAssessmentQuestoins`, payload)
       .pipe(
@@ -239,7 +239,7 @@ export class ExecutiveService {
     return this.http.get(`AssessmentResponse/getAssignedInvitations`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
   }
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
-    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
+    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingResponse>));
   }
   public saveAnalystAssessment(payload: AddAssessmentDto) {
     return this.http.post(`AssessmentResponse/saveAssessment`, payload).pipe(map(x => x as ResultResponseDto<string>));

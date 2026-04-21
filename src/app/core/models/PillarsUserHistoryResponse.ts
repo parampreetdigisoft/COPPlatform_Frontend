@@ -30,3 +30,8 @@ export interface QuestionUserRow {
   score?: number | null;
   justification:string | null;
 }
+
+export interface WeeklyPillarsHistoryResponseDto {
+  week1: PillarsHistoryResponse[] | [];
+  week2: PillarsHistoryResponse[] | [];
+}

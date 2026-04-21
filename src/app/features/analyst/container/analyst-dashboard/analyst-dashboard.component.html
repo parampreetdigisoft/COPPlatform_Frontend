@@ -1,93 +1,281 @@
+<!-- <app-ag-bar [options]="barOptions"></app-ag-bar> -->
 <ng-container *ngIf="!isLoader">
-  <div class="city_piller">
-    <div class="row justify-content-between align-items-end">
-      <div class="col-md-auto">
-        <div class="input_field">
-          <label>Select City *</label>
-          <ng-select [items]="cities" bindValue="cityID" bindLabel="cityName" class="form-control analyst_multi_select"
-            [searchable]="true" [placeholder]="selectedCities == '' ? 'Select City' : ''" [(ngModel)]="selectedCities"
-            (change)="getCityPillarHistory()">
-            <ng-template ng-label-tmp let-item="item " class="select_item">
-              {{ item.cityName }}
-            </ng-template>
+	<div class="db-wrap">
+		<div class="db-grid_ouuu row g-3">
+			<!-- Card 1: Assessments -->
+			<div class="col-md-3">
+				<div class="db-card">
+					<div class="card-top">
+						<span class="card-label">Assessments/Roles</span>
+						<span class="card-badge badge-teal">Live</span>
+					</div>
+					<div class="card-hero">
+						<div class="hero-number">
+							{{ cardHistory?.totalAssessments ?? 0 }}
+						</div>
+						<div class="hero-sub">Total Assessments</div>
 
-            <ng-template ng-option-tmp let-item="item">
-              {{ item.cityName }}, {{ item.state }}
-            </ng-template>
-          </ng-select>
-        </div>
-      </div>
-      <div class="col-md-auto">
-        <div class="input_field">
-          <label>Select Year*</label>
-          <select [(ngModel)]="selectedYear" name="selectedYear" class="form-control" (change)="yearChanged()">
-            <option *ngFor="let year of commonService.applicateYears" [value]="year">
-              {{ year }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md d-flex justify-content-end gap-2 mb-3">
-				<button *ngIf="cityQuestionHistoryReponse?.pillars?.length"
-					[matTooltip]=" 'Go to the AI analysis page to review detailed city insights and scores'"
-					(click)="goToCityAnalysis()"
-					class="common_button">
-					AI City Insights
-					<svg xmlns="http://www.w3.org/2000/svg"
-						width="20"
-						height="20"
-						fill="currentColor"
-						class="bi bi-box-arrow-up-right"
-						viewBox="0 0 16 16">
-						<path fill-rule="evenodd"
-							d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"></path>
-						<path fill-rule="evenodd"
-							d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"></path>
-					</svg>
-				</button>
+					</div>
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="spark-grad-1" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stop-color="#4dd9b0" stop-opacity="0.3"></stop>
+									<stop offset="100%" stop-color="#4dd9b0" stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15"
+								stroke="#4dd9b0" stroke-width="1.5" fill="none"></path>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15 L240,50 L0,50 Z"
+								fill="url(#spark-grad-1)"></path>
+							<circle cx="240" cy="15" r="3" fill="#4dd9b0"></circle>
+						</svg>
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row">
+						<div class="stat-col">
+							<div class="stat-val teal-accent">
+								{{ cardHistory?.totalCompletedAssessments ?? 0 }}
+							</div>
+							<div class="stat-lbl">Completed</div>
+						</div>
+						<div class="stat-col">
+							<div class="stat-val muted">
+								{{ cardHistory?.totalInProgressAssessments ?? 0 }}
+							</div>
+							<div class="stat-lbl">In Progress</div>
 
-				<button *ngIf="cityQuestionHistoryReponse?.pillars?.length"
-				    [matTooltip]=" 'Export pillar details'"
-					(click)="ExportCityPillar()"
-					class="common_button d-flex align-items-center">
+						</div>
+						<div class="stat-col">
+							<div class="stat-val muted">
+								{{ cardHistory?.totalEvaluators ?? 0 }}
+							</div>
+							<div class="stat-lbl">Evaluators</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="db-card">
+
+					<!-- Header -->
+					<div class="card-top">
+						<span class="card-label">Risk Management</span>
+						<span class="card-badge badge-red">Risk</span>
+					</div>
+
+					<!-- Main Highlight -->
+					<div class="card-hero">
+						<div class="hero-number">
+							{{ (cardHistory?.totalOverdue ?? 0) + (cardHistory?.totalHighRisk ?? 0) }}
+						</div>
+						<div class="hero-sub">Critical Risks</div>
+					</div>
+
+					<!-- Sparkline (keep as is) -->
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="spark-grad-2" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stop-color="#ffc84a" stop-opacity="0.25"></stop>
+									<stop offset="100%" stop-color="#ffc84a" stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,45 C40,42 60,30 90,28 C120,26 140,35 170,20 C200,8 220,15 240,12"
+								stroke="#ffc84a" stroke-width="1.5" fill="none"></path>
+							<path
+								d="M0,45 C40,42 60,30 90,28 C120,26 140,35 170,20 C200,8 220,15 240,12 L240,50 L0,50 Z"
+								fill="url(#spark-grad-2)"></path>
+							<circle cx="240" cy="12" r="3" fill="#ffc84a"></circle>
+						</svg>
+					</div>
+
+					<div class="card-divider"></div>
+
+					<!-- ✅ Risk Breakdown -->
+					<div class="card-stats-row">
+
+						<div class="stat-col">
+							<div class="stat-val text-danger">
+								{{ cardHistory?.totalOverdue ?? 0 }}
+							</div>
+							<div class="stat-lbl">Overdue</div>
+						</div>
+
+						<div class="stat-col">
+							<div class="stat-val text-warning">
+								{{ cardHistory?.totalHighRisk ?? 0 }}
+							</div>
+							<div class="stat-lbl">High Risk</div>
+						</div>
+
+						<div class="stat-col">
+							<div class="stat-val text-orange">
+								{{ cardHistory?.totalAtRisk ?? 0 }}
+							</div>
+							<div class="stat-lbl">At Risk</div>
+						</div>
+
+						<div class="stat-col">
+							<div class="stat-val text-primary">
+								{{ cardHistory?.totalDueSoon ?? 0 }}
+							</div>
+							<div class="stat-lbl">Due Soon</div>
+						</div>
+
+						<div class="stat-col">
+							<div class="stat-val text-success">
+								{{ cardHistory?.totalOnTrack ?? 0 }}
+							</div>
+							<div class="stat-lbl">On Track</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="db-card">
+					<div class="analyst_outter">
+						<div class="pillar_score_analytics">
+							<span class="card-badge badge-blue">Analytics</span>
+							<div class="card-top">
+								<span class="card-label">Pillar Scores</span>
+							</div>
+							<div class="card-hero">
+								<div class="hero-number">
+									{{ cardHistory?.averagePillarScore != null
+									? (cardHistory?.averagePillarScore == 100
+									? cardHistory?.averagePillarScore?.toFixed(0)
+									: cardHistory?.averagePillarScore?.toFixed(2))
+									: 0 }}%
+								</div>
+								<div class="hero-sub">Average Score</div>
+							</div>
+						</div>
+						<div class="card-sparkline">
+							<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+								<defs>
+									<linearGradient id="spark-grad-3" x1="0" y1="0" x2="0" y2="1">
+										<stop offset="0%" stop-color="#7eabff" stop-opacity="0.25"></stop>
+										<stop offset="100%" stop-color="#7eabff" stop-opacity="0"></stop>
+									</linearGradient>
+								</defs>
+								<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8"
+									stroke="#7eabff" stroke-width="1.5" fill="none"></path>
+								<path
+									d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8 L240,50 L0,50 Z"
+									fill="url(#spark-grad-3)"></path>
+								<circle cx="240" cy="8" r="3" fill="#7eabff"></circle>
+							</svg>
+						</div>
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row">
+						<div class="stat-col">
+							<div class="pillar-score blue-accent">
+								{{ cardHistory?.highestPillarScore?.value != null
+								? (cardHistory?.highestPillarScore?.value == 100
+								? cardHistory?.highestPillarScore?.value?.toFixed(0)
+								: cardHistory?.highestPillarScore?.value?.toFixed(2))
+								: 0 }}%
+							</div>
+							<div class="pillar_scores">
+								<div class="pillar-name">
+									{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}
+								</div>
+								<div class="stat-lbl">Highest</div>
+							</div>
+						</div>
+						<div class="stat-col lowest_sec">
+							<div class="pillar-score lowest_title">
+								{{ cardHistory?.lowestPillarScore?.value != null
+								? (cardHistory?.lowestPillarScore?.value == 100
+								? cardHistory?.lowestPillarScore?.value?.toFixed(0)
+								: cardHistory?.lowestPillarScore?.value?.toFixed(2))
+								: 0 }}%
+							</div>
+							<div class="pillar_scores lowest_descript">
+								<div class="pillar-name ">
+									{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}
+								</div>
+								<div class="stat-lbl">Lowest</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="city_piller">
+		<div class="row justify-content-between align-items-end">
+			<div class="col-md-auto">
+				<div class="input_field">
+					<label>Select Assessment *</label>
+					<ng-select [items]="assignedInvitations!" [searchable]="true" placeholder="OverAll Assessment"
+						[(ngModel)]="assignedInvitation" (change)="getDashboardPillarHistory()"
+						bindValue="userAssessmentMappingID" bindLabel="geographicReference"
+						class="form-control analyst_multi_select">
+
+						<ng-template ng-label-tmp let-item="item">
+							{{ item.geographicReference }}
+						</ng-template>
+
+						<ng-template ng-option-tmp let-item="item">
+							{{ item.geographicReference }}, {{ item.year }}
+						</ng-template>
+
+					</ng-select>
+				</div>
+			</div>
+			<div class="col-md d-flex justify-content-end gap-2 mb-3">
+				<button *ngIf="assessmentHistoryResponse()?.pillars?.length" [matTooltip]=" 'Export pillar details'"
+					(click)="ExportCityPillar()" class="common_button d-flex align-items-center">
 					Export
-					<svg xmlns="http://www.w3.org/2000/svg"
-						width="20"
-						height="20"
-						fill="#ffffff"
-						viewBox="0 0 256 256"
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" viewBox="0 0 256 256"
 						class="ms-1">
-						<path d="M216,112v96a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V112A16,16,0,0,1,56,96H80a8,8,0,0,1,0,16H56v96H200V112H176a8,8,0,0,1,0-16h24A16,16,0,0,1,216,112ZM93.66,69.66,120,43.31V136a8,8,0,0,0,16,0V43.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,69.66Z"></path>
+						<path
+							d="M216,112v96a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V112A16,16,0,0,1,56,96H80a8,8,0,0,1,0,16H56v96H200V112H176a8,8,0,0,1,0-16h24A16,16,0,0,1,216,112ZM93.66,69.66,120,43.31V136a8,8,0,0,0,16,0V43.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,69.66Z">
+						</path>
 					</svg>
 				</button>
 			</div>
-    </div>
-      <div id="chartPillar" *ngIf="chartPillarOptions && chartPillarOptions?.series" tyle="width:100%; height:500px;">
-        <apx-chart class="cus_chart_right" [series]="chartPillarOptions.series!" [chart]="chartPillarOptions.chart!" [xaxis]="chartPillarOptions.xaxis!"
-          [yaxis]="chartPillarOptions.yaxis!" [colors]="chartPillarOptions.colors!" [tooltip]="chartPillarOptions.tooltip!"
-          [plotOptions]="chartPillarOptions.plotOptions!" [legend]="chartPillarOptions.legend!" [fill]="chartPillarOptions.fill!"
-          [states]="chartPillarOptions.states!" [dataLabels]="chartPillarOptions.dataLabels!" [stroke]="chartPillarOptions.stroke!"
-          [markers]="chartPillarOptions.markers!" [grid]="chartPillarOptions.grid!"></apx-chart>
-      </div>
-  </div>
-  <div class="apx_chart_new" *ngIf="chartOptions?.series">
-    <div class="card_heading">
-      <h3>City Overview</h3>
-    </div>
-    <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [plotOptions]="chartOptions.plotOptions!"
-      [labels]="chartOptions.labels!" [legend]="chartOptions.legend!" [colors]="chartOptions.colors!">
-    </apx-chart>
-  </div>
-  <div class="outer_graph">
-    <div id="apexchart" *ngIf="apexchartOptions && apexchartOptions?.series!">
-      <apx-chart [series]="apexchartOptions.series!" [chart]="apexchartOptions.chart!" [xaxis]="apexchartOptions.xaxis!"
-        [stroke]="apexchartOptions.stroke!" [tooltip]="apexchartOptions.tooltip!"
-        [dataLabels]="apexchartOptions.dataLabels!"></apx-chart>
-    </div>
+		</div>
 
-  </div>
+		<div *ngIf="chartPillarOptions && chartPillarOptions?.series" id="chartPillar" tyle="width:100%; height:500px;">
+			<apx-chart [series]="chartPillarOptions.series!" [chart]="chartPillarOptions.chart!"
+				[xaxis]="chartPillarOptions.xaxis!" [yaxis]="chartPillarOptions.yaxis!"
+				[colors]="chartPillarOptions.colors!" [tooltip]="chartPillarOptions.tooltip!"
+				[plotOptions]="chartPillarOptions.plotOptions!" [legend]="chartPillarOptions.legend!"
+				[fill]="chartPillarOptions.fill!" [states]="chartPillarOptions.states!"
+				[dataLabels]="chartPillarOptions.dataLabels!" [stroke]="chartPillarOptions.stroke!"
+				[markers]="chartPillarOptions.markers!" [grid]="chartPillarOptions.grid!"
+				class="cus_chart_right"></apx-chart>
+		</div>
+	</div>
+
+	<div class="assessment-wrapper">
+		<div class="assessment-card">
+			Score: {{assessmentScore().toFixed(2)}}%
+			<app-circular-score [value]="assessmentScore()"></app-circular-score>
+		</div>
+		<div class="assessment-card">
+			Completion: {{completionRate().toFixed(2)}}%
+			<app-circular-score [value]="completionRate()"></app-circular-score>
+		</div>
+		<div class="assessment-card">
+			Answered: {{totalAns()| number:'1.0-0'}}
+			<app-sparkline-score [value]="totalAns()" [sign]="''"></app-sparkline-score>
+		</div>
+		<div class="assessment-card">
+			Total Questions: {{totalQuestions()| number:'1.0-0'}}
+			<app-sparkline-score [value]="totalQuestions()" [sign]="''"></app-sparkline-score>
+		</div>
+	</div>
+
 </ng-container>
 
 <div *ngIf="isLoader" class="loader_main">
-  <div class="loader"></div>
+	<div class="loader"></div>
 </div>

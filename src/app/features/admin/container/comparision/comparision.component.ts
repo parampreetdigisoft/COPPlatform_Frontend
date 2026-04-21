@@ -10,7 +10,7 @@ import {
   PillarsTableRow,
   QuestionTableRow
 } from "src/app/core/models/PillarsUserHistoryResponse";
-import { QuestionsByUserPillarsResponsetDto } from "src/app/core/models/GetQuestionHistoryResponseDto ";
+import { QuestionsByUserPillarsResponseDto } from "src/app/core/models/GetQuestionHistoryResponseDto ";
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -53,7 +53,7 @@ export class ComparisionComponent implements OnInit {
   selectedYear = new Date().getFullYear();
   pillers: PillarsVM[] = [];
   pillersHistory: PillarsHistoryResponse[] = [];
-  questionsByUserPillars: QuestionsByUserPillarsResponsetDto[] = [];
+  questionsByUserPillars: QuestionsByUserPillarsResponseDto[] = [];
   invitations: GetAssignedAssessmentResponseDto[] | null = [];
   selectedInvitations: number | any = "";
   selectedPillarID: number | any = "";
@@ -158,6 +158,7 @@ export class ComparisionComponent implements OnInit {
       next: (res) => {
         this.isLoader = false;
         this.pillersHistory = res.result ?? [];
+        console.log(this.pillersHistory);
         this.loadPillars();
         this.GetPillarBarOptions();
       },

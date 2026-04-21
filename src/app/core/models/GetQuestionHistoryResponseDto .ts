@@ -13,7 +13,7 @@ export interface QuestionsByUserInfo {
   optionText:string;
 }
 
-export interface QuestionsByUserPillarsResponsetDto extends GetQuestionHistoryResponseDto {
+export interface QuestionsByUserPillarsResponseDto extends GetQuestionHistoryResponseDto {
   users: QuestionsByUserInfo[];
 }
 

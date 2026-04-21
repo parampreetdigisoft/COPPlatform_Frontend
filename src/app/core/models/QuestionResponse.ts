@@ -4,7 +4,7 @@ import { PillarsVM } from "./PillersVM";
 export interface GetQuestionRequest extends PaginationRequest {
   pillarID?: number;
 }
-export interface GetQuestionByCityMappingRespones extends PillarsVM {
+export interface GetQuestionByCityMappingResponse extends PillarsVM {
   assessmentID: number;
   userAssessmentMappingID: number;
   submittedPillarDisplayOrder: number;
@@ -12,7 +12,7 @@ export interface GetQuestionByCityMappingRespones extends PillarsVM {
   pillars : PillarsVM[];
 }
 
-export interface GetQuestionByCityRespones extends GetQuestionResponse {
+export interface GetQuestionByCityResponse extends GetQuestionResponse {
   assessmentID: number;
   pillarDisplayOrder: number;
 }
@@ -47,11 +47,12 @@ export interface AssessmentQuestionResponse {
   responseID: number;
   questionText: string;
   isSelected: boolean;
-  questionOptions: AssessmentQuestionOptionResonse[];
-  history: AssessmentQuestionOptionResonse[];
+  isCritical : boolean;
+  questionOptions: AssessmentQuestionOptionResponse[];
+  history: AssessmentQuestionOptionResponse[];
 }
 
-export interface AssessmentQuestionOptionResonse  extends QuestionOption {
+export interface AssessmentQuestionOptionResponse  extends QuestionOption {
   isSelected: boolean;
   justification:string
   source:string

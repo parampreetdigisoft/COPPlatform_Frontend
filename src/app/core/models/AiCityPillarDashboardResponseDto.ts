@@ -31,4 +31,6 @@ export interface CityPillarDashboardPillarValueDto {
   totalQuestions: number;
   scoreProgress: number;
   completionRate: number;
+  totalCriticalQuestions: number;
+  totalAnsweredCriticalQuestions: number;
 }

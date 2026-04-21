@@ -4,7 +4,7 @@ import { ToasterService } from 'src/app/core/services/toaster.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
-import { GetAssessmentQuestoinRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { GetAssessmentQuestionRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetAssessmentQuestionResponseDto } from 'src/app/core/models/AssessmentResponse';
 import { SortDirection } from 'src/app/core/enums/SortDirection';
 import { AdminService } from '../../admin.service';
@@ -60,7 +60,7 @@ export class EvaluatoinResponseViewComponent implements OnInit {
   getAssessmentQuestoins(currentPage: number = 1) {
     this.questionResponse = undefined;
     this.isLoader = true;
-    let payload: GetAssessmentQuestoinRequestDto = {
+    let payload: GetAssessmentQuestionRequestDto = {
       sortDirection: SortDirection.ASC,
       sortBy: 'questoinID',
       pageNumber: currentPage,

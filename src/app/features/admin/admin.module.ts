@@ -18,6 +18,8 @@ import { AdminDashboardComponent } from './container/admin-dashboard/admin-dashb
 import { ComparisionComponent } from './container/comparision/comparision.component';
 import { TransterAssessmentComponent } from './features/transter-assessment/transter-assessment.component';
 import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
+import { ComparisionWeeklyComponent } from './container/comparision-weekly/comparision-weekly.component';
+import { CalendarModule } from 'primeng/calendar';
 
 @NgModule({
   declarations: [
@@ -34,13 +36,15 @@ import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-
     UpdatePillarComponent,
     AdminDashboardComponent,
     ComparisionComponent,
-    TransterAssessmentComponent
+    TransterAssessmentComponent,
+    ComparisionWeeklyComponent
   ],
   imports: [
     CommonModule,
     SharedModule,
     AdminRoutingModule,
     DateViewerComponent,
+    CalendarModule,
     QuillModule.forRoot({
       theme: 'snow',
       format: 'html' ,

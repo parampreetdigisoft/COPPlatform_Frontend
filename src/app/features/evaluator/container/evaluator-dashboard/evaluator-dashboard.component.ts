@@ -1,20 +1,32 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { CityHistoryDto, GetCitiesSubmitionHistoryReponseDto, GetCityQuestionHistoryReponseDto, UserCityRequstDto } from 'src/app/core/models/cityHistoryDto';
-import { CityVM } from 'src/app/core/models/CityVM';
-import { EvaluatorService } from '../../evaluator.service';
-import { ToasterService } from 'src/app/core/services/toaster.service';
-import { UserService } from 'src/app/core/services/user.service';
-import { AgBarSeriesOptions, AgTooltipRendererDataRow } from "ag-charts-community";
-import { CommonService } from 'src/app/core/services/common.service';
-
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ViewChild,
+  AfterViewInit,
+  signal,
+  computed,
+} from "@angular/core";
+import { ToasterService } from "src/app/core/services/toaster.service";
+import { UserService } from "src/app/core/services/user.service";
+import { CardHistoryDto, UserAssessmentPillarDashboardRequstDto } from "../../../../core/models/cityHistoryDto";
+import { CommonService } from "src/app/core/services/common.service";
 import {
   ApexNonAxisChartSeries,
   ApexPlotOptions,
   ApexChart,
   ApexLegend,
   ChartComponent,
+  ApexAxisChartSeries,
+  ApexDataLabels,
+  ApexTooltip,
+  ApexXAxis,
+  ApexYAxis,
+  ApexStates,
 } from "ng-apexcharts";
-
+import { AiCityPillarDashboardResponseDto, CityPillarDashboardPillarValueDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
+import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { AdminService } from "src/app/features/admin/admin.service";
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -23,546 +35,610 @@ export type ChartOptions = {
   colors: string[];
   legend: ApexLegend;
   plotOptions: ApexPlotOptions;
-
 };
-@Component({
-  selector: 'app-evaluator-dashboard',
-  templateUrl: './evaluator-dashboard.component.html',
-  styleUrl: './evaluator-dashboard.component.css'
-})
-export class EvaluatorDashboardComponent {
-  currentYear = new Date().getFullYear();
-  selectedYear = this.currentYear;
-  cities: CityVM[] | null = [];
-  selectedCities: number | any = '';
-  cityHistory: CityHistoryDto | null = null;
-  cityQuestionHistoryReponse: GetCityQuestionHistoryReponseDto | null = null;
-  @ViewChild("chartPillar") chartPillar!: ChartComponent;
-  public chartPillarOptions: any = {};
-  isLoader: boolean = false;
 
+export type PillarChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  colors: string[];
+  tooltip: ApexTooltip;
+  plotOptions: ApexPlotOptions;
+  legend: ApexLegend;
+  fill: any;
+  states: ApexStates;
+  dataLabels: ApexDataLabels;
+  stroke: any;
+  markers: any;
+  grid: any;
+};
+
+@Component({
+  selector: "app-evaluator-dashboard",
+  templateUrl: "./evaluator-dashboard.component.html",
+  styleUrls: ["./evaluator-dashboard.component.css"] ,
+  encapsulation: ViewEncapsulation.None,
+})
+export class EvaluatorDashboardComponent implements OnInit, AfterViewInit {
+  selectedYear = new Date().getFullYear();
+  assignedInvitations?: GetAssignedAssessmentResponseDto[] = [];
+  assignedInvitation: number | any = null;
+  cardHistory: CardHistoryDto | null = null;
+  isLoader: boolean = false;
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions!: Partial<ChartOptions>;
-  constructor(private evaluatorService: EvaluatorService, private toaster: ToasterService, private userService: UserService, public commonService: CommonService) { }
+  @ViewChild("chartPillar") chartPillar!: ChartComponent;
+  public chartPillarOptions: Partial<PillarChartOptions> = {};
+
+  assessmentHistoryResponse = signal<AiCityPillarDashboardResponseDto | null>(null);
+  totalQuestions = computed(() =>
+    Math.round(
+      this.assessmentHistoryResponse()?.pillars?.reduce(
+        (sum: number, x: CityPillarDashboardPillarValueDto) =>
+          sum + (x.totalQuestions ?? 0),
+        0
+      ) ?? 0
+    )
+  );
+
+  totalAns = computed(() =>
+    Math.round(
+      this.assessmentHistoryResponse()?.pillars?.reduce(
+        (sum: number, x: CityPillarDashboardPillarValueDto) =>
+          sum + (x.totalAns ?? 0),
+        0
+      ) ?? 0
+    )
+  );
+  completionRate = computed(() => {
+    const total = this.totalQuestions();
+    return total > 0 ? (this.totalAns() * 100) / total : 0;
+  });
+  assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
+
+  constructor(
+    private adminService: AdminService,
+    private toaster: ToasterService,
+    private userService: UserService,
+    public commonService: CommonService
+  ) { }
+
   ngOnInit(): void {
     this.isLoader = true;
-    this.getAllCitiesByUserId();
-    this.GetCityHistory();
-  }
-  yearChanged() {
-    this.GetCityHistory();
-    this.getCityQuestionHistory();
+    this.getCardDetails();
+    this.getAssignedInvitations();
+
   }
 
   ngAfterViewInit() { }
 
-  getAllCitiesByUserId() {
-    this.evaluatorService.getAllCitiesByUserId(this.userService?.userInfo?.userID).subscribe({
-      next: (res) => {
-        this.isLoader = false;
-        this.cities = res.result;
-        if (this.cities && this.cities.length > 0) {
-          this.isLoader = true;
-          this.selectedCities = this.cities[0].cityID;
-          this.getCityQuestionHistory();
-        }
-      }
-    });
+  getAssignedInvitations() {
+    this.adminService
+      .getAssignedInvitations()
+      .subscribe({
+        next: (res) => {
+          this.assignedInvitations = res.result ?? [];
+          // if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+          //      this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
+          // }
+          this.getDashboardPillarHistory();
+        },
+      });
   }
 
-  GetCityHistory() {
-    this.evaluatorService.getCityHistory(this.userService?.userInfo?.userID ?? 0, this.commonService.getStartOfYearLocal(this.selectedYear)).subscribe({
-      next: (res) => {
-        this.cityHistory = res.result;
-        this.GetApexPieOptions();
-      }
-    });
+  yearChanged() {
+    this.getDashboardPillarHistory();
+    this.getCardDetails();
   }
-  getCityQuestionHistory() {
-    if (this.userService?.userInfo?.userID == null || !this.selectedCities || this.selectedCities === '' || this.selectedCities == null) {
+
+  getCardDetails() {
+    this.adminService
+      .getCardDetails()
+      .subscribe({
+        next: (res) => {
+          this.cardHistory = res.result;                  
+          this.isLoader = false;
+        },
+        error: () => this.isLoader = false
+      });
+  }
+
+  getDashboardPillarHistory() {
+
+    if (
+      this.userService?.userInfo?.userID == null
+    ) {
       return;
     }
-    let request: UserCityRequstDto = {
-      userID: this.userService?.userInfo?.userID ?? 0,
-      cityID: this.selectedCities,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear)
-    }
-    this.evaluatorService.getCityQuestionHistory(request).subscribe({
-      next: (res) => {
+    let request: UserAssessmentPillarDashboardRequstDto = {
+      userAssessmentMappingID: this.assignedInvitation ?? null,
+    };
+    this.adminService.getDashboardPillarHistory(request).subscribe({
+      next: (res) => {        
         this.isLoader = false;
-        this.cityQuestionHistoryReponse = res;
-        if (this.cityQuestionHistoryReponse) {
-          this.GetPillarBarOptions(this.cityQuestionHistoryReponse);
+        this.assessmentHistoryResponse.set(res.result);
+        if (this.assessmentHistoryResponse()) {
+          this.buildPillarComparisonChart();
         }
       },
       error: (err) => {
         this.isLoader = false;
-      }
+      },
     });
   }
 
-  GetPillarBarOptions(history: GetCityQuestionHistoryReponseDto) {
-    let colors = this.commonService.PillarColors;
-    const rawMax = Math.max(...history.pillars.map(p => p.scoreProgress));
-    const maxNumber = Math.ceil(rawMax / 10) * 10;
-
-    let data = history.pillars
-      .map((p) => ({
-        pillarID: p.pillarID,
-        pillarName: p.pillarName,
-        totalQuestion: p.totalQuestion,
-        ansQuestion: p.ansQuestion,
-        score: p.score,
-        scoreProgress: p.scoreProgress,
-        completionRate: p.totalQuestion > 0 ? (p.ansQuestion / p.totalQuestion) * 100 : 0
-      }))
-      .sort((a, b) => a.scoreProgress - b.scoreProgress);
-
-    // Generate short names with duplicate handling
-    const shortNames = this.generateUniqueShortNames(data.map(d => d.pillarName));
-
-    // Prepare data for ApexCharts
-    const categories = shortNames;
-    const seriesData = data.map((d, index) => ({
-      x: shortNames[index],
-      y: d.scoreProgress,
-      fillColor: this.getBarColor(d.scoreProgress, maxNumber, colors),
-      meta: {
-        ansQuestion: d.ansQuestion,
-        totalQuestion: d.totalQuestion,
-        completionRate: d.completionRate,
-        pillarName: d.pillarName,
-        pillarShortName: shortNames[index]
-      }
-    }));
-
-    this.chartPillarOptions = {
-      series: [{
-        name: 'Score Progress',
-        data: seriesData
-      }],
-      chart: {
-        type: 'bar',
-        height: 500,
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        background: 'transparent',
-        toolbar: {
-          show: false,
-        },
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 900,
-          animateGradually: {
-            enabled: true,
-            delay: 100
-          },
-          dynamicAnimation: {
-            enabled: true,
-            speed: 400
-          }
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: true,
-          borderRadius: 8,
-          borderRadiusApplication: 'end',
-          barHeight: '70%',
-          distributed: true,
-          dataLabels: {
-            position: 'center'
-          }
-        }
-      },
-      colors: colors,
-      dataLabels: {
-        enabled: true,
-        textAnchor: 'middle',
-        offsetX: 0,
-        style: {
-          fontSize: '14px',
-          fontWeight: 800,
-          colors: ['#ffffff']
-        },
-        formatter: (val: number, opts: any) => {
-          const percentage = val.toFixed(val >= 100 ? 0 : 1);
-          return `${percentage}%`;
-        },
-        background: {
-          enabled: false
-        },
-      },
-      stroke: {
-        show: true,
-        width: 0,
-        colors: ['transparent']
-      },
-      xaxis: {
-        categories: categories,
-        title: {
-          text: 'Score Progress (%)',
-          style: {
-            fontSize: '14px',
-            fontWeight: 700,
-            color: '#2d3748'
-          },
-          offsetY: 0
-        },
-        labels: {
-          style: {
-            fontSize: '12px',
-            fontWeight: 600,
-            colors: '#718096'
-          },
-          formatter: (value: number) => `${value}%`
-        },
-        axisBorder: {
-          show: true,
-          color: '#cbd5e0',
-          height: 1,
-          offsetY: 0
-        },
-        axisTicks: {
-          show: true,
-          color: '#e2e8f0',
-          height: 5
-        },
-        min: 0,
-        max: maxNumber,
-        tickAmount: 5
-      },
-      yaxis: {
-        labels: {
-          show: true,
-          align: 'right',
-          minWidth: 0,
-          maxWidth: 120,
-          style: {
-            fontSize: '11px',
-            fontWeight: 600,
-            colors: '#4a5568'
-          },
-          offsetX: -50
-        },
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        }
-      },
-      grid: {
-        show: true,
-        borderColor: '#e2e8f0',
-        strokeDashArray: 4,
-        position: 'back',
-        xaxis: {
-          lines: {
-            show: true
-          }
-        },
-        yaxis: {
-          lines: {
-            show: false
-          }
-        },
-        padding: {
-          top: 5,
-          right: 30,
-          bottom: 10,
-          left: 10
-        }
-      },
-      tooltip: {
-        enabled: true,
-        shared: false,
-        followCursor: true,
-        intersect: true,
-        inverseOrder: false,
-        theme: 'light',
-        style: {
-          fontSize: '13px',
-          fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
-        },
-        onDatasetHover: {
-          highlightDataSeries: true,
-        },
-        custom: ({ series, seriesIndex, dataPointIndex, w }: any) => {
-          const meta = w.config.series[0].data[dataPointIndex].meta;
-          const percentage = series[seriesIndex][dataPointIndex].toFixed(1);
-          const completion = meta.completionRate.toFixed(1);
-          const barColor = w.config.series[0].data[dataPointIndex].fillColor;
-
-          const completionColor = completion >= 80 ? '#48bb78' :
-            completion >= 50 ? '#ed8936' : '#f56565';
-
-          const progressWidth = Math.min(completion, 100);
-
-          return `
-          <div style="background: #ffffff; border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,0.25); overflow: hidden;  border: 2px solid ${barColor}40;">
-            
-            <!-- Header Section with Full Pillar Name -->
-            <div style="background: linear-gradient(135deg, ${barColor} 0%, ${barColor}cc 100%); padding: 16px 20px; position: relative; overflow: hidden; min-height: 60px;">
-              <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
-              <div style="position: absolute; bottom: -10px; left: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-              <div style="font-weight: 800; font-size: 15px; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.2); position: relative; z-index: 1; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;">
-                ${meta.pillarName}
-              </div>
-            </div>
-
-            <!-- Content Section -->
-            <div style="padding: 18px 20px; background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%);">
-              
-              <!-- Progress Score -->
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <div style="width: 8px; height: 8px; background: ${barColor}; border-radius: 50%; box-shadow: 0 0 8px ${barColor}80;"></div>
-                  <span style="color: #718096; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Score</span>
-                </div>
-                <span style="color: ${barColor}; font-weight: 900; font-size: 24px; line-height: 1; text-shadow: 0 1px 2px ${barColor}40;">
-                  ${percentage}%
-                </span>
-              </div>
-
-              <!-- Questions Answered -->
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 10px 12px; background: #f7fafc; border-left: 3px solid ${barColor}; border-radius: 6px;">
-                <span style="color: #4a5568; font-weight: 600; font-size: 12px;">Questions Answered</span>
-                <span style="color: #2d3748; font-weight: 700; font-size: 15px;">
-                  ${meta.ansQuestion} <span style="color: #a0aec0; font-weight: 500;">/</span> ${meta.totalQuestion}
-                </span>
-              </div>
-
-              <!-- Completion Rate with Progress Bar -->
-              <div style="margin-top: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <span style="color: #4a5568; font-weight: 600; font-size: 12px;">Completion Rate</span>
-                  <span style="color: ${completionColor}; font-weight: 800; font-size: 16px; text-shadow: 0 1px 2px ${completionColor}40;">
-                    ${completion}%
-                  </span>
-                </div>
-                <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); position: relative;">
-                  <div style="width: ${progressWidth}%; height: 100%; background: linear-gradient(90deg, ${completionColor} 0%, ${completionColor}dd 50%, ${completionColor} 100%); border-radius: 12px; transition: width 0.5s ease; box-shadow: 0 0 12px ${completionColor}60; position: relative;">
-                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);"></div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        `;
-        }
-      },
-      states: {
-        normal: {
-          filter: {
-            type: 'none',
-            value: 0
-          }
-        },
-        hover: {
-          filter: {
-            type: 'lighten',
-            value: 0.08
-          }
-        },
-        active: {
-          allowMultipleDataPointsSelection: false,
-          filter: {
-            type: 'darken',
-            value: 0.15
-          }
-        }
-      },
-      legend: {
-        show: false
-      },
-      fill: {
-        opacity: 1,
-        type: 'gradient',
-        gradient: {
-          shade: 'light',
-          type: 'horizontal',
-          shadeIntensity: 0.5,
-          gradientToColors: undefined,
-          inverseColors: false,
-          opacityFrom: 0.9,
-          opacityTo: 1,
-          stops: [0, 50, 100]
-        }
-      }
-    };
-  }
-
-  // Helper method to generate unique short names with smart duplicate handling
-  private generateUniqueShortNames(pillarNames: string[]): string[] {
-    const maxLength = 8; // Maximum characters to show before "..."
-    const shortNames: string[] = [];
-    const nameCount: { [key: string]: number } = {};
-
-    // First pass: create basic short names and count duplicates
-    pillarNames.forEach(name => {
-      const words = name.split(/[\s,/&-]+/).filter(word => word.length > 0);
-      const firstWord = words[0] || name;
-
-      // Truncate first word
-      const truncated = firstWord.length > maxLength
-        ? firstWord.substring(0, maxLength)
-        : firstWord;
-
-      // Count occurrences
-      nameCount[truncated] = (nameCount[truncated] || 0) + 1;
-    });
-
-    // Second pass: add suffix for duplicates
-    const usedNames: { [key: string]: number } = {};
-
-    pillarNames.forEach(name => {
-      const words = name.split(/[\s,/&-]+/).filter(word => word.length > 0);
-      const firstWord = words[0] || name;
-
-      // Truncate first word
-      let truncated = firstWord.length > maxLength
-        ? firstWord.substring(0, maxLength)
-        : firstWord;
-
-      // If this base name has duplicates, add distinguishing suffix
-      if (nameCount[truncated] > 1) {
-        usedNames[truncated] = (usedNames[truncated] || 0) + 1;
-
-        // Find next word's first letter for suffix
-        const suffixWord = words[usedNames[truncated]] || words[1];
-        if (suffixWord) {
-          const suffix = suffixWord.charAt(0).toLowerCase();
-          truncated = `${truncated}...${suffix}`;
-        } else {
-          truncated = `${truncated}...`;
-        }
-      } else {
-        // Single occurrence, just add "..." if truncated
-        if (firstWord.length > maxLength || words.length > 1) {
-          truncated = `${truncated}...`;
-        }
-      }
-
-      shortNames.push(truncated);
-    });
-
-    return shortNames;
-  }
-
-  // Helper method to get bar color
-  private getBarColor(scoreProgress: number, maxNumber: number, colors: string[]): string {
-    if (scoreProgress === 0) {
-      return '#d1d5db';
-    }
-    const colorIndex = Math.min(
-      Math.floor((scoreProgress / maxNumber) * colors.length),
-      colors.length - 1
-    );
-    return colors[colorIndex];
-  }
-
-  GetApexPieOptions() {
-    const total = this.cityHistory?.totalCity ?? 0;
-    const active = this.cityHistory?.activeCity ?? 0;
-    const inprogress = this.cityHistory?.inprocessCity ?? 0;
-    const complete = this.cityHistory?.compeleteCity ?? 0;
-
-    this.chartOptions = {
-      series: [
-        (total / total) * 100,
-        (active / total) * 100,
-        (inprogress / total) * 100,
-        (complete / total) * 100
-      ],
-
-      chart: {
-        height: 380,
-        type: "radialBar",
-        toolbar: {
-          show: false
-        },
-      },
-      plotOptions: {
-        radialBar: {
-          startAngle: 20,
-          endAngle: 300,
-          offsetY: 100,
-          offsetX: 5,
-          hollow: {
-            margin: 0,
-            size: "40%",
-            background: "#25453f0d",
-            image: undefined,
-            position: "front",
-            // dropShadow: {
-            //   enabled: true,
-            //   top: 3,
-            //   left: 1,
-            //   blur: 5,
-            //   opacity: 0.44
-            // }
-          },
-          dataLabels: {
-            show: true,
-            name: {
-              show: true,
-              offsetY: -10,
-            },
-            value: {
-              show: true,
-              offsetY: 10,
-              formatter: (value: number) => {
-                return `${((value * total) / 100).toFixed(0)}`;
-              }
-            },
-            total: {
-              show: true,
-              label: "Total City",
-              formatter: (value: any) => {
-                return `${total}`;
-              },
-            }
-          }
-        }
-      },
-      colors: ["#303131", "#2ee9ca","#2d5e56", "#aaadad"],
-      labels: ["Total City", "Active", "InProgress", "Completed"],
-      legend: {
-        show: true,
-        floating: true,
-        fontSize: "16px",
-        position: "left",
-        offsetX: 5,
-        offsetY: 10,
-        labels: {
-          useSeriesColors: true
-        },
-        formatter: function (seriesName: any, opts: any) {
-          return seriesName + ":  " + `${((opts.w.globals.series[opts.seriesIndex] * total) / 100).toFixed(0)}`;
-        },
-        itemMargin: {
-          horizontal: 3
-        }
-      }
-    };
-  }
   ExportCityPillar() {
-    let city = this.cities?.find((x) => x.cityID == this.selectedCities);
-    if (this.cityQuestionHistoryReponse?.pillars && city) {
-      var exportData = this.cityQuestionHistoryReponse?.pillars.map((x) => {
+    let invitation = this.assignedInvitations?.find((x) => x.userAssessmentMappingID == this.assignedInvitation);
+    if (this.assessmentHistoryResponse()?.pillars && invitation) {
+      var exportData = this.assessmentHistoryResponse()?.pillars.map((x) => {
         return {
-          CityName: city?.cityName,
-          PillarName: x.pillarName,
-          Score: x.scoreProgress?.toFixed(2),
-          AnsweredQuestion: x.ansQuestion,
-          TotalQuestion: x.totalQuestion,
+          ['Geographic Reference']: invitation?.geographicReference,
+          ['Year']: invitation?.year,
+          ['Pillar Name']: x.pillarName,
+          ['Score %']: x.scoreProgress?.toFixed(2),
+          ['Completion Rate %']: x.completionRate?.toFixed(2),
+          ['Total Answered']: x.totalAns?.toFixed(0),
+          ['Total Questions']: x.totalQuestions?.toFixed(0)
         };
-      });
+      }) as any;
       this.commonService.exportExcel(exportData);
     } else {
       this.toaster.showWarning("Please select city to export the records");
     }
   }
+
+
+  buildPillarComparisonChart() {
+
+    const data = [...(this.assessmentHistoryResponse()?.pillars ?? [])];
+
+    const categories = this.buildUniqueCategories(data);
+    const aiSeries = data.map(x => x.completionRate);
+    const evaluatorSeries = data.map(x => x.scoreProgress);
+    this.chartPillarOptions = {
+      series: [{
+        name: 'Completion Rate',
+        data: aiSeries
+      },
+      {
+        name: 'Score',
+        data: evaluatorSeries
+      }],
+
+      chart: {
+        type: 'area',
+        height: 420,
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
+          }
+        }
+      },
+
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number, opts) => {
+          return `${Math.round(val)}%`;
+        },
+        offsetY: -10,
+        style: {
+          fontSize: '11px',
+          fontWeight: 500,
+          colors: ['#032961']
+        },
+        background: {
+          enabled: true,
+          foreColor: '#ffffff',
+          padding: 6,
+          borderRadius: 4,
+          borderWidth: 1,
+          borderColor: '#032961',
+          opacity: 0.95
+        }
+      },
+
+      stroke: {
+        curve: 'smooth',
+        width: 3,
+        colors: ['#4f91ee', '#0948a0']
+      },
+
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.7,
+          opacityTo: 0.2,
+          stops: [0, 90, 100],
+          colorStops: [
+            {
+              offset: 0,
+              color: '#8fb8ec',
+              opacity: 0.8
+            },
+            {
+              offset: 50,
+              color: '#75a2dd',
+              opacity: 0.5
+            },
+            {
+              offset: 100,
+              color: '#658fc0',
+              opacity: 0.2
+            }
+          ]
+        }
+      },
+
+      markers: {
+        size: data.map(p => 4),
+        colors: data.map(p => this.PillarColorByScore(p.completionRate)),
+        strokeColors: '#8abfeb',
+        strokeWidth: 2,
+        hover: {
+          size: 8,
+          sizeOffset: 3
+        }
+      },
+
+      xaxis: {
+        categories: categories,
+        labels: {
+          rotateAlways: true,
+          rotate: -45,
+          style: {
+            fontSize: '11px',
+            fontWeight: 500,
+            colors: '#7a97cf'
+          }
+        },
+        axisBorder: {
+          show: true,
+          color: '#e5e7eb'
+        },
+        axisTicks: {
+          show: true,
+          color: '#e5e7eb'
+        }
+      },
+
+      yaxis: {
+        title: {
+          text: 'Progress (%)',
+          style: {
+            fontSize: '13px',
+            fontWeight: 600,
+            color: '#032961'
+          }
+        },
+        min: 0,
+        max: 100,
+        tickAmount: 5,
+        labels: {
+          formatter: (val) => val >= 0 ? `${Math.round(val)}%` : '',
+          style: {
+            fontSize: '12px',
+            colors: '#244586'
+          }
+        }
+      },
+
+      grid: {
+        borderColor: '#4778da',
+        strokeDashArray: 4,
+        xaxis: {
+          lines: { show: false }
+        },
+        yaxis: {
+          lines: { show: true }
+        }
+      },
+
+      tooltip: {
+        enabled: true,
+        custom: ({ dataPointIndex }) => {
+          const pillar = data[dataPointIndex];
+
+          const completionRate = pillar.completionRate ?? 0;
+          const evaluatorProgressPercent = pillar.scoreProgress ?? 0;
+
+          const completionRateColor = this.PillarColorByScore(completionRate);
+          const evaluatorProgressColor = this.PillarColorByScore(evaluatorProgressPercent);
+
+          const answeredPercent = pillar.totalQuestions
+            ? (pillar.totalAns / pillar.totalQuestions) * 100
+            : 0;
+
+          const criticalPercent = pillar.totalCriticalQuestions
+            ? (pillar.totalAnsweredCriticalQuestions / pillar.totalCriticalQuestions) * 100
+            : 0;
+
+          const statusText =
+            evaluatorProgressPercent >= 75 ? 'Excellent Performance' :
+              evaluatorProgressPercent >= 50 ? 'Strong Progress' :
+                evaluatorProgressPercent >= 25 ? 'Steady Growth' : 'Early Stage';
+
+          const statusIcon =
+            evaluatorProgressPercent >= 75 ? '🌟' :
+              evaluatorProgressPercent >= 50 ? '📈' :
+                evaluatorProgressPercent >= 25 ? '⚡' : '🌱';
+
+          return `
+    <div style="
+      padding: 18px 20px;
+      min-width: 320px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+      border-left: 4px solid ${completionRateColor};
+      font-family: 'Inter', system-ui, sans-serif;
+      position: relative;
+      overflow: hidden;
+    ">
+
+      <!-- subtle background blob -->
+      <div style="
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 120px;
+        height: 120px;
+        background: ${completionRateColor};
+        opacity: 0.08;
+        border-radius: 50%;
+      "></div>
+
+      <div style="position: relative; z-index: 1;">
+
+        <!-- HEADER -->
+        <div style="
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 16px;
+        ">
+          <div>
+            <div style="
+              font-weight: 700;
+              font-size: 16px;
+              color: #111827;
+              margin-bottom: 6px;
+            ">
+              ${pillar.pillarName}
+            </div>
+
+            <div style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 4px 10px;
+              background: ${completionRateColor}15;
+              border-radius: 12px;
+              font-size: 11px;
+              font-weight: 600;
+              color: ${completionRateColor};
+            ">
+              ${statusIcon} ${statusText}
+            </div>
+          </div>
+
+          <div style="
+            font-size: 28px;
+            font-weight: 800;
+            color: ${completionRateColor};
+            line-height: 1;
+          ">
+            ${evaluatorProgressPercent.toFixed(0)}%
+          </div>
+        </div>
+
+        <!-- SCORE BAR -->
+        <div style="margin-bottom: 14px;">
+          <div style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            color: #6b7280;
+          ">
+            <span>Score</span>
+            <span>${evaluatorProgressPercent.toFixed(1)}%</span>
+          </div>
+
+          <div style="
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+          ">
+            <div style="
+              width: ${evaluatorProgressPercent}%;
+              height: 100%;
+              background: linear-gradient(90deg, ${evaluatorProgressColor}, ${evaluatorProgressColor}cc);
+              transition: width 0.6s ease;
+            "></div>
+          </div>
+        </div>
+
+        <!-- COMPLETION BAR -->
+        <div style="margin-bottom: 14px;">
+          <div style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            color: #6b7280;
+          ">
+            <span>Completion Rate</span>
+            <span>${completionRate.toFixed(1)}%</span>
+          </div>
+
+          <div style="
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+          ">
+            <div style="
+              width: ${completionRate}%;
+              height: 100%;
+              background: linear-gradient(90deg, ${completionRateColor}, ${completionRateColor}cc);
+              transition: width 0.6s ease;
+            "></div>
+          </div>
+        </div>
+
+        <!-- METRIC CARDS -->
+        <div style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-top: 14px;
+        ">
+
+          <!-- Answered -->
+          <div style="
+            padding: 12px;
+            background: linear-gradient(135deg, ${completionRateColor}15, ${completionRateColor}05);
+            border-radius: 10px;
+            border: 1px solid ${completionRateColor}30;
+          ">
+            <div style="
+              font-size: 11px;
+              color: ${completionRateColor};
+              font-weight: 600;
+              margin-bottom: 6px;
+            ">
+              📊 Total Answered Questions
+            </div>
+
+            <div style="
+              font-size: 11px;
+              font-weight: 800;
+              color: ${completionRateColor};
+              margin-bottom: 6px;
+            ">
+              ${pillar.totalAns} / ${pillar.totalQuestions}
+            </div>
+
+            <div style="
+              width: 100%;
+              height: 6px;
+              background: #e5e7eb;
+              border-radius: 6px;
+              overflow: hidden;
+            ">
+              <div style="
+                width: ${answeredPercent}%;
+                height: 100%;
+                background: ${completionRateColor};
+                transition: width 0.6s ease;
+              "></div>
+            </div>
+          </div>
+
+          <!-- Critical -->
+          <div style="
+            padding: 12px;
+            background: linear-gradient(135deg, #ef444415, #ef444405);
+            border-radius: 10px;
+            border: 1px solid #ef444430;
+          ">
+            <div style="
+              font-size: 11px;
+              color: #dc2626;
+              font-weight: 600;
+              margin-bottom: 6px;
+            ">
+              ⚠️ Critical Answered Questions
+            </div>
+
+            <div style="
+              font-size: 11px;
+              font-weight: 800;
+              color: ${completionRateColor};
+              margin-bottom: 6px;
+            ">
+              ${pillar.totalAnsweredCriticalQuestions ?? 0} / ${pillar.totalCriticalQuestions ?? 0}
+            </div>
+
+            <div style="
+              width: 100%;
+              height: 6px;
+              background: #fee2e2;
+              border-radius: 6px;
+              overflow: hidden;
+            ">
+              <div style="
+                width: ${criticalPercent}%;
+                height: 100%;
+                background: #dc2626;
+                transition: width 0.6s ease;
+              "></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    `;
+        }
+      },
+
+      legend: {
+        show: false
+      }
+    };
+  }
+
+  PillarColorByScore(score: any): string {
+    const colors = [
+      "#a4c2ec", "#7f9cc7", "#6faaf7", "#5291e4", "#3189fd",
+      "#73a5e7", "#5c96e3", "#4587df", "#326cc1", "#28579b"
+    ];
+
+    if (score === null || score === undefined || isNaN(score)) {
+      return "#d3d3d3";
+    }
+
+    const safeScore = Math.min(Math.max(score, 0), 100);
+    const index = Math.min(Math.floor(safeScore / 10), colors.length - 1);
+    return colors[index];
+  }
+
+  buildUniqueCategories(data: { pillarName: string }[]): string[] {
+    const used = new Set<string>();
+    return data.map(item => {
+      if (!item.pillarName) return '';
+      const words = item.pillarName.trim().split(/\s+/);
+      let label = '';
+      for (let i = 1; i <= words.length; i++) {
+        const candidate = i < words.length ? words.slice(0, i).join(' ') : words.join(' ');
+        if (!used.has(candidate)) {
+          label = candidate + (i < words.length ? '...' : '');
+          used.add(candidate);
+          break;
+        }
+      }
+      if (!label) label = words[0] + '...';
+      return label;
+    });
+  }
+
 }

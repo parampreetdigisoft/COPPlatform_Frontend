@@ -9,13 +9,13 @@ import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM
 import { InviteBulkUserDto, InviteUserDto, RegisterDto, SendRequestMailToUpdateCity, UpdateInviteUserDto } from '../../core/models/AnalystVM';
 import { ResultResponseDto } from 'src/app/core/models/ResultResponseDto';
 import { CityMappingPillerRequestDto } from 'src/app/core/models/QuestionRequest';
-import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestoinRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
+import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
-import { GetQuestionByCityMappingRespones } from 'src/app/core/models/QuestonResponse';
+import { GetQuestionByCityMappingResponse } from 'src/app/core/models/QuestionResponse';
 import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserInfo';
 import { CityHistoryDto, GetCitiesSubmitionHistoryReponseDto, UserCityPillarDashboardRequstDto } from 'src/app/core/models/cityHistoryDto';
-import { QuestionsByUserPillarsResponsetDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
+import { QuestionsByUserPillarsResponseDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
 import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
 import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseDto';
@@ -106,13 +106,13 @@ export class AnalystService {
     return this.http.ImportFile(`Pillar/ExportPillarsHistoryByUserId`, request);
   }
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
-    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingRespones>));
+    return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingResponse>));
   }
   public ExportQuestions(userAssessmentMappingID: number) {
     return this.http.ImportFile(`Question/ExportAssessment/` + userAssessmentMappingID);
   }
   public getQuestionsHistoryByPillar(request: GetCityPillarHistoryRequestDto) {
-    return this.http.getWithQueryParams(`Question/getQuestionsHistoryByPillar`, request).pipe(map(x => x as ResultResponseDto<QuestionsByUserPillarsResponsetDto[]>));
+    return this.http.getWithQueryParams(`Question/getQuestionsHistoryByPillar`, request).pipe(map(x => x as ResultResponseDto<QuestionsByUserPillarsResponseDto[]>));
   }
   public saveAssessment(payload: AddAssessmentDto) {
     return this.http.post(`AssessmentResponse/saveAssessment`, payload).pipe(map(x => x as ResultResponseDto<string>));
@@ -120,7 +120,7 @@ export class AnalystService {
   public getAssessmentResults(payload: GetAssessmentRequestDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getAssessmentResults`, payload).pipe(map(x => x as PaginationResponse<GetAssessmentResponse>));
   }
-  public getAssessmentQuestoins(payload: GetAssessmentQuestoinRequestDto) {
+  public getAssessmentQuestoins(payload: GetAssessmentQuestionRequestDto) {
     return this.http.getWithQueryParams(`AssessmentResponse/getAssessmentQuestoins`, payload).pipe(map(x => x as PaginationResponse<GetAssessmentQuestionResponseDto>));
   }
   public ImportAssessment(formData: FormData) {

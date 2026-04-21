@@ -9,7 +9,7 @@ import { PillarsVM } from "src/app/core/models/PillersVM";
 import { CityVM } from "src/app/core/models/CityVM";
 import { UserService } from "src/app/core/services/user.service";
 import { CityMappingPillerRequestDto } from "src/app/core/models/QuestionRequest";
-import { GetQuestionByCityMappingRespones } from "src/app/core/models/QuestonResponse";
+import { GetQuestionByCityMappingResponse } from "src/app/core/models/QuestionResponse";
 import { ToasterService } from "src/app/core/services/toaster.service";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import {
@@ -31,7 +31,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
   pillars: PillarsVM[] = [];
   cities: CityVM[] = []; // ✅ fixed type
   userAssessmentMappingID: number = 0;
-  pillerQuestions: GetQuestionByCityMappingRespones | null = null;
+  pillerQuestions: GetQuestionByCityMappingResponse | null = null;
   form!: FormGroup;
   pillarDisplayOrder: number = 1;
   selectedPillar?: PillarsVM;
@@ -199,7 +199,7 @@ export class AnalystAssessmentComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.isLoader = false;
         if (res.succeeded) {
-          this.pillerQuestions = res.result;
+          this.pillerQuestions = res.result;          
           this.pillars = res.result?.pillars ??[];
           this.pillarDisplayOrder = this.pillerQuestions?.submittedPillarDisplayOrder ?? 1;
           if (this.pillerQuestions && this.pillerQuestions?.assessmentID > 0) {

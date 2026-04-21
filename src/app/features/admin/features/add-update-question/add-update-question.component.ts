@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AddQuestionRequest, GetQuestionResponse, QuestionOption } from 'src/app/core/models/QuestonResponse';
+import { AddQuestionRequest, GetQuestionResponse, QuestionOption } from 'src/app/core/models/QuestionResponse';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';

@@ -11,7 +11,7 @@ import {
   PillarsTableRow,
   QuestionTableRow,
 } from "src/app/core/models/PillarsUserHistoryResponse";
-import { QuestionsByUserPillarsResponsetDto } from "src/app/core/models/GetQuestionHistoryResponseDto ";
+import { QuestionsByUserPillarsResponseDto } from "src/app/core/models/GetQuestionHistoryResponseDto ";
 
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexYAxis, ApexDataLabels, ApexTooltip, ApexLegend, ApexPlotOptions, ApexGrid, ApexStroke } from "ng-apexcharts";
 import { ExecutiveService } from "../../executive.service";
@@ -40,7 +40,7 @@ export class ComparisionComponent implements OnInit {
   selectedYear = new Date().getFullYear();
   pillers: PillarsVM[] = [];
   pillersHistory: PillarsHistoryResponse[] = [];
-  questionsByUserPillars: QuestionsByUserPillarsResponsetDto[] = [];
+  questionsByUserPillars: QuestionsByUserPillarsResponseDto[] = [];
   cities: CityVM[] | null = [];
   selectedCities: number | any = "";
   selectedPillarID: number | any = "";

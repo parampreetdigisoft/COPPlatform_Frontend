@@ -21,7 +21,7 @@ export interface AddAssessmentResponseDto {
   justification: string;
 }
 
-export interface GetAssessmentQuestoinRequestDto extends PaginationUserRequest{
+export interface GetAssessmentQuestionRequestDto extends PaginationUserRequest{
   pillarID?: number | null;
   assessmentID: number;
 }
@@ -44,6 +44,11 @@ export interface GetCityPillarHistoryRequestNewDto extends PaginationUserRequest
   userAssessmentMappingID: number;
   pillarID?: number;
   updatedAt:string;
+  week1StartDate?: string;
+  week1EndDate?: string;
+
+  week2StartDate?: string;
+  week2EndDate?: string;
 }
 export interface ChangeAssessmentStatusRequestDto {
   assessmentID: number;

@@ -27,6 +27,11 @@ export interface CardHistoryDto {
   averagePillarScore: number;
   highestPillarScore: PillarCardDetailsDto;
   lowestPillarScore: PillarCardDetailsDto;
+  totalOverdue: number;
+  totalHighRisk: number;
+  totalAtRisk: number;
+  totalDueSoon: number;
+  totalOnTrack: number;
 }
 export interface PillarCardDetailsDto {
   pillarID: number;
@@ -49,6 +54,8 @@ export interface CityPillarQuestionHistoryReponseDto {
   ansQuestion: number;
   imagePath: string;
   isAccess: boolean;
+  totalCriticalQuestions: number;
+  totalAnsweredCriticalQuestions: number;
 }
 
 export interface GetCitiesSubmitionHistoryReponseDto
@@ -71,5 +78,5 @@ export interface UserCityPillarDashboardRequstDto {
 }
 
 export interface UserAssessmentPillarDashboardRequstDto {
-  userAssessmentMappingID: number;
+  userAssessmentMappingID?: number;
 }

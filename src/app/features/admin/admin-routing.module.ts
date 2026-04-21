@@ -10,6 +10,7 @@ import { AnalystViewComponent } from "./container/analyst-view/analyst-view.comp
 import { AdminDashboardComponent } from "./container/admin-dashboard/admin-dashboard.component";
 import { ComparisionComponent } from "./container/comparision/comparision.component";
 import { EvaluatoinResponseViewComponent } from "./container/evaluatoin-response-view/evaluatoin-response-view.component";
+import { ComparisionWeeklyComponent } from "./container/comparision-weekly/comparision-weekly.component";
 
 const routes: Routes = [
   {
@@ -30,6 +31,7 @@ const routes: Routes = [
       },
       { path: "viewUser/:roleID", component: AnalystViewComponent },
       { path: "evaluator-Comparision", component: ComparisionComponent },
+      { path: "evaluator-Comparision-Weekly", component: ComparisionWeeklyComponent },
       {
         path: "kpi-layers",
         loadComponent: () =>

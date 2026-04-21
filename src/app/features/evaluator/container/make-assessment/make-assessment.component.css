@@ -472,3 +472,13 @@
         padding: 20px 10px 10px;
     }
 }
+.critical-question {
+  background-color: #fff8dc; /* light yellow */
+  border-left: 4px solid #eccd6e; /* optional highlight */
+}
+
+.critical-icon {
+  color: #ff9800;
+  margin-left: 8px;
+  font-size: 16px;
+}
