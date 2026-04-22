@@ -28,8 +28,8 @@ import {
   ApexFill,
   ApexMarkers
 } from "ng-apexcharts";
-import { AdminService } from "../../admin.service";
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { AdminService } from "src/app/features/admin/admin.service";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -85,22 +85,17 @@ export class ComparisionWeeklyComponent implements OnInit {
   week2Range: Date[] = [];
   week1Error: string = '';
   week2Error: string = '';
-  private readonly blueShades: string[] = [
-    '#326cc1', // blue
-    '#e74c3c', // red
-    '#2ecc71', // green
-    '#f39c12', // orange
-    '#9b59b6', // purple
-    '#1abc9c', // teal
-    '#34495e', // dark blue-grey
-    '#e67e22', // deep orange
-    '#16a085', // dark teal
-    '#c0392b', // dark red
-    '#27ae60', // dark green
-    '#8e44ad', // deep purple
-    '#2980b9', // strong blue
-    '#d35400', // burnt orange
-  ];
+private readonly blueShades: string[] = [
+  '#bd13df', // blue
+  '#e7eb0b', // deep blue
+  '#9b59b6', // purple
+  '#4e79a7', // steel blue (distinct from primary blue)
+  '#34495e', // dark blue-grey
+  '#16a085', // dark teal
+  '#8e44ad', // deep purple
+  '#0763a0', // strong blue
+  '#9dcbe9', // light sky blue (new distinct tone)
+];
   timeOptions = [
     { label: 'Week 1', value: 'W1' },
     { label: 'Week 2', value: 'W2' },
@@ -168,7 +163,7 @@ export class ComparisionWeeklyComponent implements OnInit {
 
       this.toaster.showError("Please select at least one Week");
       return;
-    }
+    }   
 
     this.isLoader = true;
 
@@ -196,11 +191,7 @@ export class ComparisionWeeklyComponent implements OnInit {
     this.adminService.getResponsesByUserIdWeekly(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
-
-        this.pillersWeeklyHistory = res.result;       
-
-        // 👇 backend may return combined or separated data
-        // this.pillersHistory = this.pillersWeeklyHistory;
+        this.pillersWeeklyHistory = res.result;     
 
         this.loadPillars();
         this.GetPillarBarOptions();

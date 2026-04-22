@@ -424,7 +424,7 @@ app-analyst-dashboard app-ag-bar:nth-child(3) {
 .analyst_outter .card-badge.badge-blue {
     margin-bottom: 15px !important;
     display: block;
-    width: fit-content;
+    width: fit-content;     
 }
 .lowest_sec {
     padding-left: 30px;

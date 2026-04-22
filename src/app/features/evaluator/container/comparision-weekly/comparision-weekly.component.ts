@@ -28,8 +28,9 @@ import {
   ApexFill,
   ApexMarkers
 } from "ng-apexcharts";
-import { AdminService } from "../../admin.service";
+
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { AdminService } from "src/app/features/admin/admin.service";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -109,7 +110,7 @@ export class ComparisionWeeklyComponent implements OnInit {
   ];
 
   selectedPeriods: string[] = [];
-  onPeriodChange() {    
+  onPeriodChange() {
     this.getResponsesByUserId()
 
   }
@@ -170,6 +171,7 @@ export class ComparisionWeeklyComponent implements OnInit {
       return;
     }
 
+
     this.isLoader = true;
 
     const payload: GetCityPillarHistoryRequestNewDto = {
@@ -196,12 +198,7 @@ export class ComparisionWeeklyComponent implements OnInit {
     this.adminService.getResponsesByUserIdWeekly(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
-
-        this.pillersWeeklyHistory = res.result;       
-
-        // 👇 backend may return combined or separated data
-        // this.pillersHistory = this.pillersWeeklyHistory;
-
+        this.pillersWeeklyHistory = res.result;
         this.loadPillars();
         this.GetPillarBarOptions();
       },
@@ -303,7 +300,7 @@ export class ComparisionWeeklyComponent implements OnInit {
       },
     });
   }
-  
+
 
   toggleRow(element: any) {
     this.expandedElement = this.expandedElement === element ? null : element;
@@ -322,176 +319,176 @@ export class ComparisionWeeklyComponent implements OnInit {
   }
   GetPillarBarOptions() {
 
-  const data = this.pillersWeeklyHistory || [];
+    const data = this.pillersWeeklyHistory || [];
 
-  if (!data.length) return;
+    if (!data.length) return;
 
-  // ─────────────────────────────
-  // 1. Normalize
-  // ─────────────────────────────
-  const normalized = data.map(x => ({
-    ...x,
-    weekType: (x.weekType || '').toUpperCase(),
-    users: Array.isArray(x.users) ? x.users : []
-  }));
+    // ─────────────────────────────
+    // 1. Normalize
+    // ─────────────────────────────
+    const normalized = data.map(x => ({
+      ...x,
+      weekType: (x.weekType || '').toUpperCase(),
+      users: Array.isArray(x.users) ? x.users : []
+    }));
 
-  // ─────────────────────────────
-  // 2. Group by weekType
-  // ─────────────────────────────
-  const grouped: Record<string, any[]> = {};
+    // ─────────────────────────────
+    // 2. Group by weekType
+    // ─────────────────────────────
+    const grouped: Record<string, any[]> = {};
 
-  normalized.forEach(item => {
-    if (!item.weekType) return;
+    normalized.forEach(item => {
+      if (!item.weekType) return;
 
-    if (!grouped[item.weekType]) {
-      grouped[item.weekType] = [];
-    }
-    grouped[item.weekType].push(item);
-  });
+      if (!grouped[item.weekType]) {
+        grouped[item.weekType] = [];
+      }
+      grouped[item.weekType].push(item);
+    });
 
-  // ✅ SORT weeks properly (WEEK1, WEEK2, WEEK10 fix)
-  const periods = Object.keys(grouped).sort((a, b) => {
-    const numA = Number(a.replace(/\D/g, ''));
-    const numB = Number(b.replace(/\D/g, ''));
-    return numA - numB;
-  });
+    // ✅ SORT weeks properly (WEEK1, WEEK2, WEEK10 fix)
+    const periods = Object.keys(grouped).sort((a, b) => {
+      const numA = Number(a.replace(/\D/g, ''));
+      const numB = Number(b.replace(/\D/g, ''));
+      return numA - numB;
+    });
 
-  // ─────────────────────────────
-  // 3. Sort & Prepare Pillars
-  // ─────────────────────────────
-  const sorted = [...normalized].sort(
-    (a, b) => a.displayOrder - b.displayOrder
-  );
-
-  const pillarMap = new Map<number, string>();
-
-  sorted.forEach(p => {
-    if (p.pillarID != null) {
-      pillarMap.set(Number(p.pillarID), p.pillarName);
-    }
-  });
-
-  const pillarIDs = [...pillarMap.keys()];
-  const categories = [...pillarMap.values()];
-
-  // ─────────────────────────────
-  // 4. Value Extractor
-  // ─────────────────────────────
-  const getValue = (obj: any): number => {
-    return Number(
-      obj?.compeletionRate ??
-      obj?.scoreProgress ??
-      0
-    ) || 0;
-  };
-
-  // ─────────────────────────────
-  // 5. Average Calculator
-  // ─────────────────────────────
-  const getAvg = (weekData: any[], pillarID: number) => {
-
-    const rows = weekData.filter(x =>
-      Number(x.pillarID) === Number(pillarID)
+    // ─────────────────────────────
+    // 3. Sort & Prepare Pillars
+    // ─────────────────────────────
+    const sorted = [...normalized].sort(
+      (a, b) => a.displayOrder - b.displayOrder
     );
 
-    let total = 0;
-    let count = 0;
+    const pillarMap = new Map<number, string>();
 
-    rows.forEach(r => {
-      (r.users || []).forEach((u: any) => {
-        total += getValue(u);
-        count++;
-      });
+    sorted.forEach(p => {
+      if (p.pillarID != null) {
+        pillarMap.set(Number(p.pillarID), p.pillarName);
+      }
     });
 
-    return count ? total / count : 0;
-  };
+    const pillarIDs = [...pillarMap.keys()];
+    const categories = [...pillarMap.values()];
 
-  // ─────────────────────────────
-  // 6. SERIES
-  // ─────────────────────────────
-  const series = periods.map(week => {
-    const weekData = grouped[week] || [];
-
-    return {
-      name: week.replace('WEEK', 'Week '),
-      data: pillarIDs.map(id => getAvg(weekData, id))
+    // ─────────────────────────────
+    // 4. Value Extractor
+    // ─────────────────────────────
+    const getValue = (obj: any): number => {
+      return Number(
+        obj?.compeletionRate ??
+        obj?.scoreProgress ??
+        0
+      ) || 0;
     };
-  });
 
-  // ─────────────────────────────
-  // 7. Y AXIS
-  // ─────────────────────────────
-  const allValues = series.flatMap(s => s.data);
-  const max = Math.max(...allValues, 0);
-  const yAxisMax = max > 0 ? Math.ceil(max / 10) * 10 : 100;
+    // ─────────────────────────────
+    // 5. Average Calculator
+    // ─────────────────────────────
+    const getAvg = (weekData: any[], pillarID: number) => {
 
-  // ─────────────────────────────
-  // 8. TOOLTIP MAP
-  // ─────────────────────────────
-  const tooltipMap = pillarIDs.map(id => {
-
-    const obj: any = {};
-
-    periods.forEach(p => {
-      const weekData = grouped[p] || [];
-
-      const row = weekData.find(x =>
-        Number(x.pillarID) === Number(id)
+      const rows = weekData.filter(x =>
+        Number(x.pillarID) === Number(pillarID)
       );
 
-      obj[p] = row?.users || [];
+      let total = 0;
+      let count = 0;
+
+      rows.forEach(r => {
+        (r.users || []).forEach((u: any) => {
+          total += getValue(u);
+          count++;
+        });
+      });
+
+      return count ? total / count : 0;
+    };
+
+    // ─────────────────────────────
+    // 6. SERIES
+    // ─────────────────────────────
+    const series = periods.map(week => {
+      const weekData = grouped[week] || [];
+
+      return {
+        name: week.replace('WEEK', 'Week '),
+        data: pillarIDs.map(id => getAvg(weekData, id))
+      };
     });
 
-    return obj;
-  });
+    // ─────────────────────────────
+    // 7. Y AXIS
+    // ─────────────────────────────
+    const allValues = series.flatMap(s => s.data);
+    const max = Math.max(...allValues, 0);
+    const yAxisMax = max > 0 ? Math.ceil(max / 10) * 10 : 100;
 
-  // ─────────────────────────────
-  // 9. COLORS
-  // ─────────────────────────────
-  const palette = [
-    '#3b82f6',
-    '#f59e0b',
-    '#10b981',
-    '#ef4444',
-    '#8b5cf6',
-    '#06b6d4'
-  ];
+    // ─────────────────────────────
+    // 8. TOOLTIP MAP
+    // ─────────────────────────────
+    const tooltipMap = pillarIDs.map(id => {
 
-  const chartColors = periods.map((_, i) => palette[i % palette.length]);
+      const obj: any = {};
 
-  // ─────────────────────────────
-  // 10. CHART CONFIG
-  // ─────────────────────────────
-  this.chartOptions = {
-    series,
+      periods.forEach(p => {
+        const weekData = grouped[p] || [];
 
-    chart: {
-      type: 'line',
-      height: 600,
-      toolbar: { show: true },
-      zoom: { enabled: false },
-      fontFamily: 'Montserrat, sans-serif'
-    },
+        const row = weekData.find(x =>
+          Number(x.pillarID) === Number(id)
+        );
 
-    // ✅ FIXED HERE (SOLID LINES)
-    stroke: {
-      curve: 'smooth',
-      width: 4,
-      dashArray: 0
-    },
+        obj[p] = row?.users || [];
+      });
 
-    markers: {
-      size: 6,
-      shape: ['circle', 'square', 'triangle', 'diamond']
-    },
+      return obj;
+    });
 
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => `${val.toFixed(1)}%`
-    },
+    // ─────────────────────────────
+    // 9. COLORS
+    // ─────────────────────────────
+    const palette = [
+      '#3b82f6',
+      '#f59e0b',
+      '#10b981',
+      '#ef4444',
+      '#8b5cf6',
+      '#06b6d4'
+    ];
 
-    xaxis: {
+    const chartColors = periods.map((_, i) => palette[i % palette.length]);
+
+    // ─────────────────────────────
+    // 10. CHART CONFIG
+    // ─────────────────────────────
+    this.chartOptions = {
+      series,
+
+      chart: {
+        type: 'line',
+        height: 600,
+        toolbar: { show: true },
+        zoom: { enabled: false },
+        fontFamily: 'Montserrat, sans-serif'
+      },
+
+      // ✅ FIXED HERE (SOLID LINES)
+      stroke: {
+        curve: 'smooth',
+        width: 4,
+        dashArray: 0
+      },
+
+      markers: {
+        size: 6,
+        shape: ['circle', 'square', 'triangle', 'diamond']
+      },
+
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => `${val.toFixed(1)}%`
+      },
+
+      xaxis: {
         type: 'category',
         categories,
         labels: {
@@ -511,7 +508,7 @@ export class ComparisionWeeklyComponent implements OnInit {
         }
       },
 
-    yaxis: {
+      yaxis: {
         min: 0,
         max: yAxisMax,
         labels: {
@@ -527,28 +524,28 @@ export class ComparisionWeeklyComponent implements OnInit {
         }
       },
 
-    colors: chartColors,
+      colors: chartColors,
 
-    legend: { position: 'top' },
+      legend: { position: 'top' },
 
-    grid: {
-      borderColor: '#e2e8f0',
-      strokeDashArray: 4
-    },
+      grid: {
+        borderColor: '#e2e8f0',
+        strokeDashArray: 4
+      },
 
-    tooltip: {
-      shared: false,
-      intersect: false,
-      custom: ({ seriesIndex, dataPointIndex }: any) => {
+      tooltip: {
+        shared: false,
+        intersect: false,
+        custom: ({ seriesIndex, dataPointIndex }: any) => {
 
-        const weekKey = periods[seriesIndex];
-        const users = tooltipMap[dataPointIndex]?.[weekKey] || [];
-        const pillarName = categories[dataPointIndex] || 'Unknown';
+          const weekKey = periods[seriesIndex];
+          const users = tooltipMap[dataPointIndex]?.[weekKey] || [];
+          const pillarName = categories[dataPointIndex] || 'Unknown';
 
-        const themeColor = chartColors[seriesIndex];
+          const themeColor = chartColors[seriesIndex];
 
-        if (!users.length) {
-          return `
+          if (!users.length) {
+            return `
           <div style="
             padding:10px;
             background:#fff;
@@ -560,19 +557,19 @@ export class ComparisionWeeklyComponent implements OnInit {
             <div style="color:#94a3b8; font-size:12px;">No data</div>
           </div>
         `;
-        }
+          }
 
-        const sortedUsers = [...users].sort(
-          (a: any, b: any) => getValue(b) - getValue(a)
-        );
+          const sortedUsers = [...users].sort(
+            (a: any, b: any) => getValue(b) - getValue(a)
+          );
 
-        const userHtml = sortedUsers.map((u: any) => {
+          const userHtml = sortedUsers.map((u: any) => {
 
-          const completion = getValue(u).toFixed(1);
-          const score = Number(u.scoreProgress || 0).toFixed(1);
-          const userColor = this.getUserColor(u.fullName);
+            const completion = getValue(u).toFixed(1);
+            const score = Number(u.scoreProgress || 0).toFixed(1);
+            const userColor = this.getUserColor(u.fullName);
 
-          return `
+            return `
           <div style="
             display:grid;
             grid-template-columns: 14px 110px 1fr;
@@ -599,9 +596,9 @@ export class ComparisionWeeklyComponent implements OnInit {
             </span>
           </div>
         `;
-        }).join('');
+          }).join('');
 
-        return `
+          return `
         <div style="
           background:#ffffff;
           border-radius:10px;
@@ -631,10 +628,10 @@ export class ComparisionWeeklyComponent implements OnInit {
           </div>
         </div>
       `;
+        }
       }
-    }
-  };
-}
+    };
+  }
   getUserColor(name: string): string {
     const colors = [
       '#3b82f6', // blue

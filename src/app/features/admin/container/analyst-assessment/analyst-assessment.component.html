@@ -97,10 +97,13 @@
 					class="faq_main_section_inner"
 					formArrayName="questions">
 					<div [formGroupName]="i"
-						class="faq_main_item">
+						class="faq_main_item" [ngClass]="{'critical-question': questions[i].isCritical}">
 						<div class="faq_main_item_inner">
 							<p>
 								{{ i + 1 }}. {{ questions[i].questionText }}
+								<span *ngIf="questions[i].isCritical" class="critical-icon" title="Critical question">
+									⚠️
+								</span>
 							</p>
 
 							<select (change)="onOptionChange($event, i)"

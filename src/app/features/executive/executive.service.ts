@@ -17,7 +17,7 @@ import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/mod
 import { QuestionsByUserPillarsResponseDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
-import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingResponse, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
+
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
 import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
 import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
@@ -26,6 +26,7 @@ import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutipl
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
+import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingResponse, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
 
 @Injectable({
   providedIn: "root",

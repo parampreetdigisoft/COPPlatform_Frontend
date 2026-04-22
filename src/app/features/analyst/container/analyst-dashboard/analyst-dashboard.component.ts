@@ -137,7 +137,7 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
       .getCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;                  
+          this.cardHistory = res.result;                       
           this.isLoader = false;
         },
         error: () => this.isLoader = false

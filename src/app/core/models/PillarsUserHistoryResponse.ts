@@ -4,7 +4,7 @@ export interface PillarsUserHistoryResponse {
   scoreProgress: number;
   compeletionRate: number;
   totalQuestion: number;
-  ansQuestion: number;
+  ansQuestion: number;  
 }
 
 export interface PillarsHistoryResponse {
@@ -13,6 +13,7 @@ export interface PillarsHistoryResponse {
   displayOrder: number;
   userAssessmentMappingID: number;
   users: PillarsUserHistoryResponse[];
+  weekType:string;
 }
 
 export interface PillarsTableRow {

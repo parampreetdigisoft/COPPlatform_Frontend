@@ -9,6 +9,9 @@ import { AssignedCityComponent } from './container/assigned-city/assigned-city.c
 import { AssessmentViewResultComponent } from './container/assessment-view-result/assessment-view-result.component';
 import { EvaluatorDashboardComponent } from './container/evaluator-dashboard/evaluator-dashboard.component';
 import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
+import { ComparisionWeeklyComponent } from './container/comparision-weekly/comparision-weekly.component';
+import { CalendarModule } from 'primeng/calendar';
+import { ComparisionComponent } from './container/comparision/comparision.component';
 
 const routes: Routes = [
   {
@@ -21,7 +24,9 @@ const routes: Routes = [
       { path: 'assigned-city', component: AssignedCityComponent },
       { path: 'make-assessment', component: MakeAssessmentComponent },
       { path: 'assessment-result', component: AssessmentResultComponent },
-      { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent }
+      { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent },
+       { path: 'evaluator-Comparision-Weekly', component: ComparisionWeeklyComponent }, 
+       { path: 'evaluator-Comparision', component: ComparisionComponent }, 
     ]
   },
   {
@@ -39,11 +44,14 @@ const routes: Routes = [
     AssessmentResultComponent,
     MakeAssessmentComponent,
     EvaluatorDashboardComponent,
-    AssessmentViewResultComponent
+    AssessmentViewResultComponent,
+    ComparisionComponent,
+    ComparisionWeeklyComponent
   ],
   imports: [
     CommonModule,
     SharedModule,
+    CalendarModule,
     DateViewerComponent,
     RouterModule.forChild(routes)
   ]

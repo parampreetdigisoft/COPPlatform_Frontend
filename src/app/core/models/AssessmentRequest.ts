@@ -35,7 +35,7 @@ export interface GetAssessmentRequestDto extends PaginationUserRequest{
 
 
 export interface GetCityPillarHistoryRequestDto {
-  cityID: number;
+  userAssessmentMappingID: number;
   userID: number;
   pillarID?: number;
   updatedAt:string;
@@ -44,11 +44,7 @@ export interface GetCityPillarHistoryRequestNewDto extends PaginationUserRequest
   userAssessmentMappingID: number;
   pillarID?: number;
   updatedAt:string;
-  week1StartDate?: string;
-  week1EndDate?: string;
-
-  week2StartDate?: string;
-  week2EndDate?: string;
+ selectedPeriods?:string[];
 }
 export interface ChangeAssessmentStatusRequestDto {
   assessmentID: number;

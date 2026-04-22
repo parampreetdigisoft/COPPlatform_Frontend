@@ -25,8 +25,8 @@ import {
   ApexResponsive,
   ApexFill
 } from "ng-apexcharts";
-import { AdminService } from "../../admin.service";
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { AdminService } from "src/app/features/admin/admin.service";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -86,6 +86,7 @@ export class ComparisionComponent implements OnInit {
   '#062f86', // strong blue
   '#e9d19d', // light sky blue (new distinct tone)
 ];
+
   constructor(
     private adminService: AdminService,
     private toaster: ToasterService,
@@ -173,7 +174,7 @@ export class ComparisionComponent implements OnInit {
     });
 
     this.pillarColumns = Array.from(this.userMap.keys()).map((id) => id.toString());
-    this.displayedColumns = ["pillarName", ...this.pillarColumns];   
+    this.displayedColumns = ["pillarName", ...this.pillarColumns];
 
     const data = this.pillersHistory.map((pillar) => {
       const row: PillarsTableRow = {
@@ -305,7 +306,7 @@ export class ComparisionComponent implements OnInit {
     );
   }
 
-  GetPillarBarOptions() {
+ GetPillarBarOptions() {
 
   const pillarMap = new Map<number, {
     pillarName: string;

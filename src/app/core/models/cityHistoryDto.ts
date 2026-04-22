@@ -32,6 +32,13 @@ export interface CardHistoryDto {
   totalAtRisk: number;
   totalDueSoon: number;
   totalOnTrack: number;
+  minimumCompletionRateEvaluator?: evaluatorCompletionSummaryDto;
+  maximumCompletionRateEvaluator?: evaluatorCompletionSummaryDto;
+}
+
+export interface evaluatorCompletionSummaryDto{
+  evaluatorName: string;
+  completionRate: number;
 }
 export interface PillarCardDetailsDto {
   pillarID: number;

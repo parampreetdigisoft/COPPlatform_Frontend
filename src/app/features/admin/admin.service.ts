@@ -127,7 +127,7 @@ export class AdminService {
     return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as ResultResponseDto<PillarsHistoryResponse[]>));
   }
   public getResponsesByUserIdWeekly(request: GetCityPillarHistoryRequestNewDto) {
-    return this.http.post(`Pillar/GetResponsesByUserIdWeekly`, request).pipe(map(x => x as ResultResponseDto<WeeklyPillarsHistoryResponseDto>));
+    return this.http.post(`Pillar/GetResponsesByUserIdWeekly`, request).pipe(map(x => x as ResultResponseDto<PillarsHistoryResponse[]>));
   }
   public getPillarsHistoryByUserId(request: GetCityPillarHistoryRequestDto) {
     return this.http
