@@ -323,7 +323,7 @@ app-comparision app-ag-bar:nth-child(3) {
   font-weight: 600;
   font-size: 14px;
 }
-* Text block */
+/* Text block */
 .info {
   display: flex;
   flex-direction: column;
