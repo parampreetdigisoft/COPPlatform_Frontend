@@ -8,6 +8,7 @@ import { EvaluatoinResponseViewComponent } from './container/evaluatoin-response
 import { ExecutiveDashboardComponent } from './container/executive-dashboard/executive-dashboard.component';
 import { ComparisionComponent } from './container/comparision/comparision.component';
 import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
+import { ComparisionWeeklyComponent } from './container/comparision-weekly/comparision-weekly.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-
     AssesmentComponent,
     EvaluatoinResponseViewComponent,
     ExecutiveDashboardComponent,
-    ComparisionComponent
+    ComparisionComponent,
+    ComparisionWeeklyComponent
   ],
   imports: [
     CommonModule,

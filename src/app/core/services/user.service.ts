@@ -140,7 +140,7 @@ export class UserService {
           this.router.navigate(['/evaluator/dashboard'], { state: { role: UserRole.Evaluator } });
           break;
         case UserRole.Executive.toLowerCase():
-          this.router.navigate(['/executive/assessment'], { state: { role: UserRole.Executive } });
+          this.router.navigate(['/executive/dashboard'], { state: { role: UserRole.Executive } });
           break;
         default:
           this.router.navigate(['/']);

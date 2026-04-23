@@ -186,7 +186,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       }) as any;
       this.commonService.exportExcel(exportData);
     } else {
-      this.toaster.showWarning("Please select city to export the records");
+      this.toaster.showWarning("Please select assessment to export the records");
     }
   }
 

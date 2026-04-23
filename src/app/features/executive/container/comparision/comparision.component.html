@@ -1,32 +1,59 @@
 <ng-container *ngIf="!isLoader">
+
   <div class="heading_area">
-    <div class="row justify-content-between align-items-center gap-2">
-      <div class="col-md-auto">
-        <h3 class="page_head">Evaluator Comparision</h3>
+    <div class="row justify-content-between align-items-center gap-2 custom_gap">
+      <div class="col">
+        <h3 class="page_head">Evaluation Score Overview</h3>
       </div>
-      <div class="col-md-6">
-        <div class="input_field input_flex">
-          <select [(ngModel)]="selectedPillarID" name="piller" class="form-control" (change)="getResponsesByUserId()">
-            <option value="">All Pillars</option>
-            <option *ngFor="let piller of pillers" [value]="piller.pillarID">
-              {{ piller.pillarName }}
-            </option>
-          </select>
-          <select [(ngModel)]="selectedYear" name="selectedYear" class="form-control" (change)="getResponsesByUserId()">
-            <option *ngFor="let year of commonService.applicateYears" [value]="year">
-              {{ year }}
-            </option>
-          </select>
-          <select [(ngModel)]="selectedCities" name="cityID" class="form-control" (change)="getResponsesByUserId()">
-            <option *ngFor="let city of cities" [value]="city.cityID">
-              {{ city.cityName }}
-            </option>
-          </select>
+      <div class="col-lg-auto">
+        <div class="header_btns">
+          <div *ngIf="invitationsSelect" class="due-date-card">
+
+            <div class="assigned">
+              <span class="avatar">
+                {{ invitationsSelect.assignedBy?.charAt(0) }}
+              </span>
+
+              <div class="info">
+                <div class="name">
+                  {{ invitationsSelect.assignedBy }}
+                </div>
+
+                <div class="due">
+                  <span class="label">Due:</span>
+                  <span [ngClass]="{
+									'urgent': isDueSoon(invitationsSelect.dueDate!),
+									'normal': !isDueSoon(invitationsSelect.dueDate!)
+									}" class="date">
+                    {{ invitationsSelect.dueDate | date:'dd MMM yyyy' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="compare_select input_field input_flex">
+            <ng-select [items]="invitations" [multiple]="false" [searchable]="true"
+              [placeholder]="selectedInvitations ? '' : 'Search by location'" [(ngModel)]="selectedInvitations"
+              [searchFn]="customSearchFn" (change)="getResponsesByUserId()" bindValue="userAssessmentMappingID"
+              bindLabel="geographicReference" class="form-control analyst_multi_select">
+              <ng-template ng-label-tmp let-item="item" class="select_item">
+                {{ item.geographicReference}} ({{ item.year }})
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                {{ item.geographicReference}} ({{ item.year }})
+                —
+                {{ item.assignedBy }}
+              </ng-template>
+            </ng-select>
+          </div>
         </div>
       </div>
     </div>
   </div>
- <div class="pillar-comparison-container">
+
+
+  <div class="pillar-comparison-container">
     <div class="outer_graph">
       <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
         [yaxis]="chartOptions.yaxis!" [dataLabels]="chartOptions.dataLabels!" [tooltip]="chartOptions.tooltip!"
@@ -38,17 +65,18 @@
     <ng-container *ngIf="totalRecords > pageSize">
       <div class="pagination-wrapper">
         <app-pagination [totalPage]="totalRecords" [currentPage]="currentPage" [pageSize]="pageSize"
-          [isLoader]="isLoader" (pageChange)="compareCities($event)">
+          [isLoader]="isLoader" (pageChange)="compareinvitations($event)">
         </app-pagination>
       </div>
     </ng-container>
   </div>
   <div class="row justify-content-between align-items-end mb-4">
     <div class="col-md-auto">
-      <h3 class="page_head mt-5 mb-3">Evaluator Details</h3>
+      <h3 class="page_head mt-5 mb-3">Pillar Metrics</h3>
     </div>
-    <div class="col-md-auto" >
-      <button class="common_button mb_15" [disabled]="isPillarHistroyDownloading" (click)="exportPillarsHistoryByUserId()">
+    <div class="col-md-auto">
+      <button class="common_button mb_15" [disabled]="isPillarHistroyDownloading"
+        (click)="exportPillarsHistoryByUserId()">
         Export
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" viewBox="0 0 256 256">
           <path
@@ -66,7 +94,7 @@
           <!-- Dynamic Columns -->
           <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef>
-              {{ column == "pillarName" ? "PillarName" : userMap.get(+column) }}
+              {{ column == "pillarName" ? "Pillar Name" : userMap.get(+column) }}
             </th>
             <td mat-cell *matCellDef="let element">
               <div class="single_pillar">
@@ -83,10 +111,27 @@
                   </span>
                 </ng-container>
                 <ng-container *ngIf="column !== 'pillarName'">
-                  <span class="pillar_name">
-                    Total Score :
-                    <span class="score_col">{{ element[column] ?? "-" }}</span>
-                  </span>
+                  <div class="pillar_name">
+
+                    <div>
+                      Score:
+                      <span class="score_col">
+                        {{ element[column]?.scoreProgress != null
+                        ? (element[column].scoreProgress | number:'1.1-1')
+                        : '-' }}
+                      </span>
+                    </div>
+
+                    <div>
+                      Completion:
+                      <span class="score_col">
+                        {{ element[column]?.compeletionRate != null
+                        ? (element[column].compeletionRate | number:'1.1-1')
+                        : '-' }}
+                      </span>
+                    </div>
+
+                  </div>
                 </ng-container>
               </div>
             </td>
@@ -159,7 +204,7 @@
         </table>
       </ng-container>
 
-      <ng-container *ngIf="pillarColumns?.length == 0 && !isLoader">
+      <ng-container *ngIf="pillarColumns.length == 0 && !isLoader">
         <div class="no_result_found">
           <div class="no_result_found_inner">
             <h3><i class="fas fa-search"></i> No Result Found</h3>
