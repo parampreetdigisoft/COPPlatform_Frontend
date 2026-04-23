@@ -12,7 +12,6 @@ import { EvaluatorResponseViewComponent } from './container/evaluator-response-v
 import { AnalystDashboardComponent } from './container/analyst-dashboard/analyst-dashboard.component';
 import { ComparisionComponent } from './container/comparision/comparision.component';
 import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
-import { CalendarModule } from 'primeng/calendar';
 import { ComparisionWeeklyComponent } from './container/comparision-weekly/comparision-weekly.component';
 const routes: Routes = [
   {
@@ -67,8 +66,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     SharedModule,
-    DateViewerComponent,
-    CalendarModule,
+    DateViewerComponent,   
     RouterModule.forChild(routes)
   ]
 })
