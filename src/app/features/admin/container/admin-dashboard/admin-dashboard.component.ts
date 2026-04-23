@@ -119,11 +119,15 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res) => {
           this.assignedInvitations = res.result ?? [];
-          // if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+          if (this.assignedInvitations && this.assignedInvitations.length > 0) {
 
           //      this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
 
-          // }
+           }
+           else{
+            this.isLoader = false;
+            this.toaster.showWarning("You don’t have any assigned assessments yet.");
+          }
           this.getDashboardPillarHistory();
         },
       });

@@ -148,6 +148,10 @@ export class ComparisionWeeklyComponent implements OnInit {
             this.invitationsSelect = this.invitations.find(x => x.userAssessmentMappingID == this.selectedInvitations);
             this.getResponsesByUserId();
           }
+          else{
+            this.isLoader = false;
+            this.toaster.showWarning("You don’t have any assigned assessments yet.");
+          }
         },
         error: () => {
           this.isLoader = false;
