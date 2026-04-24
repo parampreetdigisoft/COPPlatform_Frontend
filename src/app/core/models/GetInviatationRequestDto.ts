@@ -27,3 +27,7 @@ export interface DeleteInvitationDto {
   userAssessmentMappingID:number;
   userID:number;
 }
+export interface SendEmailRequestDto {
+  emailSubject: string;
+  emailMessage: string;
+}

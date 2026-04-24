@@ -23,7 +23,7 @@ import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalytical
 import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, GetQuesiontAssessmentHistoryRequestDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
-import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
+import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto, SendEmailRequestDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 import { HttpParams } from '@angular/common/http';
@@ -233,6 +233,12 @@ public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto
     return this.http
       .post(`User/deleteInvitation`,request)
       .pipe(map((x) => x as ResultResponseDto<unknown>));
+  }
+
+  public sendEmail(request: SendEmailRequestDto) {
+    return this.http
+      .post(`User/sendEmail`,request)
+      .pipe(map((x) => x as ResultResponseDto<boolean>));
   }
 
   public GetAnalyticalLayerResults(request: GetAnalyticalLayerRequestDto) {

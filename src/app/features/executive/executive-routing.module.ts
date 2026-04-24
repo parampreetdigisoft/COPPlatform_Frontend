@@ -7,6 +7,7 @@ import { ExecutiveDashboardComponent } from "./container/executive-dashboard/exe
 import { ComparisionComponent } from "./container/comparision/comparision.component";
 import { EvaluatoinResponseViewComponent } from "./container/evaluatoin-response-view/evaluatoin-response-view.component";
 import { ComparisionWeeklyComponent } from "./container/comparision-weekly/comparision-weekly.component";
+import { SendEmailComponent } from "./container/send-email/send-email.component";
 
 const routes: Routes = [
   {
@@ -25,6 +26,7 @@ const routes: Routes = [
 
       { path: "evaluator-Comparision", component: ComparisionComponent },
       { path: "evaluator-Comparision-Weekly", component: ComparisionWeeklyComponent },
+      { path: "send-Email", component: SendEmailComponent },
       {
         path: "kpi-layers",
         loadComponent: () =>

@@ -1,0 +1,60 @@
+<div class="container">
+  <div class="title">Send Email</div>
+
+  <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
+
+    <!-- SUBJECT -->
+    <div class="form-group">
+      <label>Subject</label>
+      <input 
+        type="text" 
+        formControlName="subject" 
+        placeholder="Enter subject">
+
+      <small class="error" *ngIf="submitted && subject?.errors">
+        <span *ngIf="subject?.errors?.['required']">
+          Subject is required
+        </span>
+        <span *ngIf="subject?.errors?.['minlength']">
+          Minimum 5 characters required
+        </span>
+        <span *ngIf="message?.errors?.['maxlength']">
+          Maximum 2000 characters allowed
+        </span>
+      </small>
+    </div>
+
+    <!-- MESSAGE -->
+    <div class="form-group">
+      <label>Message</label>
+      <textarea 
+        formControlName="message" 
+        placeholder="Write your message...">
+      </textarea>
+
+      <small class="error" *ngIf="submitted && message?.errors">
+        <span *ngIf="message?.errors?.['required']">
+          Message is required
+        </span>
+        <span *ngIf="message?.errors?.['minlength']">
+          Minimum 10 characters required
+        </span>
+        <span *ngIf="message?.errors?.['maxlength']">
+          Maximum 1000 characters allowed
+        </span>
+      </small>
+    </div>
+
+    <!-- BUTTON -->
+    <button 
+      type="submit" 
+      class="btn common_button"
+      [disabled]="emailForm.invalid || isLoader">
+      Send Email
+    </button>
+
+  </form>
+  <div *ngIf="isLoader" class="loader_main">
+  <div class="loader"></div>
+</div>
+</div>

@@ -9,6 +9,7 @@ import { ExecutiveDashboardComponent } from './container/executive-dashboard/exe
 import { ComparisionComponent } from './container/comparision/comparision.component';
 import { DateViewerComponent } from 'src/app/shared/standAlone/date-viewer/date-viewer.component';
 import { ComparisionWeeklyComponent } from './container/comparision-weekly/comparision-weekly.component';
+import { SendEmailComponent } from './container/send-email/send-email.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { ComparisionWeeklyComponent } from './container/comparision-weekly/compa
     EvaluatoinResponseViewComponent,
     ExecutiveDashboardComponent,
     ComparisionComponent,
-    ComparisionWeeklyComponent
+    ComparisionWeeklyComponent,
+    SendEmailComponent
   ],
   imports: [
     CommonModule,
