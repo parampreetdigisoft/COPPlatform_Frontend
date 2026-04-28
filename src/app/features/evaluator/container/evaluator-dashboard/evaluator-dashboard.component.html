@@ -1,19 +1,18 @@
 <!-- <app-ag-bar [options]="barOptions"></app-ag-bar> -->
 <ng-container *ngIf="!isLoader">
 	<div class="db-wrap">
-		<div class="db-grid_ouuu row g-3">
-			<!-- Card 1: Assessments -->
+		<div class="db-grid_ouuu row g-3">		
 			<div class="col-md-3">
 				<div class="db-card">
 					<div class="card-top">
-						<span class="card-label">Assessments</span>
+						<span class="card-label">Tasks</span>
 						<span class="card-badge badge-teal">Live</span>
 					</div>
 					<div class="card-hero">
 						<div class="hero-number">
 							{{ cardHistory?.totalAssessments ?? 0 }}
 						</div>
-						<div class="hero-sub">Total Assessments</div>
+						<div class="hero-sub">Total Tasks</div>
 
 					</div>
 					<div class="card-sparkline">
@@ -206,8 +205,8 @@
 		<div class="row justify-content-between align-items-end">
 			<div class="col-md-auto">
 				<div class="input_field">
-					<label>Select Assessment *</label>
-					<ng-select [items]="assignedInvitations!" [searchable]="true" placeholder="OverAll Assessment"
+					<label>Select Task *</label>
+					<ng-select [items]="assignedInvitations!" [searchable]="true" placeholder="OverAll Tasks"
 						[(ngModel)]="assignedInvitation" (change)="getDashboardPillarHistory()"
 						bindValue="userAssessmentMappingID" bindLabel="geographicReference"
 						class="form-control analyst_multi_select">

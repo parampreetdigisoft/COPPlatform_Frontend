@@ -490,6 +490,7 @@ private readonly blueShades: string[] = [
         type: 'category',
         categories,
         labels: {
+           hideOverlappingLabels: false, 
           style: {
             fontSize: '11px',
             fontWeight: 500,

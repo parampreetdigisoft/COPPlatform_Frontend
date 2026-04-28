@@ -5,7 +5,7 @@
       </button>
 
       <h4 class="modal_head">
-        {{ analyst ? 'Update' : 'Send' }} Invitation for Assessment
+        {{ analyst ? 'Update' : 'Send' }} Invitation for Task
       </h4>
 
       <p class="modal_sub_head">
@@ -89,7 +89,7 @@
 
               <!-- Due Date -->
               <div class="input_field">
-                <label>Due Date of Assessment *</label>
+                <label>Due Date of Task *</label>
 
                 <input type="date" [min]="minDate" (focus)="openPicker($event)" formControlName="dueDate"
                   class="form-control">
@@ -102,7 +102,7 @@
 
               <!-- Assign Pillars -->
               <div class="input_field">
-                <label>Assign Pillars for Assessment *</label>
+                <label>Assign Pillars for Task *</label>
 
                 <ng-select [items]="pillars()" [multiple]="true" [searchable]="true" placeholder="Assign pillars"
                   bindValue="pillarID" bindLabel="pillarName" formControlName="pillarIDs"

@@ -43,7 +43,7 @@ export class InvitationsComponent {
   selectedIndex?:number;
   assingedAssessments:GetAssignedAssessmentResponseDto[] = [];
   rolesList = [
-    { name: "Your Assessments", role: UserRoleValue.Analyst },
+    { name: "Your Tasks", role: UserRoleValue.Analyst },
     { name: "Evaluator", role: UserRoleValue.Evaluator },
   ];
 

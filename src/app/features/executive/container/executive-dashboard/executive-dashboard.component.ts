@@ -24,10 +24,19 @@ import {
   ApexXAxis,
   ApexYAxis,
   ApexStates,
+  ApexGrid,
+  ApexStroke,
+  ApexResponsive,
+  ApexFill,
+  ApexMarkers,
 } from "ng-apexcharts";
 import { AiCityPillarDashboardResponseDto, CityPillarDashboardPillarValueDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
-import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
+import { GetExecutiveAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 import { AdminService } from "src/app/features/admin/admin.service";
+import { PillarsHistoryResponse, PillarsTableRow, QuestionTableRow } from "src/app/core/models/PillarsUserHistoryResponse";
+import { GetCityPillarHistoryRequestNewDto } from "src/app/core/models/AssessmentRequest";
+import { MatTableDataSource } from "@angular/material/table";
+import { Router } from "@angular/router";
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -37,6 +46,24 @@ export type ChartOptions = {
   legend: ApexLegend;
   plotOptions: ApexPlotOptions;
 };
+
+export type ChartOptionsBar = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
+  legend: ApexLegend;
+  plotOptions: ApexPlotOptions;
+  grid: ApexGrid;
+  stroke: ApexStroke;
+  colors: string[];
+  responsive: ApexResponsive[];
+  fill: ApexFill;
+  markers: ApexMarkers;
+};
+
 
 export type PillarChartOptions = {
   series: ApexAxisChartSeries;
@@ -63,15 +90,20 @@ export type PillarChartOptions = {
 })
 export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   selectedYear = new Date().getFullYear();
-  assignedInvitations?: GetAssignedAssessmentResponseDto[] = [];
+  assignedInvitations?: GetExecutiveAssignedAssessmentResponseDto[] = [];
   assignedInvitation: number | any = null;
   cardHistory: CardHistoryDto | null = null;
   isLoader: boolean = false;
+  dataSource = new MatTableDataSource<PillarsTableRow>([]);
+  displayedColumns: string[] = [];
+  userMap = new Map<number, string>();
+  expandedElement: PillarsTableRow | null = null;
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions!: Partial<ChartOptions>;
+  public chartOptionsBar!: Partial<ChartOptionsBar>;
   @ViewChild("chartPillar") chartPillar!: ChartComponent;
   public chartPillarOptions: Partial<PillarChartOptions> = {};
-
+  searchText: string = '';
   assessmentHistoryResponse = signal<AiCityPillarDashboardResponseDto | null>(null);
   totalQuestions = computed(() =>
     Math.round(
@@ -82,6 +114,10 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       ) ?? 0
     )
   );
+  pageSize: number = 28;
+  currentPage: number = 1;
+  totalRecords: number = 0;
+  pillarColumns: string[] = [];
 
   totalAns = computed(() =>
     Math.round(
@@ -93,39 +129,47 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     )
   );
   completionRate = computed(() => {
-    const total = this.totalQuestions();
-    return total > 0 ? (this.totalAns() * 100) / total : 0;
-  });
+  const total = this.cardHistory?.totalCriticalQuestions ?? 0;
+  const totalAssessments = this.cardHistory?.totalAssessments ?? 1;
+  const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;
+ console.log('Total Critical Questions:', total);
+  return total > 0 ? (answered * 100) / (total * totalAssessments)  : 0;
+});
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
+  pillersHistory: PillarsHistoryResponse[] = [];
 
   constructor(
     private adminService: AdminService,
     private toaster: ToasterService,
     private userService: UserService,
-    public commonService: CommonService
+    public commonService: CommonService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.isLoader = true;
     this.getCardDetails();
     this.getAssignedInvitations();
-
+    this.initializeChart();
   }
 
   ngAfterViewInit() { }
 
-  getAssignedInvitations() {
+  getAssignedInvitations(refresh: boolean = true) {
+    this.isLoader = true;
     this.adminService
-      .getAssignedInvitations()
+      .getExecutiveAssignedInvitations(this.searchText)
       .subscribe({
         next: (res) => {
-          this.assignedInvitations = res.result ?? [];
-          // if (this.assignedInvitations && this.assignedInvitations.length > 0) {
-
-          //      this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
-
-          // }
+          this.isLoader = false;
+          this.assignedInvitations = res.result ?? [];        
+          if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+            this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
+          }
+          if (refresh) {
           this.getDashboardPillarHistory();
+          this.getResponsesByUserId();
+          }
         },
       });
   }
@@ -137,10 +181,10 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
   getCardDetails() {
     this.adminService
-      .getCardDetails()
+      .getExecutiveCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;         
+          this.cardHistory = res.result;   
           this.isLoader = false;
         },
         error: () => this.isLoader = false
@@ -158,7 +202,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       userAssessmentMappingID: this.assignedInvitation ?? null,
     };
     this.adminService.getDashboardPillarHistory(request).subscribe({
-      next: (res) => {       
+      next: (res) => {
         this.isLoader = false;
         this.assessmentHistoryResponse.set(res.result);
         if (this.assessmentHistoryResponse()) {
@@ -170,7 +214,17 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
+  private readonly blueShades: string[] = [
+    '#d062e6', // blue
+    '#e7eb0b', // deep blue
+    '#782599', // purple
+    '#0772e4', // steel blue (distinct from primary blue)
+    '#527191', // dark blue-grey
+    '#7eaf0b', // dark teal
+    '#03767e', // deep purple
+    '#062f86', // strong blue
+    '#e9d19d', // light sky blue (new distinct tone)
+  ];
   ExportCityPillar() {
     let invitation = this.assignedInvitations?.find((x) => x.userAssessmentMappingID == this.assignedInvitation);
     if (this.assessmentHistoryResponse()?.pillars && invitation) {
@@ -211,7 +265,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'area',
-        height: 420,
+         height: 320,
         toolbar: { show: false },
         zoom: { enabled: false },
         animations: {
@@ -227,8 +281,8 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       dataLabels: {
         enabled: true,
-        formatter: (val: number, opts) => {
-          return `${Math.round(val)}%`;
+        formatter: (val: number) => {
+          return `${val.toFixed(1)}%`;
         },
         offsetY: -10,
         style: {
@@ -349,7 +403,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
         custom: ({ dataPointIndex }) => {
           const pillar = data[dataPointIndex];
 
-          const completionRate = pillar.completionRate ?? 0;
+          const completionRate = pillar.completionRate.toFixed(1) ?? 0;
           const evaluatorProgressPercent = pillar.scoreProgress ?? 0;
 
           const completionRateColor = this.PillarColorByScore(completionRate);
@@ -487,7 +541,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
             color: #6b7280;
           ">
             <span>Completion Rate</span>
-            <span>${completionRate.toFixed(1)}%</span>
+            <span>${completionRate}%</span>
           </div>
 
           <div style="
@@ -641,6 +695,344 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       }
       if (!label) label = words[0] + '...';
       return label;
+    });
+  }
+
+  onAssessmentSelect(item: any) {
+    this.assignedInvitation = item.userAssessmentMappingID;
+    this.getDashboardPillarHistory();
+    this.getResponsesByUserId();
+  }
+  getShortName(name: string | null | undefined): string {
+    if (!name) return '';
+
+    const words = name.split(' ');
+
+    // take first 2–3 words only
+    return words.slice(0, 3).join(' ');
+  }
+
+  GetPillarBarOptions() {
+
+    const pillarMap = new Map<number, {
+      pillarName: string;
+      evaluators: Map<string, {
+        score: number;
+        ansQuestion: number;
+        totalQuestion: number;
+        compeletionRate: number;
+      }>;
+    }>();
+
+    this.pillersHistory.forEach((item: PillarsHistoryResponse) => {
+      if (!pillarMap.has(item.pillarID)) {
+        pillarMap.set(item.pillarID, {
+          pillarName: item.pillarName,
+          evaluators: new Map()
+        });
+      }
+
+      const pillarEntry = pillarMap.get(item.pillarID)!;
+
+      item.users.forEach(user => {
+        pillarEntry.evaluators.set(user.fullName, {
+          score: user.scoreProgress,
+          compeletionRate: user.compeletionRate,
+          ansQuestion: user.ansQuestion,
+          totalQuestion: user.totalQuestion
+        });
+      });
+    });
+
+    // ─── Unique evaluators
+    const uniqueEvaluators = Array.from(
+      new Set(this.pillersHistory.flatMap(x => x.users).map(x => x.fullName))
+    );
+
+    // ─── Categories (pillars)
+    const categories = Array.from(pillarMap.values()).map(p => p.pillarName);
+
+    // ─── Tooltip data
+    const tooltipData = Array.from(pillarMap.values()).map(pillar => ({
+      pillarName: pillar.pillarName,
+      evaluators: Object.fromEntries(pillar.evaluators)
+    }));
+
+    // ─── Series (stacked per evaluator)
+    const series: ApexAxisChartSeries = uniqueEvaluators.map(evaluator => ({
+      name: evaluator,
+      data: Array.from(pillarMap.values()).map(pillar => {
+        const ev = pillar.evaluators.get(evaluator);
+        return ev ? Number(ev.compeletionRate) : 0;
+      })
+    }));
+
+    // ─────────────────────────────
+    // ✅ Y AXIS MAX (STACKED FIX)
+    // ─────────────────────────────
+    const stackedTotals = categories.map((_, dataIndex) => {
+      return series.reduce((sum, s: any) => {
+        return sum + (Number(s.data[dataIndex]) || 0);
+      }, 0);
+    });
+
+    const maxStack = Math.max(...stackedTotals, 0);
+
+    const yAxisMax = Math.min(
+      100, // optional cap (remove if not needed)
+      maxStack > 0 ? Math.ceil(maxStack / 10) * 10 : 100
+    );
+
+    // ─── Colors
+    const colors = uniqueEvaluators.map(
+      (_, i) => this.blueShades[i % this.blueShades.length]
+    );
+
+    // ─── Chart Options
+    this.chartOptionsBar = {
+      series,
+
+      chart: {
+        type: 'bar',
+         height: 320,
+        stacked: true,
+        toolbar: {
+          show: true,
+          tools: {
+            download: true,
+            selection: false,
+            zoom: false,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
+            reset: false
+          }
+        },
+        zoom: { enabled: false },
+        fontFamily: 'Montserrat, sans-serif',
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          animateGradually: { enabled: true, delay: 150 },
+          dynamicAnimation: { enabled: true, speed: 350 }
+        }
+      },
+
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            legend: {
+              position: 'bottom',
+              offsetX: -10,
+              offsetY: 0
+            }
+          }
+        }
+      ],
+
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: categories.length <= 4 ? '25%' :
+            categories.length <= 8 ? '45%' : '65%',
+          borderRadius: 4,
+          borderRadiusApplication: 'end',
+          borderRadiusWhenStacked: 'last',
+          dataLabels: {
+            position: 'top',
+            total: {
+              enabled: true,
+              formatter: (val: any) => val > 0 ? val.toFixed(1) + '%' : '',
+              style: {
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#326cc1'
+              }
+            }
+          }
+        }
+      },
+
+      dataLabels: {
+        enabled: false
+      },
+
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+      },
+
+      fill: {
+        opacity: 1
+      },
+
+      xaxis: {
+        type: 'category',
+        categories,
+        labels: {
+          hideOverlappingLabels: false, 
+          style: {
+            fontSize: '11px',
+            fontWeight: 500,
+            colors: '#64748b'
+          },
+          rotate: categories.length > 8 ? -45 : 0,
+          trim: true,
+          maxHeight: 130
+        },
+        title: {
+          text: 'Pillars',
+          style: { fontSize: '13px', fontWeight: 600, color: '#475569' }
+        }
+      },
+
+      yaxis: {
+        min: 0,
+        max: yAxisMax, // ✅ dynamic now
+        title: {
+          text: 'Completion Rate (%)',
+          style: { fontSize: '13px', fontWeight: 600, color: '#475569' }
+        },
+        labels: {
+          formatter: (val: number) => val.toFixed(0) + '%',
+          style: { fontSize: '12px', colors: '#64748b' }
+        }
+      },
+
+      tooltip: {
+        shared: true,
+        intersect: false,
+        style: { fontSize: '13px' },
+        theme: 'light',
+        y: {
+          formatter: (val: number, opts: any) => {
+            const seriesIndex = opts?.seriesIndex ?? 0;
+            const dataPointIndex = opts?.dataPointIndex ?? 0;
+
+            const evaluatorName = uniqueEvaluators[seriesIndex];
+            const pillarData = tooltipData[dataPointIndex];
+
+            if (!pillarData || val === 0) return '—';
+
+            const ev = pillarData.evaluators[evaluatorName];
+            if (!ev) return '—';
+
+            const score = Number(ev.score || 0).toFixed(1);
+
+            return (
+              `Completion: ${val.toFixed(1)}%` +
+              ` | Score: ${score}%` +
+              ` (${ev.ansQuestion}/${ev.totalQuestion} questions)`
+            );
+          }
+        }
+      },
+
+      legend: {
+        position: 'top',
+        horizontalAlign: 'center',
+        offsetY: 4,
+        fontSize: '13px',
+        fontWeight: 500,
+        markers: {
+          width: 12,
+          height: 12,
+          radius: 3
+        },
+        itemMargin: { horizontal: 12, vertical: 8 }
+      },
+
+      grid: {
+        borderColor: '#e2e8f0',
+        strokeDashArray: 4,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } },
+        padding: { top: 0, right: 20, bottom: 0, left: 10 }
+      },
+
+      colors
+    };
+  }
+
+  private initializeChart() {
+    this.chartOptionsBar = {
+      series: [],
+      chart: {
+        type: 'bar',
+        height: 500,
+        stacked: true
+      },
+      xaxis: { categories: [] },
+      responsive: [],
+      fill: { opacity: 1 }
+    };
+  }
+
+  getResponsesByUserId() {
+
+    this.isLoader = true;
+    const payload: GetCityPillarHistoryRequestNewDto = {
+      userId: this.userService?.userInfo?.userID,
+      pillarID: 0,
+      userAssessmentMappingID: this.assignedInvitation,
+      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize
+    };
+
+    this.adminService.getResponsesByUserId(payload).subscribe({
+      next: (res) => {
+        this.isLoader = false;
+        this.pillersHistory = res.result ?? [];
+        this.loadPillars();
+        this.GetPillarBarOptions();
+      },
+      error: () => {
+        this.isLoader = false;
+        this.toaster.showError("There is an error occur");
+      }
+    });
+  }
+  loadPillars() {
+    this.userMap = new Map<number, string>();
+    this.pillersHistory.forEach((pillar) => {
+      pillar.users.forEach((u) => this.userMap.set(u.userID, u.fullName));
+    });
+
+    this.pillarColumns = Array.from(this.userMap.keys()).map((id) => id.toString());
+    this.displayedColumns = ["pillarName", ...this.pillarColumns];
+
+    const data = this.pillersHistory.map((pillar) => {
+      const row: PillarsTableRow = {
+        pillarName: pillar.pillarName,
+        pillarID: pillar.pillarID,
+      };
+
+      this.userMap.forEach((_, userID) => {
+        row[userID] = {};
+      });
+
+      pillar.users.forEach((u) => {
+        row[u.userID] = {
+          scoreProgress: u.scoreProgress,
+          compeletionRate: u.compeletionRate
+        };
+      });
+
+      return row;
+    });
+    this.dataSource = new MatTableDataSource<PillarsTableRow>(data);
+  }
+
+  onViewWeekly(item: any, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/executive/evaluator-Comparision-Weekly'], {
+      queryParams: {
+        id: item.userAssessmentMappingID,
+      }
     });
   }
 

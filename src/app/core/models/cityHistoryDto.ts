@@ -34,6 +34,18 @@ export interface CardHistoryDto {
   totalOnTrack: number;
   minimumCompletionRateEvaluator?: evaluatorCompletionSummaryDto;
   maximumCompletionRateEvaluator?: evaluatorCompletionSummaryDto;
+  riskDetails: RiskDetailDto[];
+  totalCriticalQuestions:number | 0;
+  totalAnsweredCriticalQuestions:number | 0;
+}
+export interface RiskDetailDto {
+  mappingId: number;
+  assessmentName: string;
+  ownerName: string;
+  dueDate?: string | null;   // DateTime? → optional string (ISO date)
+  progress: number;
+  riskLevel: string;
+  daysRemaining: number;
 }
 
 export interface evaluatorCompletionSummaryDto{

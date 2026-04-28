@@ -65,7 +65,7 @@ export class EvaluatorDashboardComponent implements OnInit, AfterViewInit {
   assignedInvitations?: GetAssignedAssessmentResponseDto[] = [];
   assignedInvitation: number | any = null;
   cardHistory: CardHistoryDto | null = null;
-  isLoader: boolean = false;
+  isLoader: boolean = false;  
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions!: Partial<ChartOptions>;
   @ViewChild("chartPillar") chartPillar!: ChartComponent;

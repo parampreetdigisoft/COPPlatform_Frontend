@@ -31,6 +31,7 @@ import {
 
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
 import { AdminService } from "src/app/features/admin/admin.service";
+import { ActivatedRoute } from "@angular/router";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -62,6 +63,7 @@ export class ComparisionWeeklyComponent implements OnInit {
   questionsByUserPillars: QuestionsByUserPillarsResponseDto[] = [];
   invitations: GetAssignedAssessmentResponseDto[] | null = [];
   selectedInvitations: number | any = "";
+  queryInvitationId: number | any = null;
   selectedPillarID: number | any = "";
   isLoader: boolean = false;
   isPillarHistroyDownloading: boolean = false;
@@ -118,12 +120,16 @@ export class ComparisionWeeklyComponent implements OnInit {
     private adminService: AdminService,
     private toaster: ToasterService,
     private userService: UserService,
-    public commonService: CommonService
+    public commonService: CommonService,
+    private route: ActivatedRoute
   ) { this.pillersWeeklyHistory = [] as PillarsHistoryResponse[] }
 
   ngOnInit(): void {
     this.selectedPeriods = ['W1', 'W2'];
     this.isLoader = true;
+    this.route.queryParams.subscribe(params => {
+    this.queryInvitationId = params['id'];   // store it
+  });
     this.setDefaultDates();
     this.GetAllPillars();
     this.getAllinvitationsByUserId();
@@ -138,23 +144,41 @@ export class ComparisionWeeklyComponent implements OnInit {
 
 
   getAllinvitationsByUserId() {
-    this.adminService
-      .getAssignedInvitations()
-      .subscribe({
-        next: (res) => {
-          this.isLoader = false;
-          this.invitations = res.result ?? [];
-          if (this.invitations && this.invitations.length > 0) {
+  this.adminService.getAssignedInvitations().subscribe({
+    next: (res) => {
+      this.isLoader = false;
+      this.invitations = res.result ?? [];
+
+      if (this.invitations && this.invitations.length > 0) {
+
+        // ✅ If query param exists, use it
+        if (this.queryInvitationId) {
+          const match = this.invitations.find(
+            x => x.userAssessmentMappingID == this.queryInvitationId
+          );
+
+          if (match) {
+            this.selectedInvitations = match.userAssessmentMappingID;
+            this.invitationsSelect = match;
+          } else {
+            // fallback
             this.selectedInvitations = this.invitations[0].userAssessmentMappingID;
-            this.invitationsSelect = this.invitations.find(x => x.userAssessmentMappingID == this.selectedInvitations);
-            this.getResponsesByUserId();
+            this.invitationsSelect = this.invitations[0];
           }
-        },
-        error: () => {
-          this.isLoader = false;
+        } else {
+          // default behavior
+          this.selectedInvitations = this.invitations[0].userAssessmentMappingID;
+          this.invitationsSelect = this.invitations[0];
         }
-      });
-  }
+
+        this.getResponsesByUserId();
+      }
+    },
+    error: () => {
+      this.isLoader = false;
+    }
+  });
+}
 
   getResponsesByUserId() {
     if (
@@ -496,6 +520,7 @@ export class ComparisionWeeklyComponent implements OnInit {
         type: 'category',
         categories,
         labels: {
+           hideOverlappingLabels: false, 
           style: {
             fontSize: '11px',
             fontWeight: 500,
