@@ -159,15 +159,16 @@ private readonly blueShades: string[] = [
       this.userService?.userInfo?.userID == null ||
       !this.selectedInvitations
     ) {
+      this.toaster.showWarning("Please select location");
       return;
     }
 
     // ✅ Validate periods
     if (!this.selectedPeriods || this.selectedPeriods.length === 0) {
 
-      this.toaster.showError("Please select at least one Week");
+      this.toaster.showWarning("Please select at least one Week");
       return;
-    }   
+    }  
 
     this.isLoader = true;
 

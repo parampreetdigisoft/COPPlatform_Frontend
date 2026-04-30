@@ -27,6 +27,8 @@ import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDt
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto, GetExecutiveAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 import { HttpParams } from '@angular/common/http';
+import { EmailLogRequestDto } from 'src/app/core/models/aiVm/EmailLogRequestDto';
+import { EmailLogResponseDto } from 'src/app/core/models/aiVm/EmailLogResponseDto';
 
 @Injectable({
   providedIn: "root",
@@ -245,6 +247,12 @@ export class AdminService {
     return this.http
       .post(`User/sendEmail`, request)
       .pipe(map((x) => x as ResultResponseDto<boolean>));
+  }
+
+   public getEmailLogs(payload: EmailLogRequestDto) {
+    return this.http
+      .getWithQueryParams(`User/getSendEmailLogs`, payload)
+      .pipe(map((x) => x as PaginationResponse<EmailLogResponseDto>));
   }
 
   public GetAnalyticalLayerResults(request: GetAnalyticalLayerRequestDto) {

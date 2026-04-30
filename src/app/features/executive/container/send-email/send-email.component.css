@@ -15,6 +15,50 @@ label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; }
 input, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dcdfe4; font-size: 14px; transition: all 0.2s ease; box-sizing: border-box; }
 input:focus, textarea:focus { outline: none; border-color: #2c3e50; box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1); } 
 textarea { resize: vertical; min-height: 230px; } .btn { width: 100%; padding: 12px; background: #2c3e50; color: #ffffff; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; transition: all 0.25s ease; }
-.btn:hover { background: #1a252f; transform: translateY(-1px); } 
+.btn:hover { background: #326cc1;; transform: translateY(-1px); } 
 .btn:active { transform: scale(0.98); } 
 .footer { text-align: center; font-size: 12px; color: #999; margin-top: 15px; }
+
+
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 1000px;
+  max-width: 90%;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-form-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.295); 
+  backdrop-filter: blur(1px);  
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
