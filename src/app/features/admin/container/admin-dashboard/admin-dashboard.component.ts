@@ -121,10 +121,10 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           this.assignedInvitations = res.result ?? [];
           if (this.assignedInvitations && this.assignedInvitations.length > 0) {
 
-          //      this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
+            //      this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
 
-           }
-           else{
+          }
+          else {
             this.isLoader = false;
             this.toaster.showWarning("You don’t have any assigned assessments yet.");
           }
@@ -143,7 +143,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       .getCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;         
+          this.cardHistory = res.result;
           this.isLoader = false;
         },
         error: () => this.isLoader = false
@@ -161,7 +161,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       userAssessmentMappingID: this.assignedInvitation ?? null,
     };
     this.adminService.getDashboardPillarHistory(request).subscribe({
-      next: (res) => {       
+      next: (res) => {
         this.isLoader = false;
         this.assessmentHistoryResponse.set(res.result);
         if (this.assessmentHistoryResponse()) {
@@ -202,6 +202,19 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     const categories = this.buildUniqueCategories(data);
     const aiSeries = data.map(x => x.completionRate);
     const evaluatorSeries = data.map(x => x.scoreProgress);
+
+    const allValues = [
+      ...aiSeries,
+      ...evaluatorSeries
+    ];
+
+    // Prevent negative / NaN issues
+    const safeValues = allValues.map(v => Number(v) || 0);
+
+    const max = Math.max(...safeValues, 0);
+
+    // Round up to nearest 10 (like your other chart)
+    const yAxisMax = max > 0 ? Math.ceil(max / 10) * 10 : 100;
     this.chartPillarOptions = {
       series: [{
         name: 'Completion Rate',
@@ -230,8 +243,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
       dataLabels: {
         enabled: true,
-        formatter: (val: number, opts) => {
-          return `${Math.round(val)}%`;
+        formatter: (val: number) => {
+          return `${val.toFixed(1)}%`;
         },
         offsetY: -10,
         style: {
@@ -325,7 +338,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           }
         },
         min: 0,
-        max: 100,
+        max: yAxisMax,
         tickAmount: 5,
         labels: {
           formatter: (val) => val >= 0 ? `${Math.round(val)}%` : '',
@@ -352,7 +365,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
         custom: ({ dataPointIndex }) => {
           const pillar = data[dataPointIndex];
 
-          const completionRate = pillar.completionRate ?? 0;
+          const completionRate = pillar.completionRate.toFixed(1) ?? 0;
           const evaluatorProgressPercent = pillar.scoreProgress ?? 0;
 
           const completionRateColor = this.PillarColorByScore(completionRate);
@@ -490,7 +503,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
             color: #6b7280;
           ">
             <span>Completion Rate</span>
-            <span>${completionRate.toFixed(1)}%</span>
+            <span>${completionRate}%</span>
           </div>
 
           <div style="

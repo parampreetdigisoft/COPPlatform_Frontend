@@ -253,6 +253,19 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     const categories = this.buildUniqueCategories(data);
     const aiSeries = data.map(x => x.completionRate);
     const evaluatorSeries = data.map(x => x.scoreProgress);
+
+    const allValues = [
+      ...aiSeries,
+      ...evaluatorSeries
+    ];
+
+    // Prevent negative / NaN issues
+    const safeValues = allValues.map(v => Number(v) || 0);
+
+    const max = Math.max(...safeValues, 0);
+
+    // Round up to nearest 10 (like your other chart)
+    const yAxisMax = max > 0 ? Math.ceil(max / 10) * 10 : 100;
     this.chartPillarOptions = {
       series: [{
         name: 'Completion Rate',
@@ -265,7 +278,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'area',
-        height: 250,
+        height: 420,
         toolbar: { show: false },
         zoom: { enabled: false },
         animations: {
@@ -376,7 +389,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
           }
         },
         min: 0,
-        max: 100,
+        max: yAxisMax,
         tickAmount: 5,
         labels: {
           formatter: (val) => val >= 0 ? `${Math.round(val)}%` : '',
