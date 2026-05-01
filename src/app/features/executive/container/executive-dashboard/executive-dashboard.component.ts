@@ -129,12 +129,12 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     )
   );
   completionRate = computed(() => {
-  const total = this.cardHistory?.totalCriticalQuestions ?? 0;
-  const totalAssessments = this.cardHistory?.totalAssessments ?? 1;
-  const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;
- console.log('Total Critical Questions:', total);
-  return total > 0 ? (answered * 100) / (total * totalAssessments)  : 0;
-});
+    const total = this.cardHistory?.totalCriticalQuestions ?? 0;
+    const totalAssessments = this.cardHistory?.totalAssessments ?? 1;
+    const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;
+    console.log('Total Critical Questions:', total);
+    return total > 0 ? (answered * 100) / (total * totalAssessments) : 0;
+  });
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
   pillersHistory: PillarsHistoryResponse[] = [];
 
@@ -148,9 +148,9 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.isLoader = true;
-    this.getCardDetails();
-    this.getAssignedInvitations();
     this.initializeChart();
+    this.getAssignedInvitations();
+    this.getCardDetails();
   }
 
   ngAfterViewInit() { }
@@ -162,13 +162,13 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res) => {
           this.isLoader = false;
-          this.assignedInvitations = res.result ?? [];        
+          this.assignedInvitations = res.result ?? [];
           if (this.assignedInvitations && this.assignedInvitations.length > 0) {
             this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
           }
           if (refresh) {
-          this.getDashboardPillarHistory();
-          this.getResponsesByUserId();
+            this.getDashboardPillarHistory();
+            this.getResponsesByUserId();
           }
         },
       });
@@ -184,7 +184,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       .getExecutiveCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;   
+          this.cardHistory = res.result;
           this.isLoader = false;
         },
         error: () => this.isLoader = false
@@ -265,7 +265,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'area',
-         height: 320,
+        height: 320,
         toolbar: { show: false },
         zoom: { enabled: false },
         animations: {
@@ -794,7 +794,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'bar',
-         height: 320,
+        height: 320,
         stacked: true,
         toolbar: {
           show: true,
@@ -873,7 +873,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
         type: 'category',
         categories,
         labels: {
-          hideOverlappingLabels: false, 
+          hideOverlappingLabels: false,
           style: {
             fontSize: '11px',
             fontWeight: 500,
