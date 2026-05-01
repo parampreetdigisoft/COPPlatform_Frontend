@@ -169,10 +169,10 @@
 				</div>
 			</div>
 
-			<div class="col-md-3 d-flex">
+			<div class="col-md-4 d-flex">
 
 				<div class="assessment-selector w-100">
-					<div class="mb-2">
+					<div class="mb-2 sticky_search">
 						<input type="text" class="form-control" placeholder="Search by geographic reference..."
 							[(ngModel)]="searchText" (input)="getAssignedInvitations(false)" />
 					</div>
@@ -217,17 +217,19 @@
 								 Due: {{ item.dueDate | date:'yyyy-MM-dd' }}
 							</span>
 								<div class="risk-row on-track">
-									<span class="dot">🟢</span>
+									<span class="dot"></span>
 									<span class="label">On Track</span>
 									<span class="value">({{ item.onTrackPercent.toFixed(1) }}%)</span>
 								</div>
+
 								<div class="risk-row at-risk">
-									<span class="dot">🟡</span>
+									<span class="dot"></span>
 									<span class="label">At Risk</span>
 									<span class="value">({{ item.atRiskPercent.toFixed(1) }}%)</span>
 								</div>
+
 								<div class="risk-row off-track">
-									<span class="dot">🔴</span>
+									<span class="dot"></span>
 									<span class="label">Off Track</span>
 									<span class="value">({{ item.offTrackPercent.toFixed(1) }}%)</span>
 								</div>
@@ -254,7 +256,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-9">
+			<div class="col-md-8">
 				<div *ngIf="chartPillarOptions && chartPillarOptions.series" id="chartPillar"
 					tyle="width:100%; height:500px;">
 					<apx-chart [series]="chartPillarOptions.series!" [chart]="chartPillarOptions.chart!"

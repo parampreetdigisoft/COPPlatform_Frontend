@@ -376,8 +376,8 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 
 .assessment-card span {
   display: block;
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: 2px;
+  font-size: 11px;
   font-weight: 700;
   color: #326cc1;
 }
@@ -450,11 +450,22 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
         height: auto;
     }
     .content_area .inner_content_area{
-        padding: 30px !important;
+        padding: 0 !important;
     }
+    .stat-lbl {
+    font-size: 9px !important;
+    opacity: 1;
+    color: #ffffff;
+}
+.pillar-name {
+    font-size: 10px;
+}
 }
 
 @media only screen and (max-width:1300px){
+  .sidebar_area {
+    width: 250px !important;
+}
      .content_area .inner_content_area {
         padding: 20px;
     }
@@ -468,7 +479,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
   max-height: unset;     /* ✅ remove limit */
 }
 .db-wrap {
-  height: calc(100vh - 120px); /* adjust based on header */
+  height: calc(100vh - 150px); /* adjust based on header */
 }
 
 .db-grid_ouuu {
@@ -608,7 +619,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 
 
 .assessment-selector {
-  max-height: calc(100vh - 150px); /* keeps header/search visible */
+  max-height: calc(100vh - 340px); /* keeps header/search visible */
   overflow-y: auto;
   padding-right: 6px; /* avoids scrollbar overlap */
 }
@@ -655,7 +666,6 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 }
 
 .title {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -676,7 +686,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 
 /* Progress */
 .progress-section {
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .progress-bar {
@@ -815,23 +825,19 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 }
 
 .view-weekly-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  background: #d2a049;        /* soft indigo background */
-  color: #4338ca;             /* strong but clean accent */
-  border: 1px solid #c7d2fe;
-
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 500;
-
-  border-radius: 999px;       /* perfect pill */
-  cursor: pointer;
-
-  transition: all 0.2s ease;
-  white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #d2a049;
+    color: #ffffff;
+    border: 0 solid #c7d2fe;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .view-weekly-btn:hover {
@@ -876,7 +882,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 }
 
 .header-card .title {
-  font-size: 12px;
+  font-size: 18px;
   color: #fff;  
 }
 
@@ -900,7 +906,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 }
 .overview-card {
   background: #032961;
-  padding: 16px;
+  padding: 10px;
   border-radius: 10px;
   color: #fff;
 }
@@ -915,7 +921,7 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 18px;
   margin-bottom: 4px;
 }
 
@@ -928,25 +934,26 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 5px;
 }
 .stats-grid-task {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 5px;
 }
 .stats-grid div {
   text-align: center;
 }
 
 .stat-val {
-  font-size: 14px;
+  font-size: 30px;
   font-weight: 600;
 }
 
 .stat-lbl {
-  font-size: 11px;
-  opacity: 0.7;
+    font-size: 10px;
+    opacity: 1;
+    color: #ffffff;
 }
 
 .divider {
@@ -967,4 +974,41 @@ app-executive-dashboard app-ag-bar:nth-child(3) {
   font-size: 11px;
   color: #6b7280;
   margin-left: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Colors */
+.on-track .dot {
+  background-color: #22c55e; /* green */
+}
+
+.at-risk .dot {
+  background-color: #facc15; /* yellow */
+}
+
+.off-track .dot {
+  background-color: #ef4444; /* red */
+}
+
+.sticky_search
+{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sticky_search {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 0;
 }

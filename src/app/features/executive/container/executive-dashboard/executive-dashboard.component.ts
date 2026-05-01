@@ -265,7 +265,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'area',
-        height: 320,
+        height: 250,
         toolbar: { show: false },
         zoom: { enabled: false },
         animations: {
@@ -794,7 +794,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'bar',
-        height: 320,
+        height: 250,
         stacked: true,
         toolbar: {
           show: true,
