@@ -185,7 +185,7 @@
 							<span class="title">
 								{{ item.geographicReference }}• {{ item.year }}
 							</span>
-							
+
 							<button class="view-weekly-btn" (click)="onViewWeekly(item, $event)">
 								View Weekly
 							</button>
@@ -195,27 +195,23 @@
 								<span class="label">Score : {{ item.avgScoreProgress.toFixed(1) }}%</span>
 								<span class="label">Completed : {{ item.avgCompletionRate.toFixed(1) }}%</span>
 								<span class="label d-flex align-items-center"
-									[matTooltip]="'Worst Performing Pillar: ' + item.worstPerformingPillar">
-									<span class="arrow down">▼</span>
-									{{ item.worstPerformingPillar | slice:0:7 }}...
-									({{ item.worstCompletionRate.toFixed(1) }}%)
-								</span>
-
-								<span class="label d-flex align-items-center"
 									[matTooltip]="'Best Performing Pillar: ' + item.bestPerformingPillar">
 									<span class="arrow up">▲</span>
 									{{ item.bestPerformingPillar | slice:0:7 }}...
 									({{ item.bestCompletionRate.toFixed(1) }}%)
 								</span>
-
+								<span class="label d-flex align-items-center"
+									[matTooltip]="'Worst Performing Pillar: ' + item.worstPerformingPillar">
+									<span class="arrow down">▼</span>
+									{{ item.worstPerformingPillar | slice:0:7 }}...
+									({{ item.worstCompletionRate.toFixed(1) }}%)
+								</span>
 							</div>
-							
-
 
 							<div class="completion-risk-breakdown">
 								<span class="due-date">
-								 Due: {{ item.dueDate | date:'yyyy-MM-dd' }}
-							</span>
+									Due: {{ item.dueDate | date:'yyyy-MM-dd' }}
+								</span>
 								<div class="risk-row on-track">
 									<span class="dot"></span>
 									<span class="label">On Track</span>
@@ -243,7 +239,7 @@
 								{{ item.totalAnsweredQuestions }} / {{ item.totalQuestions }} (Answered)
 							</div>
 							<div class="progress-bar">
-								<div class="progress-fill-critical" [style.width.%]="item.totalCriticalQuestions ? ((item.totalCriticalAnsweredQuestions ?? 0) * 100) / item.totalCriticalQuestions
+								<div class="progress-fill-critical" [style.width.%]="item.totalCriticalQuestions ? ((item.totalCriticalAnsweredQuestions) * 100) / item.totalCriticalQuestions
         							: 0 ">
 								</div>
 							</div>
