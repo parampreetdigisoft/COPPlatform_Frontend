@@ -69,7 +69,7 @@
         </td>
         <td>{{ assessment.analystName }}</td>
         <td>
-          <span class="bold_num">{{ assessment.score ?? 0 }}</span>
+          <span class="bold_num">{{ assessment.score?.toFixed(1) ?? 0 }}</span>
         </td>
         <td>{{ assessment.assessmentPhase==5 ? 'Completed' :'InProgress' }}</td>
         <td>

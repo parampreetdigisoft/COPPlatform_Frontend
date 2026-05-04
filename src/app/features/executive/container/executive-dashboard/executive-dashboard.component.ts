@@ -163,6 +163,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
         next: (res) => {
           this.isLoader = false;
           this.assignedInvitations = res.result ?? [];
+          console.log(this.assignedInvitations);
           if (this.assignedInvitations && this.assignedInvitations.length > 0) {
             this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
           }
