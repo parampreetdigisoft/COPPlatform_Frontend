@@ -172,25 +172,40 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ExportCityPillar() {
-    let invitation = this.assignedInvitations?.find((x) => x.userAssessmentMappingID == this.assignedInvitation);
-    if (this.assessmentHistoryResponse()?.pillars && invitation) {
-      var exportData = this.assessmentHistoryResponse()?.pillars.map((x) => {
-        return {
-          ['Geographic Reference']: invitation?.geographicReference,
-          ['Year']: invitation?.year,
-          ['Pillar Name']: x.pillarName,
-          ['Score']: x.scoreProgress?.toFixed(2),
-          ['Completion Rate %']: x.completionRate?.toFixed(2),
-          ['Total Answered']: x.totalAns?.toFixed(0),
-          ['Total Questions']: x.totalQuestions?.toFixed(0)
-        };
-      }) as any;
-      this.commonService.exportExcel(exportData);
-    } else {
-      this.toaster.showWarning("Please select assessment to export the records");
-    }
+ ExportCityPillar() {
+
+  const invitation = this.assignedInvitations?.find(
+    x => x.userAssessmentMappingID == this.assignedInvitation
+  );
+
+  const pillars = this.assessmentHistoryResponse()?.pillars;
+
+  if (pillars?.length) {
+
+    const exportData = pillars.map(x => ({
+      ['Geographic Reference']:
+        invitation?.geographicReference ?? 'Overall',
+
+      ['Year']:
+        invitation?.year ?? new Date().getFullYear(),
+
+      ['Pillar Name']: x.pillarName,
+      ['Score']: x.scoreProgress?.toFixed(2),
+      ['Completion Rate %']: x.completionRate?.toFixed(2),
+      ['Total Answered']: x.totalAns?.toFixed(0),
+      ['Total Questions']: x.totalQuestions?.toFixed(0),
+      ['Total Critical Answered']: x.totalAnsweredCriticalQuestions?.toFixed(0),
+      ['Total Critical Questions']: x.totalCriticalQuestions?.toFixed(0),
+    }));
+
+    this.commonService.exportExcel(exportData);
   }
+  else {
+    this.toaster.showWarning(
+      'Please select assessment to export the records'
+    );
+  }
+}
 
 
   buildPillarComparisonChart() {
