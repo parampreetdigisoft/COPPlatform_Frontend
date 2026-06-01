@@ -322,7 +322,7 @@ export class ComparisionWeeklyComponent implements OnInit {
       (item.year || '').toString().includes(term)
     );
   }
-  GetPillarBarOptions() {
+   GetPillarBarOptions() {
 
     const data = this.pillersWeeklyHistory || [];
 
@@ -497,7 +497,7 @@ export class ComparisionWeeklyComponent implements OnInit {
         type: 'category',
         categories,
         labels: {
-           hideOverlappingLabels: false, 
+          hideOverlappingLabels: false,
           style: {
             fontSize: '11px',
             fontWeight: 500,
@@ -542,47 +542,65 @@ export class ComparisionWeeklyComponent implements OnInit {
       tooltip: {
         shared: false,
         intersect: false,
-        custom: ({ seriesIndex, dataPointIndex }: any) => {
 
-          const weekKey = periods[seriesIndex];
-          const users = tooltipMap[dataPointIndex]?.[weekKey] || [];
+        custom: ({ dataPointIndex }: any) => {
+
           const pillarName = categories[dataPointIndex] || 'Unknown';
 
-          const themeColor = chartColors[seriesIndex];
+          let weeksHtml = '';
 
-          if (!users.length) {
-            return `
+          periods.forEach((week, weekIndex) => {
+
+            const users = tooltipMap[dataPointIndex]?.[week] || [];
+            const themeColor = chartColors[weekIndex];
+
+            const avg =
+              series[weekIndex]?.data?.[dataPointIndex] || 0;
+
+            if (!users.length) {
+              weeksHtml += `
           <div style="
-            padding:10px;
-            background:#fff;
-            border-radius:8px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom:12px;
+            padding-bottom:12px;
+            border-bottom:1px solid #e2e8f0;
           ">
-            <div style="font-weight:600;">${pillarName}</div>
-            <div style="color:${themeColor}; font-size:12px;">${weekKey}</div>
-            <div style="color:#94a3b8; font-size:12px;">No data</div>
+            <div style="
+              font-weight:700;
+              color:${themeColor};
+              margin-bottom:4px;
+            ">
+              ${week.replace('WEEK', 'Week ')}
+            </div>
+
+            <div style="
+              font-size:12px;
+              color:#94a3b8;
+            ">
+              No data
+            </div>
           </div>
         `;
-          }
+              return;
+            }
 
-          const sortedUsers = [...users].sort(
-            (a: any, b: any) => getValue(b) - getValue(a)
-          );
+            const sortedUsers = [...users].sort(
+              (a: any, b: any) => getValue(b) - getValue(a)
+            );
 
-          const userHtml = sortedUsers.map((u: any) => {
+            const userHtml = sortedUsers.map((u: any) => {
 
-            const completion = getValue(u).toFixed(1);
-            const score = Number(u.scoreProgress || 0).toFixed(1);
-            const userColor = this.getUserColor(u.fullName);
+              const completion = getValue(u).toFixed(1);
+              const score = Number(u.scoreProgress || 0).toFixed(1);
+              const userColor = this.getUserColor(u.fullName);
 
-            return `
+              return `
           <div style="
-            display:grid;
-            grid-template-columns: 14px 110px 1fr;
+            display:flex;
             align-items:center;
             gap:6px;
-            margin-bottom:6px;
-            font-size:12px;
+            font-size:11px;
+            align-items:center;
+            margin-bottom:5px;            
           ">
             <span style="
               width:10px;
@@ -591,49 +609,84 @@ export class ComparisionWeeklyComponent implements OnInit {
               background:${userColor};
             "></span>
 
-            <span style="color:#475569;">
+            <span style="
+              color:#475569;
+              overflow:hidden;
+              text-overflow:ellipsis;
+              white-space:nowrap;
+            ">
               ${u.fullName}
             </span>
 
-            <span style="color:#0f172a; font-weight:600;">
-              Completion: ${completion}% 
-              | Score: ${score}% 
+            <span style="
+              color:#0f172a;
+              font-weight:600;
+            ">
+              Completion :${completion}% | Score: ${score}
               (${u.ansQuestion}/${u.totalQuestion})
             </span>
           </div>
         `;
-          }).join('');
+            }).join('');
 
-          return `
+            weeksHtml += `
         <div style="
-          background:#ffffff;
-          border-radius:10px;
-          box-shadow:0 6px 18px rgba(0,0,0,0.15);
-          min-width:280px;
-          overflow:hidden;
+          margin-bottom:12px;
+          padding-bottom:12px;
+          border-bottom:1px solid #e2e8f0;
         ">
           <div style="
-            background:#f1f5f9;
-            padding:8px 12px;
-            font-weight:600;
-            border-bottom:1px solid #e2e8f0;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:8px;
           ">
-            ${pillarName}
+            <span style="
+              font-weight:700;
+              color:${themeColor};
+            ">
+              ${week.replace('WEEK', 'Week ')}
+            </span>           
           </div>
 
-          <div style="
-            padding:6px 12px;
-            font-weight:600;
-            color:${themeColor};
-          ">
-            ${weekKey}
-          </div>
-
-          <div style="padding:8px 12px;">
-            ${userHtml}
-          </div>
+          ${userHtml}
         </div>
       `;
+          });
+
+          return `
+      <div style="
+        background:#fff;
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.15);
+        width:320px;
+        max-width:320px;
+        max-height:350px;
+        overflow-y:auto;
+      ">
+
+        <div style="
+          background:#f8fafc;
+          padding:10px 14px;
+          font-weight:700;
+          font-size:14px;
+          border-bottom:1px solid #e2e8f0;
+          position:sticky;
+          top:0;
+
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        " title="${pillarName}">
+          ${pillarName}
+        </div>
+
+        <div style="padding:12px;">
+          ${weeksHtml}
+        </div>
+
+      </div>
+    `;
         }
       }
     };

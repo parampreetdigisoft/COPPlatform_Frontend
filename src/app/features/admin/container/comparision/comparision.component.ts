@@ -519,8 +519,8 @@ export class ComparisionComponent implements OnInit {
           const score = Number(ev.score || 0).toFixed(1);
 
           return (
-            `Completion: ${val.toFixed(1)}%` +
-            ` | Score: ${score}%` +
+            `Completion: ${val.toFixed(1)}` +
+            ` | Score: ${score}` +
             ` (${ev.ansQuestion}/${ev.totalQuestion} questions)`
           );
         }

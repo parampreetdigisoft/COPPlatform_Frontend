@@ -25,6 +25,8 @@ export interface GetAssessmentQuestionResponseDto {
   justification: string;
   source: string;
   score: number | null;   // nullable enum
+  showComment?: boolean;
+  showSource?: boolean;
 }
 
 export interface AssessmentWithProgressVM {

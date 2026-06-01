@@ -126,7 +126,7 @@
                       Completion:
                       <span class="score_col">
                         {{ element[column]?.compeletionRate != null
-                        ? (element[column].compeletionRate | number:'1.1-1')
+                        ? (element[column].compeletionRate | number:'1.1-1') + '%'
                         : '-' }}
                       </span>
                     </div>

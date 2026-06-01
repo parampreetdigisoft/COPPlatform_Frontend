@@ -91,6 +91,7 @@ export type PillarChartOptions = {
 export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   selectedYear = new Date().getFullYear();
   assignedInvitations?: GetExecutiveAssignedAssessmentResponseDto[] = [];
+  assignedInvitationsAll?: GetExecutiveAssignedAssessmentResponseDto[] = [];
   assignedInvitation: number | any = null;
   cardHistory: CardHistoryDto | null = null;
   isLoader: boolean = false;
@@ -131,8 +132,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   completionRate = computed(() => {
     const total = this.cardHistory?.totalCriticalQuestions ?? 0;
     const totalAssessments = this.cardHistory?.totalAssessments ?? 1;
-    const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;
-    console.log('Total Critical Questions:', total);
+    const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;    
     return total > 0 ? (answered * 100) / (total * totalAssessments) : 0;
   });
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
@@ -155,25 +155,50 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() { }
 
-  getAssignedInvitations(refresh: boolean = true) {
-    this.isLoader = true;
-    this.adminService
-      .getExecutiveAssignedInvitations(this.searchText)
-      .subscribe({
-        next: (res) => {
-          this.isLoader = false;
-          this.assignedInvitations = res.result ?? [];
-          console.log(this.assignedInvitations);
-          if (this.assignedInvitations && this.assignedInvitations.length > 0) {
-            this.assignedInvitation = this.assignedInvitations?.[0]?.userAssessmentMappingID ?? null;
-          }
-          if (refresh) {
-            this.getDashboardPillarHistory();
-            this.getResponsesByUserId();
-          }
-        },
-      });
+ getAssignedInvitations(refresh: boolean = true) {
+
+  // Don't call API again
+  if (!refresh) {
+
+    const search = (this.searchText || '').toLowerCase().trim();
+
+    this.assignedInvitations = this.assignedInvitationsAll!.filter(x =>
+      !search ||
+      x.geographicReference?.toLowerCase().includes(search) 
+    );
+
+    if (this.assignedInvitations.length > 0) {
+      this.assignedInvitation =
+        this.assignedInvitations[0].userAssessmentMappingID;
+    }
+
+    return;
   }
+
+  this.isLoader = true;
+
+  this.adminService
+    .getExecutiveAssignedInvitations(this.searchText)
+    .subscribe({
+      next: (res) => {
+        this.isLoader = false;
+
+        this.assignedInvitations = res.result ?? [];
+        this.assignedInvitationsAll = res.result ?? [];
+
+        if (this.assignedInvitations.length > 0) {
+          this.assignedInvitation =
+            this.assignedInvitations[0].userAssessmentMappingID;
+        }
+
+        this.getDashboardPillarHistory();
+        this.getResponsesByUserId();
+      },
+      error: () => {
+        this.isLoader = false;
+      }
+    });
+}
 
   yearChanged() {
     this.getDashboardPillarHistory();
@@ -234,7 +259,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
           ['Geographic Reference']: invitation?.geographicReference,
           ['Year']: invitation?.year,
           ['Pillar Name']: x.pillarName,
-          ['Score %']: x.scoreProgress?.toFixed(2),
+          ['Score']: x.scoreProgress?.toFixed(2),
           ['Completion Rate %']: x.completionRate?.toFixed(2),
           ['Total Answered']: x.totalAns?.toFixed(0),
           ['Total Questions']: x.totalQuestions?.toFixed(0)
@@ -296,7 +321,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       dataLabels: {
         enabled: true,
         formatter: (val: number) => {
-          return `${val.toFixed(1)}%`;
+          return `${val.toFixed(1)}`;
         },
         offsetY: -10,
         style: {
@@ -382,7 +407,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       yaxis: {
         title: {
-          text: 'Progress (%)',
+          text: 'Progress',
           style: {
             fontSize: '13px',
             fontWeight: 600,
@@ -393,7 +418,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
         max: yAxisMax,
         tickAmount: 5,
         labels: {
-          formatter: (val) => val >= 0 ? `${Math.round(val)}%` : '',
+          formatter: (val) => val >= 0 ? `${Math.round(val)}` : '',
           style: {
             fontSize: '12px',
             colors: '#244586'
@@ -506,7 +531,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
             color: ${completionRateColor};
             line-height: 1;
           ">
-            ${evaluatorProgressPercent.toFixed(0)}%
+            ${evaluatorProgressPercent.toFixed(0)}
           </div>
         </div>
 
@@ -523,7 +548,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
             color: #6b7280;
           ">
             <span>Score</span>
-            <span>${evaluatorProgressPercent.toFixed(1)}%</span>
+            <span>${evaluatorProgressPercent.toFixed(1)}</span>
           </div>
 
           <div style="
@@ -938,7 +963,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
             return (
               `Completion: ${val.toFixed(1)}%` +
-              ` | Score: ${score}%` +
+              ` | Score: ${score}` +
               ` (${ev.ansQuestion}/${ev.totalQuestion} questions)`
             );
           }

@@ -9,7 +9,7 @@
   </svg>
 
   <div class="score-text" [style.color]="getColorR(value)">
-    {{ formattedValue }}%
+    {{ formattedValue }}{{ showSign ? '%' : '' }}
   </div>
 </div>
 

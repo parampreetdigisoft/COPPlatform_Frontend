@@ -15,6 +15,7 @@ export class CircularScoreComponent implements OnInit, OnChanges {
   commonService = inject(CommonService);
   @Input() value: number | null = null;
   @Input() tooltipText: string = '';
+  @Input() showSign:boolean = true;
 
   formattedValue: string = '';
   circumference: number = 2 * Math.PI * 20;

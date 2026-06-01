@@ -141,7 +141,7 @@
 									? (cardHistory?.averagePillarScore == 100
 									? cardHistory?.averagePillarScore?.toFixed(0)
 									: cardHistory?.averagePillarScore?.toFixed(2))
-									: 0 }}%
+									: 0 }}
 								</div>
 								<div class="hero-sub">Average Score</div>
 							</div>
@@ -171,7 +171,7 @@
 								? (cardHistory?.highestPillarScore?.value == 100
 								? cardHistory?.highestPillarScore?.value?.toFixed(0)
 								: cardHistory?.highestPillarScore?.value?.toFixed(2))
-								: 0 }}%
+								: 0 }}
 							</div>
 							<div class="pillar_scores">
 								<div class="pillar-name">
@@ -186,7 +186,7 @@
 								? (cardHistory?.lowestPillarScore?.value == 100
 								? cardHistory?.lowestPillarScore?.value?.toFixed(0)
 								: cardHistory?.lowestPillarScore?.value?.toFixed(2))
-								: 0 }}%
+								: 0 }}
 							</div>
 							<div class="pillar_scores lowest_descript">
 								<div class="pillar-name ">
@@ -250,8 +250,8 @@
 
 	<div class="assessment-wrapper">
 		<div class="assessment-card">
-			Score: {{assessmentScore().toFixed(2)}}%
-			<app-circular-score [value]="assessmentScore()"></app-circular-score>
+			Score: {{assessmentScore().toFixed(2)}}
+			<app-circular-score [value]="assessmentScore()" [showSign]="false"></app-circular-score>
 		</div>
 		<div class="assessment-card">
 			Completion: {{completionRate().toFixed(2)}}%

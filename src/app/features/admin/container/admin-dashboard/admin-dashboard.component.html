@@ -222,8 +222,8 @@
 
 	<div class="assessment-wrapper">
 		<div class="assessment-card">
-			Score: {{assessmentScore().toFixed(2)}}%
-			<app-circular-score [value]="assessmentScore()"></app-circular-score>
+			Score: {{assessmentScore().toFixed(2)}}
+			<app-circular-score [value]="assessmentScore()" [showSign]="false"></app-circular-score>
 		</div>
 		<div class="assessment-card">
 			Completion: {{completionRate().toFixed(2)}}%

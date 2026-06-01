@@ -95,7 +95,7 @@
 											? (cardHistory?.highestPillarScore?.value == 100
 											? cardHistory?.highestPillarScore?.value?.toFixed(0)
 											: cardHistory?.highestPillarScore?.value?.toFixed(2))
-											: 0 }}%
+											: 0 }}
 										</div>
 										<div class="pillar_scores">
 											<div class="pillar-name">
@@ -110,7 +110,7 @@
 											? (cardHistory?.lowestPillarScore?.value == 100
 											? cardHistory?.lowestPillarScore?.value?.toFixed(0)
 											: cardHistory?.lowestPillarScore?.value?.toFixed(2))
-											: 0 }}%
+											: 0 }}
 										</div>
 										<div class="pillar_scores lowest_descript">
 											<div class="pillar-name ">
@@ -127,7 +127,7 @@
 
 					</div>
 					<div class="header-card">
-						<div class="title"> Overall Critical Questions Answered</div>
+						<div class="title"> Overall Critical</div>
 
 						<div class="kpi-body">
 							<div class="progress-wrap">
@@ -192,19 +192,19 @@
 						</div>
 						<div class="card-top-stats">
 							<div class="stat-block">
-								<span class="label">Score : {{ item.avgScoreProgress.toFixed(1) }}%</span>
+								<span class="label">Score : {{ item.avgScoreProgress.toFixed(1) }}</span>
 								<span class="label">Completed : {{ item.avgCompletionRate.toFixed(1) }}%</span>
 								<span class="label d-flex align-items-center"
 									[matTooltip]="'Best Performing Pillar: ' + item.bestPerformingPillar">
 									<span class="arrow up">▲</span>
 									{{ item.bestPerformingPillar | slice:0:7 }}...
-									({{ item.bestCompletionRate.toFixed(1) }}%)
+									({{ item.bestCompletionRate.toFixed(1) }})
 								</span>
 								<span class="label d-flex align-items-center"
 									[matTooltip]="'Worst Performing Pillar: ' + item.worstPerformingPillar">
 									<span class="arrow down">▼</span>
 									{{ item.worstPerformingPillar | slice:0:7 }}...
-									({{ item.worstCompletionRate.toFixed(1) }}%)
+									({{ item.worstCompletionRate.toFixed(1) }})
 								</span>
 							</div>
 
