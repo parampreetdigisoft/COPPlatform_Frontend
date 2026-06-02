@@ -14,7 +14,7 @@ import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessme
 import { PillarsVM } from 'src/app/core/models/PillersVM';
 import { GetQuestionByCityMappingResponse } from 'src/app/core/models/QuestionResponse';
 import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserInfo';
-import { CityHistoryDto, GetCitiesSubmitionHistoryReponseDto, UserCityPillarDashboardRequstDto } from 'src/app/core/models/cityHistoryDto';
+import { CardHistoryDto, CityHistoryDto, GetCitiesSubmitionHistoryReponseDto, UserAssessmentPillarDashboardRequstDto, UserCityPillarDashboardRequstDto } from 'src/app/core/models/cityHistoryDto';
 import { QuestionsByUserPillarsResponseDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
 import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
@@ -154,5 +154,27 @@ export class AnalystService {
 
   public getMutiplekpiLayerResults(payload: GetMutiplekpiLayerRequestDto) {
     return this.http.post(`kpi/getMutiplekpiLayerResults`, payload).pipe(map(x => x as ResultResponseDto<GetMutiplekpiLayerResultsDto>));;
+  }
+
+  public getCardDetails() {
+    return this.http
+      .get(`City/GetCardDetails`)
+      .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
+  }
+
+  public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto) {
+
+    const queryParams: any = {};
+
+    if (request?.userAssessmentMappingID != null) {
+      queryParams.userAssessmentMappingID = request.userAssessmentMappingID;
+    }
+
+    return this.http.getWithQueryParams(
+      `AssessmentResponse/getDashboardPillarHistory`,
+      queryParams
+    ).pipe(
+      map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>)
+    );
   }
 }

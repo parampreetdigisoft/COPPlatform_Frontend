@@ -90,11 +90,7 @@ export class AdminService {
       .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
   }
 
-  public getExecutiveCardDetails() {
-    return this.http
-      .get(`City/GetExecutiveCardDetails`)
-      .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
-  }
+  
   public exportCities() {
     return this.http.ImportFile(`City/exportCities`);
   }
@@ -274,17 +270,7 @@ export class AdminService {
   public getAssignedInvitations() {
     return this.http.get(`AssessmentResponse/getAssignedInvitations`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
   }
-  public getExecutiveAssignedInvitations(searchText?: string) {
-    let url = `AssessmentResponse/getExecutiveAssignedInvitations`;
-
-    if (searchText) {
-      url += `?searchText=${encodeURIComponent(searchText)}`;
-    }
-
-    return this.http
-      .get(url)
-      .pipe(map((x) => x as ResultResponseDto<GetExecutiveAssignedAssessmentResponseDto[]>));
-  }
+ 
   public getQuestionsByCityId(payload: CityMappingPillerRequestDto) {
     return this.http.getWithQueryParams(`Question/getQuestionsByAssessmentMappingId`, payload).pipe(map(x => x as ResultResponseDto<GetQuestionByCityMappingResponse>));
   }

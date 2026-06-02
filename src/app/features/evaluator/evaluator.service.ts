@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpService } from 'src/app/core/http/http.service';
+import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { SendRequestMailToUpdateCity } from 'src/app/core/models/AnalystVM';
 import { AddAssessmentDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { AssessmentWithProgressVM, GetAssessmentQuestionResponseDto, GetAssessmentResponse } from 'src/app/core/models/AssessmentResponse';
-import { CityHistoryDto, GetCityQuestionHistoryReponseDto, UserCityRequstDto } from 'src/app/core/models/cityHistoryDto';
+import { CardHistoryDto, CityHistoryDto, GetCityQuestionHistoryReponseDto, UserAssessmentPillarDashboardRequstDto, UserCityRequstDto } from 'src/app/core/models/cityHistoryDto';
 import { CityVM } from 'src/app/core/models/CityVM';
 import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
 import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseDto';
@@ -98,5 +99,27 @@ export class EvaluatorService {
   }
   public compareCities(request: CompareCityRequestDto) {
     return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
+  }
+
+
+  public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto) {
+
+    const queryParams: any = {};
+
+    if (request?.userAssessmentMappingID != null) {
+      queryParams.userAssessmentMappingID = request.userAssessmentMappingID;
+    }
+
+    return this.http.getWithQueryParams(
+      `AssessmentResponse/getDashboardPillarHistory`,
+      queryParams
+    ).pipe(
+      map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>)
+    );
+  }
+  public getCardDetails() {
+    return this.http
+      .get(`City/GetCardDetails`)
+      .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
   }
 }
