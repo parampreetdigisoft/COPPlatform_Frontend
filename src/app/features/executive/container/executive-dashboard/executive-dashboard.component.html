@@ -1,285 +1,368 @@
-<!-- <app-ag-bar [options]="barOptions"></app-ag-bar> -->
 <ng-container>
-	<div class="db-wrap">
-		<div class="db-grid_ouuu row g-3">
-			<div class="dashboard-header">
-				<div class="header-grid">
+	<div class="exec-dashboard">
 
+		<!-- ── KPI Overview Strip ── -->
+		<section class="kpi-strip">
+			<div class="kpi-grid">
 
-					<!-- Target Trajectory -->
-					<div class="header-card overview-card">
-						<div class="overview-section">
-							<div class="section-header">
-								<span class="icon text-danger">📋 </span>
-								<span class="section-title">Tasks</span>
-							</div>
-
-							<div class="stats-grid-task">
-								<div>
-									<div class="stat-val text-success">
-										{{ cardHistory?.totalCompletedAssessments ?? 0 }}
-									</div>
-									<div class="stat-lbl">Completed</div>
-								</div>
-
-								<div>
-									<div class="stat-val text-info">
-										{{ cardHistory?.totalInProgressAssessments ?? 0 }}
-									</div>
-									<div class="stat-lbl">In Progress</div>
-								</div>
-								<div>
-									<div class="stat-val text-warning">
-										{{ cardHistory?.totalAssessments ?? 0 }}
-									</div>
-									<div class="stat-lbl">Total Tasks</div>
-								</div>
-							</div>
-						</div>
-
-
-
+				<!-- Tasks -->
+				<div class="db-card db-card-1">
+					<div class="card-top">
+						<span class="card-label">Tasks Overview</span>
+						<span class="card-badge badge-teal">Live</span>
 					</div>
-
-					<!-- Critical Risk -->
-					<div class="header-card overview-card">
-						<div class="overview-section">
-							<div class="section-header">
-								<span class="icon text-danger">⚠</span>
-								<span class="section-title">Critical Risks</span>
-							</div>
-
-							<div class="stats-grid">
-								<div>
-									<div class="stat-val text-danger">
-										{{ cardHistory?.totalOverdue ?? 0 }}
-									</div>
-									<div class="stat-lbl">Overdue</div>
-								</div>
-
-								<div>
-									<div class="stat-val text-orange">
-										{{ cardHistory?.totalHighRisk ?? 0 }}
-									</div>
-									<div class="stat-lbl">High Risk</div>
-								</div>
-
-								<div>
-									<div class="stat-val text-warning">
-										{{ cardHistory?.totalAtRisk ?? 0 }}
-									</div>
-									<div class="stat-lbl">At Risk</div>
-								</div>
-								<div>
-									<div class="stat-val text-success">
-										{{ cardHistory?.totalOnTrack ?? 0 }}
-									</div>
-									<div class="stat-lbl">On Track</div>
-								</div>
-							</div>
-						</div>
-
-
+					<div class="card-hero">
+						<div class="hero-number">{{ cardHistory?.totalAssessments ?? 0 }}</div>
+						<div class="hero-sub">Total Tasks</div>
 					</div>
-
-					<div class="header-card">
-						<div class="title">Pillar Progress</div>
-
-						<div class="kpi-body">
-							<div class="progress-wrap">
-
-								<div class="card-stats-row">
-									<div class="stat-col">
-										<div class="pillar-score blue-accent">
-											{{ cardHistory?.highestPillarScore?.value != null
-											? (cardHistory?.highestPillarScore?.value == 100
-											? cardHistory?.highestPillarScore?.value?.toFixed(0)
-											: cardHistory?.highestPillarScore?.value?.toFixed(2))
-											: 0 }}
-										</div>
-										<div class="pillar_scores">
-											<div class="pillar-name">
-												{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}
-											</div>
-											<div class="stat-lbl">Highest</div>
-										</div>
-									</div>
-									<div class="stat-col lowest_sec">
-										<div class="pillar-score lowest_title">
-											{{ cardHistory?.lowestPillarScore?.value != null
-											? (cardHistory?.lowestPillarScore?.value == 100
-											? cardHistory?.lowestPillarScore?.value?.toFixed(0)
-											: cardHistory?.lowestPillarScore?.value?.toFixed(2))
-											: 0 }}
-										</div>
-										<div class="pillar_scores lowest_descript">
-											<div class="pillar-name ">
-												{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}
-											</div>
-											<div class="stat-lbl">Lowest</div>
-										</div>
-									</div>
-								</div>
-
-							</div>
-
-						</div>
-
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="exec-spark-1" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stop-color="#4dd9b0" stop-opacity="0.3"></stop>
+									<stop offset="100%" stop-color="#4dd9b0" stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15"
+								stroke="#4dd9b0" stroke-width="1.5" fill="none"></path>
+							<path d="M0,40 C30,38 50,20 80,22 C110,24 130,10 160,8 C190,6 210,18 240,15 L240,50 L0,50 Z"
+								fill="url(#exec-spark-1)"></path>
+							<circle cx="240" cy="15" r="3" fill="#4dd9b0"></circle>
+						</svg>
 					</div>
-					<div class="header-card">
-						<div class="title"> Overall Critical</div>
-
-						<div class="kpi-body">
-							<div class="progress-wrap">
-
-								<div class="progress-label">
-									Answered Questions (
-									{{
-									cardHistory?.totalCriticalQuestions && cardHistory?.totalAssessments
-									? (
-									(cardHistory?.totalAnsweredCriticalQuestions! * 100) /
-									(cardHistory?.totalCriticalQuestions! * cardHistory?.totalAssessments!)
-									).toFixed(1)
-									: 0
-									}}%
-									)
-								</div>
-
-								<div class="progress-bar">
-									<div class="progress-fill-critical" [style.width.%]="
-            cardHistory?.totalCriticalQuestions && cardHistory?.totalAssessments
-              ? (cardHistory?.totalAnsweredCriticalQuestions! * 100) / (cardHistory?.totalCriticalQuestions! * cardHistory?.totalAssessments!)
-              : 0
-          ">
-									</div>
-								</div>
-
-								<div class="progress-text">
-									{{cardHistory?.totalAnsweredCriticalQuestions ?? 0}}/(
-									{{cardHistory?.totalCriticalQuestions ?? 0}} * {{cardHistory?.totalAssessments ??
-									0}} )
-								</div>
-
-							</div>
-
+					<div class="card-divider"></div>
+					<div class="card-stats-row">
+						<div class="stat-col">
+							<div class="stat-val teal-accent">{{ cardHistory?.totalCompletedAssessments ?? 0 }}</div>
+							<div class="stat-lbl">Completed</div>
 						</div>
-
+						<div class="stat-col">
+							<div class="stat-val blue-accent">{{ cardHistory?.totalInProgressAssessments ?? 0 }}</div>
+							<div class="stat-lbl">In Progress</div>
+						</div>
 					</div>
-
 				</div>
+
+				<!-- Critical Risks -->
+				<div class="db-card db-card-2">
+					<div class="card-top">
+						<span class="card-label">Risk Management</span>
+						<span class="card-badge badge-gold">Alert</span>
+					</div>
+					<div class="card-hero">
+						<div class="hero-number">
+							{{ (cardHistory?.totalOverdue ?? 0) + (cardHistory?.totalHighRisk ?? 0) }}
+						</div>
+						<div class="hero-sub">Critical Risks</div>
+					</div>
+					<div class="card-sparkline">
+						<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="exec-spark-2" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stop-color="#ffc84a" stop-opacity="0.25"></stop>
+									<stop offset="100%" stop-color="#ffc84a" stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,45 C40,42 60,30 90,28 C120,26 140,35 170,20 C200,8 220,15 240,12"
+								stroke="#ffc84a" stroke-width="1.5" fill="none"></path>
+							<path d="M0,45 C40,42 60,30 90,28 C120,26 140,35 170,20 C200,8 220,15 240,12 L240,50 L0,50 Z"
+								fill="url(#exec-spark-2)"></path>
+							<circle cx="240" cy="12" r="3" fill="#ffc84a"></circle>
+						</svg>
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row risk-stats">
+						<div class="stat-col">
+							<div class="stat-val risk-overdue">{{ cardHistory?.totalOverdue ?? 0 }}</div>
+							<div class="stat-lbl">Overdue</div>
+						</div>
+						<div class="stat-col">
+							<div class="stat-val risk-high">{{ cardHistory?.totalHighRisk ?? 0 }}</div>
+							<div class="stat-lbl">High Risk</div>
+						</div>
+						<div class="stat-col">
+							<div class="stat-val risk-at">{{ cardHistory?.totalAtRisk ?? 0 }}</div>
+							<div class="stat-lbl">At Risk</div>
+						</div>
+						<div class="stat-col">
+							<div class="stat-val risk-on">{{ cardHistory?.totalOnTrack ?? 0 }}</div>
+							<div class="stat-lbl">On Track</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar Progress -->
+				<div class="db-card db-card-3">
+					<div class="card-top">
+						<span class="card-label">Pillar Progress</span>
+						<span class="card-badge badge-blue">Analytics</span>
+					</div>
+					<div class="card-sparkline pillar-spark">
+						<svg viewBox="0 0 240 50" preserveAspectRatio="none">
+							<defs>
+								<linearGradient id="exec-spark-3" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stop-color="#7eabff" stop-opacity="0.25"></stop>
+									<stop offset="100%" stop-color="#7eabff" stop-opacity="0"></stop>
+								</linearGradient>
+							</defs>
+							<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8"
+								stroke="#7eabff" stroke-width="1.5" fill="none"></path>
+							<path d="M0,35 C30,30 60,15 90,18 C120,21 145,38 175,25 C205,14 220,10 240,8 L240,50 L0,50 Z"
+								fill="url(#exec-spark-3)"></path>
+							<circle cx="240" cy="8" r="3" fill="#7eabff"></circle>
+						</svg>
+					</div>
+					<div class="card-divider"></div>
+					<div class="card-stats-row pillar-row">
+						<div class="stat-col">
+							<div class="pillar-score blue-accent">
+								{{ cardHistory?.highestPillarScore?.value != null
+									? (cardHistory?.highestPillarScore?.value == 100
+										? cardHistory?.highestPillarScore?.value?.toFixed(0)
+										: cardHistory?.highestPillarScore?.value?.toFixed(2))
+									: 0 }}
+							</div>
+							<div class="pillar_scores">
+								<div class="pillar-name">{{ cardHistory?.highestPillarScore?.pillarName ?? '—' }}</div>
+								<div class="stat-lbl stat-lbl-gold">Highest</div>
+							</div>
+						</div>
+						<div class="stat-col">
+							<div class="pillar-score muted">
+								{{ cardHistory?.lowestPillarScore?.value != null
+									? (cardHistory?.lowestPillarScore?.value == 100
+										? cardHistory?.lowestPillarScore?.value?.toFixed(0)
+										: cardHistory?.lowestPillarScore?.value?.toFixed(2))
+									: 0 }}
+							</div>
+							<div class="pillar_scores">
+								<div class="pillar-name muted-name">{{ cardHistory?.lowestPillarScore?.pillarName ?? '—' }}</div>
+								<div class="stat-lbl stat-lbl-gold">Lowest</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Overall Critical -->
+				<div class="db-card db-card-4">
+					<div class="card-top">
+						<span class="card-label">Overall Critical</span>
+						<span class="card-badge badge-teal">Progress</span>
+					</div>
+					<div class="critical-ring-wrap">
+						<div class="critical-ring"
+							[style.--pct]="cardHistory?.totalCriticalQuestions && cardHistory?.totalAssessments
+								? (cardHistory?.totalAnsweredCriticalQuestions! * 100) / (cardHistory?.totalCriticalQuestions! * cardHistory?.totalAssessments!)
+								: 0">
+							<div class="critical-ring-inner">
+								<span class="critical-ring-value">
+									{{
+										cardHistory?.totalCriticalQuestions && cardHistory?.totalAssessments
+											? ((cardHistory?.totalAnsweredCriticalQuestions! * 100) /
+												(cardHistory?.totalCriticalQuestions! * cardHistory?.totalAssessments!)).toFixed(1)
+											: 0
+									}}%
+								</span>
+								<span class="critical-ring-label">Answered</span>
+							</div>
+						</div>
+					</div>
+					<div class="card-divider"></div>
+					<div class="critical-detail">
+						<div class="critical-bar-track">
+							<div class="critical-bar-fill" [style.width.%]="
+								cardHistory?.totalCriticalQuestions && cardHistory?.totalAssessments
+									? (cardHistory?.totalAnsweredCriticalQuestions! * 100) / (cardHistory?.totalCriticalQuestions! * cardHistory?.totalAssessments!)
+									: 0
+							"></div>
+						</div>
+						<div class="critical-count">
+							{{ cardHistory?.totalAnsweredCriticalQuestions ?? 0 }}
+							<span class="critical-count-sep">/</span>
+							{{ (cardHistory?.totalCriticalQuestions ?? 0) * (cardHistory?.totalAssessments ?? 0) }}
+							<span class="critical-count-hint">critical answered</span>
+						</div>
+					</div>
+				</div>
+
 			</div>
+		</section>
 
-			<div class="col-md-4 d-flex">
+		<!-- ── Main Content ── -->
+		<section class="exec-main row g-3">
 
-				<div class="assessment-selector w-100">
-					<div class="mb-2 sticky_search">
-						<input type="text" class="form-control" placeholder="Search by geographic reference..."
+			<!-- Assessment Sidebar -->
+			<aside class="col-lg-4 col-md-5 exec-sidebar">
+				<div class="sidebar-panel">
+					<div class="sidebar-header">
+						<div class="sidebar-title">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+								stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+								<circle cx="12" cy="10" r="3"></circle>
+							</svg>
+							Assessments
+						</div>
+						<span class="sidebar-count">{{ assignedInvitations?.length ?? 0 }}</span>
+					</div>
+
+					<div class="search-box sticky_search">
+						<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+						<input type="text" class="search-input" placeholder="Search geographic reference..."
 							[(ngModel)]="searchText" (input)="getAssignedInvitations(false)" />
 					</div>
 
-					<div class="assessment-card" *ngFor="let item of assignedInvitations"
-						[class.active]="assignedInvitation === item.userAssessmentMappingID"
-						(click)="onAssessmentSelect(item)">
+					<div class="assessment-list">
+						<div class="assessment-card"
+							*ngFor="let item of assignedInvitations"
+							[class.active]="assignedInvitation === item.userAssessmentMappingID"
+							(click)="onAssessmentSelect(item)">
 
-						<div class="card-header">
-							<span class="title">
-								{{ item.geographicReference }}• {{ item.year }}
-							</span>
+							<div class="ac-header">
+								<div class="ac-title-group">
+									<span class="ac-geo">{{ item.geographicReference }}</span>
+									<span class="ac-year">{{ item.year }}</span>
+								</div>
+								<button class="view-weekly-btn" (click)="onViewWeekly(item, $event)">
+									Weekly
+								</button>
+							</div>
 
-							<button class="view-weekly-btn" (click)="onViewWeekly(item, $event)">
-								View Weekly
-							</button>
-						</div>
-						<div class="card-top-stats">
-							<div class="stat-block">
-								<span class="label">Score : {{ item.avgScoreProgress.toFixed(1) }}</span>
-								<span class="label">Completed : {{ item.avgCompletionRate.toFixed(1) }}%</span>
-								<span class="label d-flex align-items-center"
+							<div class="ac-metrics">
+								<div class="ac-metric">
+									<span class="ac-metric-val">{{ item.avgScoreProgress.toFixed(1) }}</span>
+									<span class="ac-metric-lbl">Score</span>
+								</div>
+								<div class="ac-metric-divider"></div>
+								<div class="ac-metric">
+									<span class="ac-metric-val">{{ item.avgCompletionRate.toFixed(1) }}%</span>
+									<span class="ac-metric-lbl">Completion</span>
+								</div>
+								<div class="ac-metric-divider"></div>
+								<div class="ac-metric ac-due">
+									<span class="ac-metric-val ac-due-val">{{ item.dueDate | date:'MMM d' }}</span>
+									<span class="ac-metric-lbl">Due Date</span>
+								</div>
+							</div>
+
+							<div class="ac-pillars">
+								<div class="ac-pillar ac-pillar-best"
 									[matTooltip]="'Best Performing Pillar: ' + item.bestPerformingPillar">
-									<span class="arrow up">▲</span>
-									{{ item.bestPerformingPillar | slice:0:7 }}...
-									({{ item.bestCompletionRate.toFixed(1) }})
-								</span>
-								<span class="label d-flex align-items-center"
+									<span class="ac-pillar-icon">▲</span>
+									<span class="ac-pillar-name">{{ item.bestPerformingPillar | slice:0:12 }}{{ (item.bestPerformingPillar?.length ?? 0) > 12 ? '…' : '' }}</span>
+									<span class="ac-pillar-rate">{{ item.bestCompletionRate.toFixed(1) }}%</span>
+								</div>
+								<div class="ac-pillar ac-pillar-worst"
 									[matTooltip]="'Worst Performing Pillar: ' + item.worstPerformingPillar">
-									<span class="arrow down">▼</span>
-									{{ item.worstPerformingPillar | slice:0:7 }}...
-									({{ item.worstCompletionRate.toFixed(1) }})
+									<span class="ac-pillar-icon">▼</span>
+									<span class="ac-pillar-name">{{ item.worstPerformingPillar | slice:0:12 }}{{ (item.worstPerformingPillar?.length ?? 0) > 12 ? '…' : '' }}</span>
+									<span class="ac-pillar-rate">{{ item.worstCompletionRate.toFixed(1) }}%</span>
+								</div>
+							</div>
+
+							<div class="ac-risk-bar" *ngIf="item.onTrackPercent + item.atRiskPercent + item.offTrackPercent > 0">
+								<div class="ac-risk-seg on-track" [style.flex]="item.onTrackPercent"></div>
+								<div class="ac-risk-seg at-risk" [style.flex]="item.atRiskPercent"></div>
+								<div class="ac-risk-seg off-track" [style.flex]="item.offTrackPercent"></div>
+							</div>
+							<div class="ac-risk-legend">
+								<span class="ac-risk-item on-track">
+									<span class="dot"></span> On Track ({{ item.onTrackPercent.toFixed(0) }}%)
+								</span>
+								<span class="ac-risk-item at-risk">
+									<span class="dot"></span> At Risk ({{ item.atRiskPercent.toFixed(0) }}%)
+								</span>
+								<span class="ac-risk-item off-track">
+									<span class="dot"></span> Off Track ({{ item.offTrackPercent.toFixed(0) }}%)
 								</span>
 							</div>
 
-							<div class="completion-risk-breakdown">
-								<span class="due-date">
-									Due: {{ item.dueDate | date:'yyyy-MM-dd' }}
-								</span>
-								<div class="risk-row on-track">
-									<span class="dot"></span>
-									<span class="label">On Track</span>
-									<span class="value">({{ item.onTrackPercent.toFixed(1) }}%)</span>
+							<div class="ac-progress-group">
+								<div class="ac-progress-item">
+									<div class="ac-progress-header">
+										<span>Questions Answered</span>
+										<span>{{ item.totalAnsweredQuestions }} / {{ item.totalQuestions }}</span>
+									</div>
+									<div class="progress-bar">
+										<div class="progress-fill" [style.width.%]="item.avgCompletionRate"></div>
+									</div>
 								</div>
+								<div class="ac-progress-item">
+									<div class="ac-progress-header">
+										<span>Critical Answered</span>
+										<span>{{ item.totalCriticalAnsweredQuestions }} / {{ item.totalCriticalQuestions }}</span>
+									</div>
+									<div class="progress-bar">
+										<div class="progress-fill-critical"
+											[style.width.%]="item.totalCriticalQuestions
+												? ((item.totalCriticalAnsweredQuestions) * 100) / item.totalCriticalQuestions
+												: 0">
+										</div>
+									</div>
+								</div>
+							</div>
 
-								<div class="risk-row at-risk">
-									<span class="dot"></span>
-									<span class="label">At Risk</span>
-									<span class="value">({{ item.atRiskPercent.toFixed(1) }}%)</span>
-								</div>
-
-								<div class="risk-row off-track">
-									<span class="dot"></span>
-									<span class="label">Off Track</span>
-									<span class="value">({{ item.offTrackPercent.toFixed(1) }}%)</span>
-								</div>
-							</div>
-						</div>
-						<div class="progress-section">
-							<div class="progress-bar">
-								<div class="progress-fill" [style.width.%]="item.avgCompletionRate"></div>
-							</div>
-							<div class="progress-text">
-								{{ item.totalAnsweredQuestions }} / {{ item.totalQuestions }} (Answered)
-							</div>
-							<div class="progress-bar">
-								<div class="progress-fill-critical" [style.width.%]="item.totalCriticalQuestions ? ((item.totalCriticalAnsweredQuestions) * 100) / item.totalCriticalQuestions
-        							: 0 ">
-								</div>
-							</div>
-							<div class="progress-text">
-								{{ item.totalCriticalAnsweredQuestions }} / {{ item.totalCriticalQuestions }} (Critical
-								Answered)
-							</div>
 						</div>
 
+						<div class="assessment-empty" *ngIf="!assignedInvitations?.length">
+							<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+								stroke="currentColor" stroke-width="1.5">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+								<polyline points="14 2 14 8 20 8"></polyline>
+							</svg>
+							<p>No assessments found</p>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-md-8">
-				<div *ngIf="chartPillarOptions && chartPillarOptions.series" id="chartPillar"
-					tyle="width:100%; height:500px;">
-					<apx-chart [series]="chartPillarOptions.series!" [chart]="chartPillarOptions.chart!"
-						[xaxis]="chartPillarOptions.xaxis!" [yaxis]="chartPillarOptions.yaxis!"
-						[colors]="chartPillarOptions.colors!" [tooltip]="chartPillarOptions.tooltip!"
-						[plotOptions]="chartPillarOptions.plotOptions!" [legend]="chartPillarOptions.legend!"
-						[fill]="chartPillarOptions.fill!" [states]="chartPillarOptions.states!"
-						[dataLabels]="chartPillarOptions.dataLabels!" [stroke]="chartPillarOptions.stroke!"
-						[markers]="chartPillarOptions.markers!" [grid]="chartPillarOptions.grid!"
-						class="cus_chart_right"></apx-chart>
+			</aside>
+
+			<!-- Charts Area -->
+			<div class="col-lg-8 col-md-7 exec-charts">
+				<div class="chart-panel chart-panel-primary">
+					<div class="chart-panel-header">
+						<div>
+							<h3 class="chart-panel-title">Pillar Performance</h3>
+							<p class="chart-panel-sub">Completion rate vs score across pillars</p>
+						</div>
+					</div>
+					<div *ngIf="chartPillarOptions && chartPillarOptions.series" id="chartPillar">
+						<apx-chart [series]="chartPillarOptions.series!" [chart]="chartPillarOptions.chart!"
+							[xaxis]="chartPillarOptions.xaxis!" [yaxis]="chartPillarOptions.yaxis!"
+							[colors]="chartPillarOptions.colors!" [tooltip]="chartPillarOptions.tooltip!"
+							[plotOptions]="chartPillarOptions.plotOptions!" [legend]="chartPillarOptions.legend!"
+							[fill]="chartPillarOptions.fill!" [states]="chartPillarOptions.states!"
+							[dataLabels]="chartPillarOptions.dataLabels!" [stroke]="chartPillarOptions.stroke!"
+							[markers]="chartPillarOptions.markers!" [grid]="chartPillarOptions.grid!"
+							class="cus_chart_right"></apx-chart>
+					</div>
 				</div>
 
-				<div class="outer_graph">
-					<apx-chart [series]="chartOptionsBar.series!" [chart]="chartOptionsBar.chart!"
-						[xaxis]="chartOptionsBar.xaxis!" [yaxis]="chartOptionsBar.yaxis!"
-						[dataLabels]="chartOptionsBar.dataLabels!" [tooltip]="chartOptionsBar.tooltip!"
-						[legend]="chartOptionsBar.legend!" [plotOptions]="chartOptionsBar.plotOptions!"
-						[grid]="chartOptionsBar.grid!" [stroke]="chartOptionsBar.stroke!"
-						[colors]="chartOptionsBar.colors!"></apx-chart>
+				<div class="chart-panel chart-panel-secondary">
+					<div class="chart-panel-header">
+						<div>
+							<h3 class="chart-panel-title">Evaluator Comparison</h3>
+							<p class="chart-panel-sub">Completion rate by pillar and evaluator</p>
+						</div>
+					</div>
+					<div class="outer_graph">
+						<apx-chart [series]="chartOptionsBar.series!" [chart]="chartOptionsBar.chart!"
+							[xaxis]="chartOptionsBar.xaxis!" [yaxis]="chartOptionsBar.yaxis!"
+							[dataLabels]="chartOptionsBar.dataLabels!" [tooltip]="chartOptionsBar.tooltip!"
+							[legend]="chartOptionsBar.legend!" [plotOptions]="chartOptionsBar.plotOptions!"
+							[grid]="chartOptionsBar.grid!" [stroke]="chartOptionsBar.stroke!"
+							[colors]="chartOptionsBar.colors!"></apx-chart>
+					</div>
 				</div>
+
 				<div *ngIf="isLoader" class="loader_main">
 					<div class="loader"></div>
 				</div>
 			</div>
 
-
-		</div>
+		</section>
 	</div>
-
 </ng-container>
