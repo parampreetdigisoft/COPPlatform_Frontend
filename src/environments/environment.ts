@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
-  apiUrl: "https://api.grandeventsystem.com",
-  //aapiUrl: 'https://localhost:8080',
+  //apiUrl: "https://api.grandeventsystem.com",
+  apiUrl: 'https://localhost:8080',
   subscriptionUrl:'https://grandeventsystem.com',
   googleClientId: '419053098195-ink9t3quhqbfc0li446rn1qf9tci4hm3.apps.googleusercontent.com',
   facebookAppId: '1784178838961034',

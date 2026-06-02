@@ -556,7 +556,7 @@ export class EvaluatorDashboardComponent implements OnInit, AfterViewInit {
               font-weight: 600;
               margin-bottom: 6px;
             ">
-              📊 Total Answered Questions
+              📊 Total Answered 
             </div>
 
             <div style="
@@ -597,7 +597,7 @@ export class EvaluatorDashboardComponent implements OnInit, AfterViewInit {
               font-weight: 600;
               margin-bottom: 6px;
             ">
-              ⚠️ Critical Answered Questions
+              ⚠️ Critical Answered
             </div>
 
             <div style="
