@@ -183,9 +183,9 @@ export class AdminService {
       .getWithQueryParams(`AssessmentResponse/getAssessmentResults`, payload)
       .pipe(map((x) => x as PaginationResponse<GetAssessmentResponse>));
   }
-  public getAssessmentQuestoins(payload: GetAssessmentQuestionRequestDto) {
+  public getAssessmentQuestions(payload: GetAssessmentQuestionRequestDto) {
     return this.http
-      .getWithQueryParams(`AssessmentResponse/getAssessmentQuestoins`, payload)
+      .getWithQueryParams(`AssessmentResponse/getAssessmentQuestions`, payload)
       .pipe(
         map((x) => x as PaginationResponse<GetAssessmentQuestionResponseDto>)
       );

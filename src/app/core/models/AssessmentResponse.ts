@@ -17,9 +17,9 @@ export interface GetAssessmentResponse {
 export interface GetAssessmentQuestionResponseDto {
   assessmentID: number;
   userID: number;
-  pillerID: number;
+  pillarID: number;
   pillarName:string;
-  questoinID: number;  // keeping same spelling as C#; can rename to questionID if desired
+  questionID: number;  // keeping same spelling as C#; can rename to questionID if desired
   questionText: string;
   questionOptionText: string;
   justification: string;

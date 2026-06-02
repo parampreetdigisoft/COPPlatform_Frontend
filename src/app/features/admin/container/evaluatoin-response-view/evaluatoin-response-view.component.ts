@@ -35,7 +35,7 @@ export class EvaluatoinResponseViewComponent implements OnInit {
       this.assessmentID = params.get('assessmentID');
       this.userName = params.get('userName');
     });
-    this.getAssessmentQuestoins();
+    this.getAssessmentQuestions();
     this.GetAllPillars();
     this.getAssessmentProgressHistory();
 
@@ -57,19 +57,19 @@ export class EvaluatoinResponseViewComponent implements OnInit {
     });
   }
 
-  getAssessmentQuestoins(currentPage: number = 1) {
+  getAssessmentQuestions(currentPage: number = 1) {
     this.questionResponse = undefined;
     this.isLoader = true;
     let payload: GetAssessmentQuestionRequestDto = {
       sortDirection: SortDirection.ASC,
-      sortBy: 'questoinID',
+      sortBy: 'questionID',
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
       assessmentID:this.assessmentID,
       pillarID:this.selectedPillarId
     }
-    this.adminService.getAssessmentQuestoins(payload).subscribe(cities => {
+    this.adminService.getAssessmentQuestions(payload).subscribe(cities => {
       this.questionResponse = cities;
       this.totalRecords = cities.totalRecords;
       this.currentPage = currentPage;
