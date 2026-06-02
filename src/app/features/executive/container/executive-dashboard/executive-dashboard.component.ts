@@ -32,11 +32,11 @@ import {
 } from "ng-apexcharts";
 import { AiCityPillarDashboardResponseDto, CityPillarDashboardPillarValueDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
 import { GetExecutiveAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
-import { AdminService } from "src/app/features/admin/admin.service";
 import { PillarsHistoryResponse, PillarsTableRow, QuestionTableRow } from "src/app/core/models/PillarsUserHistoryResponse";
 import { GetCityPillarHistoryRequestNewDto } from "src/app/core/models/AssessmentRequest";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { ExecutiveService } from "../../executive.service";
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -139,7 +139,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   pillersHistory: PillarsHistoryResponse[] = [];
 
   constructor(
-    private adminService: AdminService,
+    private executiveService: ExecutiveService,
     private toaster: ToasterService,
     private userService: UserService,
     public commonService: CommonService,
@@ -177,7 +177,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
   this.isLoader = true;
 
-  this.adminService
+  this.executiveService
     .getExecutiveAssignedInvitations(this.searchText)
     .subscribe({
       next: (res) => {
@@ -206,7 +206,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   }
 
   getCardDetails() {
-    this.adminService
+    this.executiveService
       .getExecutiveCardDetails()
       .subscribe({
         next: (res) => {
@@ -227,7 +227,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     let request: UserAssessmentPillarDashboardRequstDto = {
       userAssessmentMappingID: this.assignedInvitation ?? null,
     };
-    this.adminService.getDashboardPillarHistory(request).subscribe({
+    this.executiveService.getDashboardPillarHistory(request).subscribe({
       next: (res) => {
         this.isLoader = false;
         this.assessmentHistoryResponse.set(res.result);
@@ -1022,7 +1022,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       pageSize: this.pageSize
     };
 
-    this.adminService.getResponsesByUserId(payload).subscribe({
+    this.executiveService.getResponsesByUserIdData(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
         this.pillersHistory = res.result ?? [];

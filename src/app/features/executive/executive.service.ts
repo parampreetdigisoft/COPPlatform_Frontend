@@ -13,7 +13,7 @@ import { CompareCityResponseDto } from 'src/app/core/models/CompareCityResponseD
 import { GetAssignUserDto, PublicUserResponse } from 'src/app/core/models/UserInfo';
 import { PillarsHistoryResponse } from 'src/app/core/models/PillarsUserHistoryResponse';
 import { InviteBulkUserDto, InviteUserDto, RegisterDto, UpdateInviteUserDto } from '../../core/models/AnalystVM';
-import { CityHistoryDto, UserCityPillarDashboardRequstDto } from '../../core/models/cityHistoryDto';
+import { CardHistoryDto, CityHistoryDto, UserAssessmentPillarDashboardRequstDto, UserCityPillarDashboardRequstDto } from '../../core/models/cityHistoryDto';
 import { QuestionsByUserPillarsResponseDto } from 'src/app/core/models/GetQuestionHistoryResponseDto ';
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetUserByRoleRequestDto, GetUserByRoleResponse, GetUserByRoleResponseVM } from '../../core/models/GetUserByRoleResponse';
@@ -25,7 +25,7 @@ import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutipl
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
-import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
+import { GetAssignedAssessmentResponseDto, GetExecutiveAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingResponse, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
 
 @Injectable({
@@ -125,6 +125,9 @@ export class ExecutiveService {
   }
   public getResponsesByUserId(request: GetCityPillarHistoryRequestNewDto) {
     return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as PaginationResponse<PillarsHistoryResponse>));
+  }
+  public getResponsesByUserIdData(request: GetCityPillarHistoryRequestNewDto) {
+    return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as ResultResponseDto<PillarsHistoryResponse[]>));
   }
   public getPillarsHistoryByUserId(request: GetCityPillarHistoryRequestDto) {
     return this.http
@@ -251,4 +254,38 @@ export class ExecutiveService {
   public ImportAssessment(formData: FormData) {
     return this.http.UploadFile(`AssessmentResponse/ImportAssessment`, formData).pipe(map(x => x as ResultResponseDto<string>));;
   }
+
+   public getExecutiveAssignedInvitations(searchText?: string) {
+    let url = `AssessmentResponse/getExecutiveAssignedInvitations`;
+
+    if (searchText) {
+      url += `?searchText=${encodeURIComponent(searchText)}`;
+    }
+
+    return this.http
+      .get(url)
+      .pipe(map((x) => x as ResultResponseDto<GetExecutiveAssignedAssessmentResponseDto[]>));
+  }
+
+  public getExecutiveCardDetails() {
+    return this.http
+      .get(`City/GetExecutiveCardDetails`)
+      .pipe(map((x) => x as ResultResponseDto<CardHistoryDto>));
+  }
+
+  public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto) {
+  
+      const queryParams: any = {};
+  
+      if (request?.userAssessmentMappingID != null) {
+        queryParams.userAssessmentMappingID = request.userAssessmentMappingID;
+      }
+  
+      return this.http.getWithQueryParams(
+        `AssessmentResponse/getDashboardPillarHistory`,
+        queryParams
+      ).pipe(
+        map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>)
+      );
+    }
 }

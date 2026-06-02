@@ -26,7 +26,7 @@ import {
 } from "ng-apexcharts";
 import { AiCityPillarDashboardResponseDto, CityPillarDashboardPillarValueDto } from "src/app/core/models/AiCityPillarDashboardResponseDto";
 import { GetAssignedAssessmentResponseDto } from "src/app/core/models/GetAssignedAssessmentResponseDto ";
-import { AdminService } from "src/app/features/admin/admin.service";
+import { AnalystService } from "../../analyst.service";
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -98,7 +98,7 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
 
   constructor(
-    private adminService: AdminService,
+    private analystService: AnalystService,
     private toaster: ToasterService,
     private userService: UserService,
     public commonService: CommonService
@@ -114,7 +114,7 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() { }
 
   getAssignedInvitations() {
-    this.adminService
+    this.analystService
       .getAssignedInvitations()
       .subscribe({
         next: (res) => {
@@ -137,7 +137,7 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
   }
 
   getCardDetails() {
-    this.adminService
+    this.analystService
       .getCardDetails()
       .subscribe({
         next: (res) => {
@@ -158,7 +158,7 @@ export class AnalystDashboardComponent implements OnInit, AfterViewInit {
     let request: UserAssessmentPillarDashboardRequstDto = {
       userAssessmentMappingID: this.assignedInvitation ?? null,
     };
-    this.adminService.getDashboardPillarHistory(request).subscribe({
+    this.analystService.getDashboardPillarHistory(request).subscribe({
       next: (res) => {        
         this.isLoader = false;
         this.assessmentHistoryResponse.set(res.result);

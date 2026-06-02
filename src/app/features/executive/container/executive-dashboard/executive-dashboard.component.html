@@ -253,13 +253,13 @@
 								<div class="ac-pillar ac-pillar-best"
 									[matTooltip]="'Best Performing Pillar: ' + item.bestPerformingPillar">
 									<span class="ac-pillar-icon">▲</span>
-									<span class="ac-pillar-name">{{ item.bestPerformingPillar | slice:0:12 }}{{ (item.bestPerformingPillar?.length ?? 0) > 12 ? '…' : '' }}</span>
+									<span class="ac-pillar-name">{{ item.bestPerformingPillar | slice:0:60 }}{{ (item.bestPerformingPillar?.length ?? 0) > 60 ? '…' : '' }}</span>
 									<span class="ac-pillar-rate">{{ item.bestCompletionRate.toFixed(1) }}%</span>
 								</div>
 								<div class="ac-pillar ac-pillar-worst"
 									[matTooltip]="'Worst Performing Pillar: ' + item.worstPerformingPillar">
 									<span class="ac-pillar-icon">▼</span>
-									<span class="ac-pillar-name">{{ item.worstPerformingPillar | slice:0:12 }}{{ (item.worstPerformingPillar?.length ?? 0) > 12 ? '…' : '' }}</span>
+									<span class="ac-pillar-name">{{ item.worstPerformingPillar | slice:0:60 }}{{ (item.worstPerformingPillar?.length ?? 0) > 60 ? '…' : '' }}</span>
 									<span class="ac-pillar-rate">{{ item.worstCompletionRate.toFixed(1) }}%</span>
 								</div>
 							</div>
