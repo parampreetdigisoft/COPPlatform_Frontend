@@ -45,7 +45,7 @@ export class ViewKpiLayerComponent implements OnInit, OnChanges {
 
   getConditionByid() {
     let condition = this.selectedLayer?.fiveLevelInterpretations?.find(x => x.interpretationID == this.selectedLayer?.interpretationID)?.condition ?? 'NA';
-    condition = condition.split(' ')[0];
+    //condition = condition.split(' ')[0];
     return condition;
   }
 

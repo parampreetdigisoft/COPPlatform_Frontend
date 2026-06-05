@@ -1,36 +1,30 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexMarkers, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, ChartComponent } from 'ng-apexcharts';
-import { CityVM } from 'src/app/core/models/CityVM';
-import { CompareCityRequestDto } from 'src/app/core/models/CompareCityRequestDto';
-import { CompareCityResponseDto, ChartTableRowDto } from 'src/app/core/models/CompareCityResponseDto';
-import { PillarsVM } from 'src/app/core/models/PillersVM';
+import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexFill, ApexGrid, ApexLegend, ApexPlotOptions, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, ChartComponent } from 'ng-apexcharts';
 import { CommonService } from 'src/app/core/services/common.service';
 import { ToasterService } from 'src/app/core/services/toaster.service';
-import { UserService } from 'src/app/core/services/user.service';
-import { environment } from 'src/environments/environment';
 import { AdminService } from '../../admin.service';
-import { AnalyticalLayerResponseDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
+import { AnalyticalLayerResponseDto, GetAnalyticalLayerResultDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
 import { debounceTime, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from 'src/app/shared/share.module';
 import { CircularScoreComponent } from 'src/app/shared/standAlone/circular-score/circular-score.component';
-import { AiButtonComponent } from 'src/app/shared/standAlone/ai-button/ai-button.component';
-import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
-import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
-import { CompareCityKpiDetailComponent } from 'src/app/shared/standAlone/compare-city-kpi-detail/compare-city-kpi-detail.component';
-declare var bootstrap: any; // 👈 use Bootstrap JS API
+import { GetKpiLayerChartRequestDto, GetKpiLayerChartResponseDto } from 'src/app/core/models/GetKpiLayerChartDto';
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
+declare var bootstrap: any;
+
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
   xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
+  yaxis: ApexYAxis | ApexYAxis[];
   stroke: ApexStroke;
   tooltip: ApexTooltip;
   dataLabels: ApexDataLabels;
-  markers: ApexMarkers;
   legend: ApexLegend;
   grid: ApexGrid;
-
+  plotOptions: ApexPlotOptions;
+  fill: ApexFill;
+  colors?: string[];
 };
 
 @Component({
@@ -38,386 +32,307 @@ export type ChartOptions = {
   selector: 'app-kpi-comparision',
   templateUrl: './kpi-comparision.component.html',
   styleUrl: './kpi-comparision.component.css',
-  imports: [CommonModule, SharedModule, CircularScoreComponent,AiButtonComponent,CompareCityKpiDetailComponent]
-
+  imports: [CommonModule, SharedModule, CircularScoreComponent]
 })
 export class KpiComparisionComponent implements OnInit {
-  selectedYear = new Date().getFullYear();
-  pillers: PillarsVM[] = [];
-  selectedCities: number[] = [];
+  userAssessmentMappingID?: number;
   selectedKpis: number[] = [];
-  cities: CityVM[] | null = [];
-  pageSize: number = 10;
+  pageSize: number = 14;
   currentPage: number = 1;
-  totalRecords: number = 10;
+  totalRecords: number = 0;
   kpis: AnalyticalLayerResponseDto[] = [];
+  selectedKpi: GetAnalyticalLayerResultDto | null = null;
+  chartMax = 100;
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions: Partial<ChartOptions> = {};
-  compareCityResponseDto: CompareCityResponseDto | null = null;
+  kpiLayerChartData: GetKpiLayerChartResponseDto | null = null;
   isLoader: boolean = false;
-  environment = environment.apiUrl;
-  chartTableData: ChartTableRowDto[] = [];
   $kpiChanged = new Subject();
-  isAiViewEnabled: boolean = false;
-  mutipleCitykpiLayerResults: GetMutiplekpiLayerResultsDto | null = null;
-  viewDetailIndex = -1;
+  assignedInvitations: GetAssignedAssessmentResponseDto[] = [];
+
   constructor(
     private adminService: AdminService,
     private toaster: ToasterService,
-    private userService: UserService,
     public commonService: CommonService
-  ) {
-
-  }
+  ) { }
 
   ngOnInit(): void {
     this.isLoader = true;
     this.GetAllKpi();
-    this.getCityUserCities();
-    this.$kpiChanged.pipe(debounceTime(1000)).subscribe(x => {
-      this.compareCities();
+    this.getAssignedInvitations();
+    this.$kpiChanged.pipe(debounceTime(500)).subscribe(() => {
+      this.getKpiLayerChart();
     });
   }
-  onAiViewToggle(value: boolean) {
-    this.isAiViewEnabled = value; // 👈 REQUIRED
-    this.getChartOptions();
-  }
+
   kpiChanged() {
     this.$kpiChanged.next(true);
   }
+
+  getAssignedInvitations() {
+    this.adminService.getAssignedInvitations().subscribe({
+      next: (res) => {
+        this.assignedInvitations = res.result ?? [];
+        if (!this.assignedInvitations?.length) {
+          this.isLoader = false;
+          this.toaster.showWarning("You don't have any assigned assessments yet.");
+        } else {
+          this.userAssessmentMappingID = this.assignedInvitations[0].userAssessmentMappingID;
+          this.getKpiLayerChart();
+        }
+      },
+    });
+  }
+
   GetAllKpi() {
     this.adminService.GetAllKpi().subscribe({
       next: (res) => {
         if (res.succeeded) {
           this.kpis = res.result ?? [];
-          this.totalRecords = this.kpis.length;
         }
       }
     });
   }
-  getCityUserCities() {
-    this.adminService.getAllCitiesByUserId(this.userService.userInfo.userID ?? 0).subscribe((p) => {
+
+  getKpiLayerChart(currentPage = 1) {
+    if (!this.userAssessmentMappingID) {
       this.isLoader = false;
-      this.cities = p.result || [];
-      if (this.cities?.length && this.selectedCities.length < 2) {
-        this.selectedCities = this.cities.slice(0, 2).map(x => x.cityID);
-        this.compareCities();
-      }
-    });
-  }
-  getMutiplekpiLayerResults(layerID: number, viewDetailIndex:number) {
-
-    if (this.selectedCities.length < 1) {
-      this.compareCityResponseDto = null;
-      this.getChartOptions();
-      this.toaster.showWarning("Please select at least one city to view data.");
-      return;
-    }
-
-    this.viewDetailIndex = viewDetailIndex;
-
-    let payload: GetMutiplekpiLayerRequestDto = {
-      cityIDs: this.selectedCities,
-      year: this.selectedYear,
-      layerID: layerID
-    }
-    this.adminService.getMutiplekpiLayerResults(payload).subscribe({
-      next: (res) => {
-        this.viewDetailIndex = -1;
-        if (res.succeeded) {
-          this.mutipleCitykpiLayerResults = res.result || null;
-          const sidebarEl = document.getElementById('kpiLayerSidebar');
-          const offcanvas = new bootstrap.Offcanvas(sidebarEl);
-          offcanvas.show();
-        }
-        else {
-          this.toaster.showInfo("No comparison data available for the selected cities.");
-        }
-      },
-      error: (err) => {
-        this.viewDetailIndex = -1;
-        this.toaster.showError("Failed to load comparison data.");
-      }
-    });
-  }
-  compareCities(currentPage = 1) {
-    if (this.selectedCities.length < 1) {
-      this.compareCityResponseDto = null;
-      this.getChartOptions();
-      this.toaster.showWarning("Please select at least one city to view data.");
+      this.kpiLayerChartData = null;
+      this.chartOptions = {};
       return;
     }
     this.isLoader = true;
     this.currentPage = currentPage;
 
-    let payload: CompareCityRequestDto = {
-      cities: this.selectedCities,
+    const payload: GetKpiLayerChartRequestDto = {
+      userAssessmentMappingID: this.userAssessmentMappingID,
+      layerIDs: this.selectedKpis,
       pageNumber: this.currentPage,
-      pageSize: this.pageSize,
-      Kpis: this.selectedKpis
-    }
-    this.adminService.compareCities(payload).subscribe({
+      pageSize: this.pageSize
+    };
+
+    this.adminService.getKpiLayerChart(payload).subscribe({
       next: (res) => {
         this.isLoader = false;
-        if (res.succeeded) {
-          this.compareCityResponseDto = res.result || null;
+        if (res.succeeded && res.result) {
+          this.kpiLayerChartData = res.result;
+          this.totalRecords = res.result.totalRecords ?? 0;
           this.getChartOptions();
-        }
-        else {
-          this.toaster.showInfo("No comparison data available for the selected cities.");
+        } else {
+          this.kpiLayerChartData = null;
+          this.chartOptions = {};
+          this.toaster.showInfo("No KPI chart data available for the selected assessment.");
         }
       },
-      error: (err) => {
+      error: () => {
         this.isLoader = false;
-        this.toaster.showError("Failed to load comparison data.");
+        this.toaster.showError("Failed to load KPI chart data.");
       }
     });
   }
 
-  getChartOptions() {
-    this.chartTableData = this.compareCityResponseDto?.tableData ?? [];
+  getChartMax(maxValue: number): number {
+    if (maxValue <= 0) return 20;
+    if (maxValue < 20) {
+      return Math.ceil(maxValue / 10) * 10 + 10;
+    }
+    if (maxValue <= 80) {
+      return Math.ceil(maxValue / 20) * 20;
+    }
+    return 100;
+  }
 
-    if (!this.chartTableData?.length) {
-      this.totalRecords = 0;
-    } else {
-      this.totalRecords = this.kpis.length;
+  private truncateFromStart(text: string, maxLength: number): string {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+
+    return `${text.slice(0, maxLength - 3)}...`;
+  }
+
+  private getChartCategoryLabel(item: GetAnalyticalLayerResultDto): string {
+
+    const name = this.truncateFromStart(item.layerName?.trim() || '', 15);
+    return  name;
+  }
+
+  private buildChartCategories(
+    items: GetAnalyticalLayerResultDto[],
+    fallbackCategories: string[]
+  ): string[] {
+    if (items.length) {
+      return items.map(item => this.getChartCategoryLabel(item));
     }
 
-    const kpiMap = new Map(
-      this.chartTableData.map(x => [x.layerCode, x.layerName])
-    );
-
-    const colorPalette = this.commonService.kpiColors;
-    
-    let series: any[] = [];
-    let strokeDashArray: number[] = [];
-
-    (this.compareCityResponseDto?.series ?? []).forEach((cityData, index) => {
-      // Skip the last city if AI View is enabled (assuming last city is AI benchmark)
-      if (index === (this.compareCityResponseDto?.series ?? []).length - 1 && this.isAiViewEnabled) {
-        return;
+    return fallbackCategories.map(category => {
+      const separatorIndex = category.indexOf(' - ');
+      if (separatorIndex === -1) {
+        return this.truncateFromStart(category, 15);
       }
 
-      const baseColor = colorPalette[index % colorPalette.length];
-
-      // Evaluation series (solid line)
-      series.push({
-        name: `${cityData.name} (Evaluation)`,
-        data: cityData.data,
-        color: baseColor,
-        type: 'line'
-      });
-      strokeDashArray.push(0); // Solid line
-
-      // AI series (dashed line) - only if AI view is enabled
-      if (this.isAiViewEnabled && cityData.aiData) {
-        series.push({
-          name: `${cityData.name} (AI)`,
-          data: cityData.aiData,
-          color: this.lightenColor(baseColor, 20), // Slightly lighter shade
-          type: 'line'
-        });
-        strokeDashArray.push(8); // Dashed line
-      }
+      const name = this.truncateFromStart(category.slice(separatorIndex + 3).trim(), 15);
+      return name;
     });
+  }
 
-    let option: Partial<ChartOptions> = {
-      series: series,
+  getChartOptions() {
+    const chartData = this.kpiLayerChartData;
+    if (!chartData?.categories?.length) {
+      this.chartOptions = {};
+      return;
+    }
+
+    const items = chartData.items ?? [];
+    const colorPalette = this.commonService.kpiColors;
+    const seriesData = chartData.series?.[0]?.data ?? [];
+    const maxValue = Math.max(...seriesData, 0);
+    this.chartMax = this.getChartMax(maxValue);
+    const chartCategories = this.buildChartCategories(items, chartData.categories);
+    const itemCount = chartCategories.length;
+    const chartHeight = Math.max(460, itemCount * 36 + 120);
+
+    const option: Partial<ChartOptions> = {
+      series: [{
+        name: chartData.series?.[0]?.name ?? 'KPI Score',
+        data: seriesData
+      }],
       chart: {
-       height: 400,
-        type: "line",
-        zoom: {
-          enabled: false,
-          type: 'x'
-        },
+        height: chartHeight,
+        type: 'bar',
+        fontFamily: 'Poppins, sans-serif',
         toolbar: {
           show: true,
           tools: {
             download: true,
-            zoom: true,
-            zoomin: true,
-            zoomout: true,
-            pan: true,
-            reset: true
+            zoom: false,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
+            reset: false
           }
         },
         animations: {
           enabled: true,
           easing: 'easeinout',
-          speed: 800
+          speed: 700
         } as any
       },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 8,
+          barHeight: '62%',
+          distributed: true,
+          dataLabels: {
+            position: 'top'
+          }
+        }
+      },
+      colors: colorPalette,
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'dark',
+          type: 'horizontal',
+          shadeIntensity: 0.35,
+          gradientToColors: undefined,
+          opacityFrom: 1,
+          opacityTo: 0.88,
+          stops: [0, 100]
+        }
+      },
       dataLabels: {
-        enabled: false
+        enabled: true,
+        formatter: (val: number) => val?.toFixed?.(1) ?? `${val}`,
+        offsetX: 28,
+        style: {
+          fontSize: '12px',
+          fontWeight: 600,
+          colors: ['#263238']
+        }
       },
       stroke: {
-        curve: "smooth",
-        width: 3,
-        dashArray: strokeDashArray // Different dash patterns for each series
-      },
-      markers: {
-        size: 5,
-        strokeWidth: 2,
-        hover: {
-          size: 7,
-          sizeOffset: 3
-        }
+        show: false
       },
       legend: {
-        show: true,
-        position: 'top',
-        horizontalAlign: 'center',
-        fontSize: '13px',
-        fontWeight: 500,
-        markers: {
-          width: 20,
-          height: 3,
-          radius: 0
-        } as any,
-        itemMargin: {
-          horizontal: 15,
-          vertical: 5
-        },
-        onItemClick: {
-          toggleDataSeries: true
-        },
-        onItemHover: {
-          highlightDataSeries: true
-        }
+        show: false
       },
       grid: {
-        borderColor: '#e7e7e7',
-        strokeDashArray: 3,
-        row: {
-          colors: ['#f3f3f3', 'transparent'],
-          opacity: 0.5
-        },
+        borderColor: '#e8edf3',
+        strokeDashArray: 4,
         xaxis: {
-          lines: {
-            show: true
-          }
+          lines: { show: true }
         },
         yaxis: {
-          lines: {
-            show: true
-          }
+          lines: { show: false }
         },
         padding: {
           top: 0,
-          right: 10,
+          right: 24,
           bottom: 0,
-          left: 10
+          left: 30
         }
       },
       xaxis: {
-        type: "category",
-        categories: this.compareCityResponseDto?.categories,
+        categories: chartCategories,
+        min: 0,
+        max: this.chartMax,
+        tickAmount: Math.min(6, Math.ceil(this.chartMax / 10)),
         labels: {
-          rotate: -15,
-          rotateAlways: true,
           style: {
-            fontSize: '11px',
-            fontWeight: 500
+            fontSize: '12px',
+            fontWeight: 500,
+            colors: '#546e7a'
           },
-          trim: false
+          formatter: (val: string) => parseFloat(val).toFixed(0)
         },
-        tooltip: {
-          enabled: false
-        },
-        axisBorder: {
-          show: true,
-          color: '#78909C'
-        },
-        axisTicks: {
-          show: true,
-          color: '#78909C'
+        axisBorder: { show: true, color: '#cfd8dc' },
+        axisTicks: { show: true, color: '#cfd8dc' },
+        title: {
+          text: 'Score',
+          style: {
+            fontSize: '13px',
+            fontWeight: 600,
+            color: '#37474f'
+          }
         }
       },
       yaxis: {
-        min: 0,
-        max: 100,
-        tickAmount: 10,
-        forceNiceScale: true,
-        decimalsInFloat: 0,
         labels: {
-          show: true,
-          formatter: (val: number) => parseInt(val.toString(), 10).toString(),
+          align: 'right',
+          offsetX: -8,
           style: {
-            fontSize: '12px',
-            fontWeight: 500
-          }
-        },
-        title: {
-          text: "Score Difference",
-          style: {
-            fontSize: '14px',
+            fontSize: '11px',
             fontWeight: 600,
-            color: '#263238'
+            colors: ['#032961']
           }
-        },
-        axisBorder: {
-          show: true,
-          color: '#78909C'
         }
       },
       tooltip: {
-        shared: true,
-        intersect: false,
-        custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-          const layerCode = this.compareCityResponseDto?.categories?.[dataPointIndex] ?? "";
-          const layerName = kpiMap.get(layerCode) ?? "";
+        shared: false,
+        intersect: true,
+        custom: ({ dataPointIndex }) => {
+          const item = items[dataPointIndex];
+          const score = seriesData[dataPointIndex] ?? 0;
+          const condition = this.getConditionByid(item);
+          const pillar = item?.pillarName || '';
+          const layerLabel = item
+            ? `${item.layerName} (${item.layerCode})`
+            : chartData.categories[dataPointIndex];
 
-          let tooltipHtml = `
-          <div style="padding: 12px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 250px;">
-            <div style="font-weight: 600; margin-bottom: 10px; color: #333; font-size: 13px; border-bottom: 2px solid #e7e7e7; padding-bottom: 6px;">
-              ${layerCode} - ${layerName}
+          return `
+            <div class="kpi-chart-tooltip">
+              <div class="kpi-chart-tooltip__title">${layerLabel}</div>
+              <div class="kpi-chart-tooltip__pillar">${pillar}</div>
+              <div class="kpi-chart-tooltip__row">
+                <span>Score</span>
+                <strong>${score.toFixed(2)}</strong>
+              </div>
+              <div class="kpi-chart-tooltip__row">
+                <span>Condition</span>
+                <strong>${condition}</strong>
+              </div>
             </div>
-        `;
-
-          // Group evaluation and AI values together
-          const cities = this.compareCityResponseDto?.series ?? [];
-          cities.forEach((city, idx) => {
-            // Skip last city if it's the AI benchmark
-            if (idx === cities.length - 1 && this.isAiViewEnabled) {
-              return;
-            }
-
-            const evalValue = city.data[dataPointIndex];
-            const aiValue = city.aiData?.[dataPointIndex];
-            const color = colorPalette[idx % colorPalette.length];
-            const difference = aiValue != null ? (evalValue - aiValue) : 0;
-
-            tooltipHtml += `
-            <div style="margin: 8px 0; padding: 8px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 6px; border-left: 3px solid ${color};">
-              <div style="font-weight: 600; color: ${color}; margin-bottom: 6px; font-size: 12px;">
-                ${city.name}
-              </div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
-                <span style="color: #666;">📊 Evaluation:</span>
-                <span style="font-weight: 600; color: #333;">${evalValue.toFixed(2)}</span>
-              </div>
           `;
-
-            if (this.isAiViewEnabled && aiValue != null) {
-              tooltipHtml += `
-              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
-                <span style="color: #666;">🤖 AI:</span>
-                <span style="font-weight: 600; color: #333;">${aiValue.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #dee2e6;">
-                <span style="color: #666;">📈 Difference:</span>
-                <span style="font-weight: 600; color: ${Math.abs(difference) > 10 ? '#dc3545' : '#28a745'};">
-                  ${difference > 0 ? '+' : ''}${difference.toFixed(2)}
-                </span>
-              </div>
-            `;
-            }
-
-            tooltipHtml += `</div>`;
-          });
-
-          tooltipHtml += '</div>';
-          return tooltipHtml;
         }
       }
     };
@@ -425,59 +340,25 @@ export class KpiComparisionComponent implements OnInit {
     this.chartOptions = option;
   }
 
-  // Helper function to lighten colors for AI lines
-  private lightenColor(color: string, percent: number): string {
-    const num = parseInt(color.replace("#", ""), 16);
-    const amt = Math.round(2.55 * percent);
-    const R = (num >> 16) + amt;
-    const G = (num >> 8 & 0x00FF) + amt;
-    const B = (num & 0x0000FF) + amt;
-    return "#" + (
-      0x1000000 +
-      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-      (B < 255 ? (B < 1 ? 0 : B) : 255)
-    ).toString(16).slice(1);
-  }
-  getCityScore(cityID: number, isAi: boolean = false): string {
-    const city = this.cities?.find(c => c.cityID === cityID);
-    if (isAi) {
-      return city?.aiScore?.toFixed(2) || '0';
-    }
-    return city?.score?.toFixed(2) || '0';
+  viewDetails(kpi: GetAnalyticalLayerResultDto) {
+    this.selectedKpi = kpi;
+    const sidebarEl = document.getElementById('kpiLayerSidebar');
+    const offcanvas = new bootstrap.Offcanvas(sidebarEl);
+    offcanvas.show();
   }
 
-  getCityImage(cityID: number): string {
-    return this.cities?.find(c => c.cityID === cityID)?.image || '';
+  getConditionByid(layer?: GetAnalyticalLayerResultDto): string {
+    if (!layer) return '-';
+    return layer.fiveLevelInterpretations?.find(x => x.interpretationID === layer.interpretationID)?.condition || '-';
   }
 
-  getCityCountry(cityID: number): string {
-    return this.cities?.find(c => c.cityID === cityID)?.country || '';
+  getSelectedAssessmentLabel(): string {
+    const assessment = this.assignedInvitations.find(
+      x => x.userAssessmentMappingID === this.userAssessmentMappingID
+    );
+    return assessment ? `${assessment.geographicReference}, ${assessment.year}` : '';
   }
 
-  getCityState(cityID: number): string {
-    return this.cities?.find(c => c.cityID === cityID)?.state || '';
-  }
-
-  onImgError(event: Event) {
-    (event.target as HTMLImageElement).src = 'assets/images/Frame 1321315029.png';
-  }
-
-  getPeerScore(): string {
-
-    if (!this.chartTableData?.length) return 'NA';
-
-    const peerCities = this.cities?.filter(city =>
-      this.chartTableData[0].cityValues?.some(row => row.cityID === city.cityID)
-    ) ?? [];
-
-    const avgPeerCityScore =
-      peerCities.length > 0
-        ? peerCities.reduce((sum, row) => sum + (row.score ?? 0), 0) / peerCities.length
-        : 0;
-
-    return avgPeerCityScore.toFixed(2);
-  }
   customSearchFn(term: string, item: any) {
     term = term.toLowerCase();
     return (
