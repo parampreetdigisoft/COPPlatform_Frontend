@@ -1,18 +1,17 @@
 import { GetAnalyticalLayerResultDto, AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto } from 'src/app/core/models/GetAnalyticalLayerResultDto';
+import { SparklineScoreComponent } from 'src/app/shared/standAlone/sparkline-score/sparkline-score.component';
+import { CircularScoreComponent } from 'src/app/shared/standAlone/circular-score/circular-score.component';
+import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { ToasterService } from 'src/app/core/services/toaster.service';
+import { CommonService } from 'src/app/core/services/common.service';
 import { SortDirection } from 'src/app/core/enums/SortDirection';
 import { UserService } from 'src/app/core/services/user.service';
-import { environment } from 'src/environments/environment';
-import { CityVM } from 'src/app/core/models/CityVM';
-import { AdminService } from '../../admin.service';
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { SharedModule } from 'src/app/shared/share.module';
-import { CircularScoreComponent } from 'src/app/shared/standAlone/circular-score/circular-score.component';
-import { SparklineScoreComponent } from 'src/app/shared/standAlone/sparkline-score/sparkline-score.component';
+import { AdminService } from '../../admin.service';
+import { CommonModule } from '@angular/common';
 import { debounceTime, Subject } from 'rxjs';
-import { CommonService } from 'src/app/core/services/common.service';
+import { Component } from '@angular/core';
 declare var bootstrap: any; // 👈 use Bootstrap JS API
 @Component({
   standalone: true,
@@ -22,10 +21,8 @@ declare var bootstrap: any; // 👈 use Bootstrap JS API
   styleUrl: './kpi-layers.component.css'
 })
 export class KpiLayersComponent {
-  selectedYear = new Date().getFullYear();
-  urlBase = environment.apiUrl;
   selectedKpi: GetAnalyticalLayerResultDto | null | undefined = null;
-  selectedCityID?: number;
+  userAssessmentMappingID?: number;
   selectedkpiLayerID?: number;
   kpiLayersResponse: PaginationResponse<GetAnalyticalLayerResultDto> | undefined;
   totalRecords: number = 0;
@@ -34,40 +31,55 @@ export class KpiLayersComponent {
   loading: boolean = false;
   isLoader: boolean = false;
   kpis: AnalyticalLayerResponseDto[] = [];
-  cityList: CityVM[] = [];
   $kpiChanged = new Subject();
-  kpiLayers: GetAnalyticalLayerResultDto[] = [];
-  constructor(private adminService: AdminService, private toaster: ToasterService, private userService: UserService, public commonService:CommonService) { }
+  assignedInvitations: GetAssignedAssessmentResponseDto[] = [];
+
+
+  constructor(private adminService: AdminService, private toaster: ToasterService, private userService: UserService, public commonService: CommonService) { }
 
   ngOnInit(): void {
     this.GetAnalyticalLayerResults(1);
-    this.getCityUserCities();
     this.GetAllKpi();
     this.$kpiChanged.pipe(debounceTime(1000)).subscribe(x => {
       this.GetAnalyticalLayerResults();
     });
+    this.getAssignedInvitations();
   }
   kpiChanged() {
     this.$kpiChanged.next(true);
   }
+  getAssignedInvitations() {
+    this.adminService
+      .getAssignedInvitations()
+      .subscribe({
+        next: (res) => {
+          this.assignedInvitations = res.result ?? [];
+          if (this.assignedInvitations && this.assignedInvitations.length > 0) {
+
+          }
+          else {
+            this.isLoader = false;
+            this.toaster.showWarning("You don’t have any assigned assessments yet.");
+          }
+        },
+      });
+  }
+
   GetAnalyticalLayerResults(currentPage: any = 1) {
     this.kpiLayersResponse = undefined;
     this.isLoader = true;
     let payload: GetAnalyticalLayerRequestDto = {
       sortDirection: SortDirection.DESC,
-      sortBy: 'CalValue4',
+      sortBy: 'CalValue',
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID
     }
-    if (this.selectedCityID != undefined && this.selectedCityID != 0) {
-      payload.cityID = this.selectedCityID;
+    if (this.userAssessmentMappingID != undefined && this.userAssessmentMappingID != 0) {
+      payload.userAssessmentMappingID = this.userAssessmentMappingID;
     }
     if (this.selectedkpiLayerID != undefined && this.selectedkpiLayerID != 0) {
       payload.layerID = this.selectedkpiLayerID;
-    }
-    if(this.selectedYear > 0){
-      payload.year = Number(this.selectedYear);
     }
 
     this.adminService.GetAnalyticalLayerResults(payload).subscribe(kpiLayers => {
@@ -98,15 +110,7 @@ export class KpiLayersComponent {
       }
     });
   }
-  getCityUserCities() {
-    this.adminService.getAllCitiesByUserId(this.userService.userInfo.userID ?? 0).subscribe({
-      next: (res) => {
-        if (res.succeeded) {
-          this.cityList = res.result ?? [];
-        }
-      }
-    });
-  }
+
 
   getConditionByid(layer: GetAnalyticalLayerResultDto) {
     return layer?.fiveLevelInterpretations?.find(x => x.interpretationID == layer.interpretationID)?.condition || '';

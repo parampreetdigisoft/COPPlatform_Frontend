@@ -174,3 +174,7 @@
 .kpi_cat05.kpi_td_data {
     display: flex;
 }
+
+.kpi_cat03.kpi_td_data {
+    min-width: 120px;
+}

@@ -210,14 +210,14 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       .getExecutiveCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;
-          this.isLoader = false;
+          this.cardHistory = res.result;          
         },
         error: () => this.isLoader = false
       });
   }
 
   getDashboardPillarHistory() {
+    this.isLoader = true;
 
     if (
       this.userService?.userInfo?.userID == null
