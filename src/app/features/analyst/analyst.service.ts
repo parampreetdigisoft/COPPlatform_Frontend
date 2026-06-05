@@ -23,6 +23,7 @@ import { GetAnalyticalLayerRequestDto, GetAnalyticalLayerResultDto, AnalyticalLa
 import { AiCityPillarDashboardResponseDto } from 'src/app/core/models/AiCityPillarDashboardResponseDto';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
+import { GetKpiLayerChartRequestDto, GetKpiLayerChartResponseDto } from 'src/app/core/models/GetKpiLayerChartDto';
 import { GetInviatationRequestDto, GetInviatationResponseDto, DeleteInvitationDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
@@ -147,6 +148,9 @@ export class AnalystService {
   }
   public compareCities(request: CompareCityRequestDto) {
     return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
+  }
+  public getKpiLayerChart(request: GetKpiLayerChartRequestDto) {
+    return this.http.post(`Kpi/GetKpiLayerChart`, request).pipe(map(x => x as ResultResponseDto<GetKpiLayerChartResponseDto>));
   }
   public getResponsesByUserId(request: GetCityPillarHistoryRequestNewDto) {
     return this.http.post(`Pillar/GetResponsesByUserId`, request).pipe(map(x => x as PaginationResponse<PillarsHistoryResponse>));

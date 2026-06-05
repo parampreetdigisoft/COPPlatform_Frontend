@@ -42,7 +42,7 @@
 </div>
 
 
-<div class="table_outer compare_city_table">
+<div class="table_outer compare_city_table kpi_layers_table">
     <div class="table_custom_inner">
         <table class="table table-striped">
             <thead>
@@ -50,6 +50,7 @@
                     <th>S.No.</th>
                     <th>Geographic Reference</th>
                     <th>Kpi Layer</th>
+                    <th>Pillar</th>
                     <th>Condition</th>
                     <th>Progress</th>
                     <th class="action_th">Actions</th>
@@ -63,33 +64,26 @@
 
 
                     <td>
-                        <div class="kpi_city kpi_td_data">
-                            <p>
-                                {{ kpi.geographicReference }}
-                            </p>
+                        <span class="geo_ref_text" [matTooltip]="kpi.geographicReference">{{ kpi.geographicReference }}</span>
+                    </td>
+                    <td>
+                        <div class="kpi_name_cell">
+                            <span class="kpi_name" [matTooltip]="kpi.layerName">{{ kpi.layerName }}</span>
+                            <span class="kpi_code">({{ kpi.layerCode }})</span>
                         </div>
                     </td>
                     <td>
-                        <div class="kpi_layaer kpi_td_data">
-                            <p>{{ kpi.layerName }}</p>
-                        </div>
+                        <span class="pillar_badge" [matTooltip]="kpi.pillarName || '-'">{{ kpi.pillarName || '-' }}</span>
                     </td>
                     <td>
-                        <div class="kpi_layaer kpi_td_data">
-                            <p>{{ kpi.pillarName || '-' }}</p>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="kpi_layaer kpi_td_data">
-                            <p>
-                                {{ getConditionByid(kpi) }}
-                            </p>
-                        </div>
+                        <span class="condition_badge" [ngClass]="getConditionClass(kpi)" [matTooltip]="getConditionByid(kpi)">
+                            {{ getConditionByid(kpi) }}
+                        </span>
                     </td>
                     <td>
                         <div class="kpi_cat03 kpi_td_data">
                             <app-sparkline-score [value]="kpi.calValue ?? 0"
-                                [tooltipText]="(kpi.calText || '')"></app-sparkline-score>                         
+                                [tooltipText]="(kpi.calText || '')"></app-sparkline-score>
                         </div>
                     </td>
                     <td class="action_td">

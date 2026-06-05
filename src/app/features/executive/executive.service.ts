@@ -23,6 +23,7 @@ import { AnalyticalLayerResponseDto, GetAnalyticalLayerRequestDto, GetAnalytical
 import { AddAssessmentDto, ChangeAssessmentStatusRequestDto, GetAssessmentQuestionRequestDto, GetAssessmentRequestDto, GetCityPillarHistoryRequestDto, GetCityPillarHistoryRequestNewDto, TransferAssessmentRequestDto } from 'src/app/core/models/AssessmentRequest';
 import { GetMutiplekpiLayerRequestDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerRequestDto';
 import { GetMutiplekpiLayerResultsDto } from 'src/app/core/models/aiVm/GetMutiplekpiLayerResultsDto';
+import { GetKpiLayerChartRequestDto, GetKpiLayerChartResponseDto } from 'src/app/core/models/GetKpiLayerChartDto';
 import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDto } from 'src/app/core/models/GetInviatationRequestDto';
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto, GetExecutiveAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
@@ -235,6 +236,9 @@ export class ExecutiveService {
   }
   public compareCities(request: CompareCityRequestDto) {
     return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
+  }
+  public getKpiLayerChart(request: GetKpiLayerChartRequestDto) {
+    return this.http.post(`Kpi/GetKpiLayerChart`, request).pipe(map(x => x as ResultResponseDto<GetKpiLayerChartResponseDto>));
   }
   public getMutiplekpiLayerResults(payload: GetMutiplekpiLayerRequestDto) {
     return this.http.post(`kpi/getMutiplekpiLayerResults`, payload).pipe(map(x => x as ResultResponseDto<GetMutiplekpiLayerResultsDto>));;

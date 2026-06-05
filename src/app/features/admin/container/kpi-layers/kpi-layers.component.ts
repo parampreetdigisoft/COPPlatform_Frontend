@@ -112,8 +112,18 @@ export class KpiLayersComponent {
   }
 
 
-  getConditionByid(layer: GetAnalyticalLayerResultDto) {
-    return layer?.fiveLevelInterpretations?.find(x => x.interpretationID == layer.interpretationID)?.condition || '';
+  getConditionByid(layer: GetAnalyticalLayerResultDto): string {
+    return layer?.fiveLevelInterpretations?.find(x => x.interpretationID == layer.interpretationID)?.condition || '-';
+  }
+
+  getConditionClass(layer: GetAnalyticalLayerResultDto): string {
+    if (!layer?.interpretationID || !layer.fiveLevelInterpretations?.length) {
+      return 'condition_empty';
+    }
+
+    const sorted = [...layer.fiveLevelInterpretations].sort((a, b) => a.minRange - b.minRange);
+    const index = sorted.findIndex(x => x.interpretationID === layer.interpretationID);
+    return index === -1 ? 'condition_empty' : `condition_level_${index + 1}`;
   }
   customSearchFn(term: string, item: any) {
     term = term.toLowerCase();
