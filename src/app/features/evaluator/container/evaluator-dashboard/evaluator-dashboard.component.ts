@@ -97,6 +97,25 @@ export class EvaluatorDashboardComponent implements OnInit, AfterViewInit {
   });
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
 
+  get taskCompletionPercent(): number {
+    const total = this.cardHistory?.totalAssessments ?? 0;
+    if (!total) return 0;
+    return ((this.cardHistory?.totalCompletedAssessments ?? 0) / total) * 100;
+  }
+
+  get totalRiskItems(): number {
+    return (this.cardHistory?.totalOverdue ?? 0)
+      + (this.cardHistory?.totalHighRisk ?? 0)
+      + (this.cardHistory?.totalAtRisk ?? 0)
+      + (this.cardHistory?.totalDueSoon ?? 0)
+      + (this.cardHistory?.totalOnTrack ?? 0);
+  }
+
+  get answeredPercent(): number {
+    const total = this.totalQuestions();
+    return total > 0 ? (this.totalAns() / total) * 100 : 0;
+  }
+
   constructor(
     private evalService: EvaluatorService,
     private toaster: ToasterService,
