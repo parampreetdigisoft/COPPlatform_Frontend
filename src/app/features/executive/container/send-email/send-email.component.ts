@@ -12,6 +12,11 @@ import { ToasterService } from 'src/app/core/services/toaster.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AdminService } from 'src/app/features/admin/admin.service';
 
+type EmailLogDisplay = EmailLogResponseDto & {
+  subjectShowToggle: boolean;
+  messageShowToggle: boolean;
+};
+
 @Component({
   selector: 'app-send-email',
   templateUrl: './send-email.component.html',
@@ -23,13 +28,15 @@ export class SendEmailComponent implements OnInit {
   emailForm: FormGroup;
   submitted = false;
   isLoader: boolean = false;
+  loading: boolean = false;
   selectedYear = new Date().getFullYear();
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
   isModalOpen = false;
   isEditCase = false;
-  emailLogsResponse: PaginationResponse<EmailLogResponseDto> | undefined;
+  selectedLog: EmailLogResponseDto | null = null;
+  emailLogsResponse: PaginationResponse<EmailLogDisplay> | undefined;
   isSent: boolean | null = null;
   fromDate: string = '';
   toDate: string = '';
@@ -46,17 +53,20 @@ export class SendEmailComponent implements OnInit {
   ) {
     this.emailForm = this.fb.group({
       subject: ['', [Validators.required, Validators.maxLength(200), Validators.minLength(5)]],
-      message: ['', [Validators.required, Validators.maxLength(1000), Validators.minLength(10)]],
+      message: ['', [Validators.required, Validators.minLength(10)]],
     });
   }
   ngOnInit(): void {
     this.getEmailLogs();
   }
   sendEmail() {
-    this.isLoader = true;
+    if (this.isEditCase) return;
+
     this.submitted = true;
 
     if (this.emailForm.invalid) return;
+
+    this.loading = true;
 
     const payload: SendEmailRequestDto = {
       emailSubject: this.emailForm.get('subject')?.value,
@@ -67,30 +77,44 @@ export class SendEmailComponent implements OnInit {
       next: (res) => {
         if (res) {
           this.toaster.showSuccess("Email sent successfully");
-          this.isLoader = false;
-          // ✅ Reset form values
+          this.loading = false;
           this.closeModal();
           this.getEmailLogs();
-          // ✅ Reset validation state
           this.submitted = false;
-
-          // ✅ Optional: mark form as pristine/untouched
           this.emailForm.markAsPristine();
           this.emailForm.markAsUntouched();
-
         } else {
           this.toaster.showError("Failed to send email");
-          this.isLoader = false;
+          this.loading = false;
           this.getEmailLogs();
         }
       },
       error: () => {
         this.toaster.showError("Failed to send email");
-        this.isLoader = false;
+        this.loading = false;
         this.closeModal();
         this.getEmailLogs();
       }
     });
+  }
+
+  isLongText(text: string): boolean {
+    if (!text) return false;
+    const trimmed = text.trim();
+    return trimmed.length > 120 || trimmed.split(/\s+/).filter(Boolean).length > 25;
+  }
+
+  isLongSubject(text: string): boolean {
+    if (!text) return false;
+    return text.trim().length > 60;
+  }
+
+  private mapEmailLogsForDisplay(logs: EmailLogResponseDto[]): EmailLogDisplay[] {
+    return logs.map(log => ({
+      ...log,
+      subjectShowToggle: this.isLongSubject(log.subject),
+      messageShowToggle: this.isLongText(log.message),
+    }));
   }
   get subject() {
     return this.emailForm.get('subject');
@@ -116,22 +140,20 @@ export class SendEmailComponent implements OnInit {
 
   openModal() {
     this.isModalOpen = true;
-    if (!this.isEditCase) {
-      this.emailForm.reset();
-      this.submitted = false;
-      this.emailForm.markAsPristine();
-      this.emailForm.markAsUntouched();
-      this.emailForm.get('subject')?.enable();
-      this.emailForm.get('message')?.enable();
-    }
+    this.isEditCase = false;
+    this.selectedLog = null;
+    this.emailForm.reset();
+    this.submitted = false;
+    this.emailForm.markAsPristine();
+    this.emailForm.markAsUntouched();
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.loading = false;
     this.emailForm.reset();
     this.isEditCase = false;
-    this.emailForm.get('subject')?.enable();
-    this.emailForm.get('message')?.enable();
+    this.selectedLog = null;
   }
 
   getEmailLogs(currentPage: number = 1) {
@@ -169,7 +191,10 @@ export class SendEmailComponent implements OnInit {
 
     this.adminService.getEmailLogs(payload).subscribe({
       next: (logs) => {
-        this.emailLogsResponse = logs;
+        this.emailLogsResponse = {
+          ...logs,
+          data: this.mapEmailLogsForDisplay(logs.data)
+        };
         this.totalRecords = logs.totalRecords;
         this.currentPage = currentPage;
         this.pageSize = logs.pageSize;
@@ -181,12 +206,14 @@ export class SendEmailComponent implements OnInit {
     });
   }
   viewLogs(logs: EmailLogResponseDto) {
-    this.emailForm.get('subject')?.setValue(logs.subject);
-    this.emailForm.get('message')?.setValue(logs.message);
-    this.isModalOpen = true;
+    this.selectedLog = logs;
     this.isEditCase = true;
-    this.emailForm.get('subject')?.disable();
-    this.emailForm.get('message')?.disable();
+    this.isModalOpen = true;
+    this.submitted = false;
+    this.emailForm.patchValue({
+      subject: logs.subject,
+      message: logs.message
+    });
   }
 
 }

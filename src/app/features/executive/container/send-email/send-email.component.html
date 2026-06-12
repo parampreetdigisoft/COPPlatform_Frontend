@@ -16,10 +16,10 @@
           </select>
         </div>
         <a (click)="openModal()" href="javascript:void(0)" class="common_button">
-          
           New Email
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="5" width="20" height="14" rx="2" stroke="white" stroke-width="2" />
+            <path d="M2 7l10 6 10-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </a>
       </div>
@@ -43,8 +43,18 @@
     <tbody>
       <tr *ngFor="let logs of emailLogsResponse?.data; let i = index">
         <td>{{ (currentPage - 1) * pageSize + (i + 1) }}</td>
-        <td>{{ logs.subject }}</td>
-        <td>{{ logs.message }}</td>
+        <td>
+          <div class="cell-preview cell-subject">{{ logs.subject }}</div>
+          <a *ngIf="logs.subjectShowToggle" class="read-more" (click)="viewLogs(logs); $event.preventDefault()">
+            Read More
+          </a>
+        </td>
+        <td>
+          <div class="cell-preview">{{ logs.message }}</div>
+          <a *ngIf="logs.messageShowToggle" class="read-more" (click)="viewLogs(logs); $event.preventDefault()">
+            Read More
+          </a>
+        </td>
         <td>
           <ng-container *ngIf="logs.createdAt; else noDate">
             {{ logs.createdAt | date:'dd MMM yyyy, hh:mm a' }}
@@ -87,57 +97,59 @@
 
 <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
 
-<div class="modal" *ngIf="isModalOpen">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="modal modal_design email-modal" *ngIf="isModalOpen">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-body">
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
 
-    <span class="close-btn" (click)="closeModal()">&times;</span>
+        <h4 class="modal_head">{{ isEditCase ? 'Email Details' : 'Send Email' }}</h4>
+        <p class="modal_sub_head">
+          {{ isEditCase ? 'View email subject and message details' : 'Enter the details below and mark required fields (*)' }}
+        </p>
 
-    <div class="modal-form-container">
-
-      <div class="title"> {{ isEditCase ? 'Email Details' : 'Send Email' }}</div>
-
-      <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
-
-        <!-- SUBJECT -->
-        <div class="form-group">
-          <label>Subject</label>
-          <input type="text" formControlName="subject" placeholder="Enter subject" [disabled]="isEditCase">
-
-          <small class="error" *ngIf="submitted && subject?.errors">
-            <span *ngIf="subject?.errors?.['required']">
-              Subject is required
-            </span>
-            <span *ngIf="subject?.errors?.['minlength']">
-              Minimum 5 characters required
-            </span>
-          </small>
+        <div class="detail-meta" *ngIf="isEditCase && selectedLog">
+          <span class="status-badge" [class.sent]="selectedLog.isSent" [class.failed]="!selectedLog.isSent">
+            {{ selectedLog.isSent ? 'Sent' : 'Failed' }}
+          </span>
+          <span class="detail-date" *ngIf="selectedLog.createdAt">
+            {{ selectedLog.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+          </span>
         </div>
 
-        <!-- MESSAGE -->
-        <div class="form-group">
-          <label>Message</label>
-          <textarea formControlName="message" placeholder="Write your message..." [disabled]="isEditCase"></textarea>
+        <div class="modal_tabs">
+          <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
 
-          <small class="error" *ngIf="submitted && message?.errors">
-            <span *ngIf="message?.errors?.['required']">
-              Message is required
-            </span>
-            <span *ngIf="message?.errors?.['minlength']">
-              Minimum 10 characters required
-            </span>
-          </small>
+            <div class="input_field">
+              <label>Subject *</label>
+              <input type="text" formControlName="subject" placeholder="Enter Subject" class="form-control"
+                [readonly]="isEditCase">
+              <div class="error-msg" *ngIf="!isEditCase && subject?.invalid && (subject?.touched || submitted)">
+                <span *ngIf="subject?.errors?.['required']">Subject is required.</span>
+                <span *ngIf="subject?.errors?.['minlength']">Minimum 5 characters required.</span>
+                <span *ngIf="subject?.errors?.['maxlength']">Maximum 200 characters allowed.</span>
+              </div>
+            </div>
+
+            <div class="input_field">
+              <label>Message *</label>
+              <textarea formControlName="message" placeholder="Enter Message" class="form-control message-textarea"
+                [readonly]="isEditCase" [class.message-view]="isEditCase"></textarea>
+              <div class="error-msg" *ngIf="!isEditCase && message?.invalid && (message?.touched || submitted)">
+                <span *ngIf="message?.errors?.['required']">Message is required.</span>
+                <span *ngIf="message?.errors?.['minlength']">Minimum 10 characters required.</span>
+              </div>
+            </div>
+
+            <button *ngIf="!isEditCase" type="submit" class="common_button w-100 mt-4"
+              [disabled]="emailForm.invalid || loading">
+              Send Email
+              <span *ngIf="loading" class="spinner-border spinner-border-sm ms-2"></span>
+            </button>
+
+          </form>
         </div>
-
-        <button *ngIf="!isEditCase" type="submit" class="btn common_button" [disabled]="emailForm.invalid || isLoader">
-          Send Email
-        </button>
-
-      </form>
-
-      <div *ngIf="isLoader" class="loader_main">
-        <div class="loader"></div>
       </div>
-
     </div>
   </div>
 </div>

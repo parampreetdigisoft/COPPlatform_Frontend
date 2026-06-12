@@ -178,7 +178,7 @@ export class ExecutiveService {
   }
   public getAssessmentQuestoins(payload: GetAssessmentQuestionRequestDto) {
     return this.http
-      .getWithQueryParams(`AssessmentResponse/getAssessmentQuestoins`, payload)
+      .getWithQueryParams(`AssessmentResponse/getAssessmentQuestions`, payload)
       .pipe(
         map((x) => x as PaginationResponse<GetAssessmentQuestionResponseDto>)
       );

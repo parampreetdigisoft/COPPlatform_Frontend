@@ -62,7 +62,7 @@ export class EvaluatoinResponseViewComponent implements OnInit {
     this.isLoader = true;
     let payload: GetAssessmentQuestionRequestDto = {
       sortDirection: SortDirection.ASC,
-      sortBy: 'questoinID',
+      sortBy: 'QuestionID',
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,

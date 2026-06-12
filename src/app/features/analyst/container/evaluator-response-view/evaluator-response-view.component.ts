@@ -51,7 +51,7 @@ export class EvaluatorResponseViewComponent implements OnInit, OnDestroy {
       this.isLoader = true;
     let payload: GetAssessmentQuestionRequestDto = {
       sortDirection: SortDirection.ASC,
-      sortBy: 'questoinID',
+      sortBy: 'QuestionID',
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
