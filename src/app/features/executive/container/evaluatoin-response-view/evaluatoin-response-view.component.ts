@@ -20,6 +20,7 @@ export class EvaluatoinResponseViewComponent implements OnInit {
   selectedPillarId: number | any = '';
   userName: string | any = "";
   assessmentID: number | any = 0;
+  userAssessmentMappingID: number | any = 0;
   questionResponse: PaginationResponse<GetAssessmentQuestionResponseDto> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -32,13 +33,13 @@ export class EvaluatoinResponseViewComponent implements OnInit {
   }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.userAssessmentMappingID = params.get('userAssessmentMappingID');
       this.assessmentID = params.get('assessmentID');
       this.userName = params.get('userName');
+      this.getAssessmentPillars();
+      this.getAssessmentQuestoins();
+      this.getAssessmentProgressHistory();
     });
-    this.getAssessmentQuestoins();
-    this.GetAllPillars();
-    this.getAssessmentProgressHistory();
-
   }
     getAssessmentProgressHistory(){
     this.adminService.getAssessmentProgressHistory(this.assessmentID).subscribe(res=>{
@@ -51,8 +52,8 @@ export class EvaluatoinResponseViewComponent implements OnInit {
     });
   }
 
-  GetAllPillars() {
-    this.adminService.getAllPillars().subscribe(p => {
+  getAssessmentPillars() {
+    this.adminService.getPillarsByUserAssessmentMappingId(Number(this.userAssessmentMappingID)).subscribe(p => {
       this.pillers = p;
     });
   }

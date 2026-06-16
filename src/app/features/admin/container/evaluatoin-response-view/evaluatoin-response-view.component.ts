@@ -20,6 +20,7 @@ export class EvaluatoinResponseViewComponent implements OnInit {
   selectedPillarId: number | any = '';
   userName: string | any = "";
   assessmentID: number | any = 0;
+  userAssessmentMappingID: number | any = 0;
   questionResponse: PaginationResponse<GetAssessmentQuestionResponseDto> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -32,27 +33,27 @@ export class EvaluatoinResponseViewComponent implements OnInit {
   }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.userAssessmentMappingID = params.get('userAssessmentMappingID');
       this.assessmentID = params.get('assessmentID');
       this.userName = params.get('userName');
+      this.getAssessmentPillars();
+      this.getAssessmentQuestions();
+      this.getAssessmentProgressHistory();
     });
-    this.getAssessmentQuestions();
-    this.GetAllPillars();
-    this.getAssessmentProgressHistory();
-
   }
-    getAssessmentProgressHistory(){
-    this.adminService.getAssessmentProgressHistory(this.assessmentID).subscribe(res=>{
-     if(res.succeeded){
-       this.userService.assessmentProgress.next(res.result);
-     }
-     else{
+  getAssessmentProgressHistory() {
+    this.adminService.getAssessmentProgressHistory(this.assessmentID).subscribe(res => {
+      if (res.succeeded) {
+        this.userService.assessmentProgress.next(res.result);
+      }
+      else {
         this.toaster.showError("Failed to fetch assessment progress history");
-     }
+      }
     });
   }
 
-  GetAllPillars() {
-    this.adminService.getAllPillars().subscribe(p => {
+  getAssessmentPillars() {
+    this.adminService.getPillarsByUserAssessmentMappingId(Number(this.userAssessmentMappingID)).subscribe(p => {
       this.pillers = p;
     });
   }
@@ -66,8 +67,8 @@ export class EvaluatoinResponseViewComponent implements OnInit {
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      assessmentID:this.assessmentID,
-      pillarID:this.selectedPillarId
+      assessmentID: this.assessmentID,
+      pillarID: this.selectedPillarId
     }
     this.adminService.getAssessmentQuestions(payload).subscribe(cities => {
       this.questionResponse = cities;

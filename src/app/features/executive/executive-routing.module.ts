@@ -20,7 +20,7 @@ const routes: Routes = [
       { path: "assessment", component: AssesmentComponent },
       { path: "assessment/:roleID/:cityID", component: AssesmentComponent },
       {
-        path: "assessment-result/:assessmentID/:userName",
+        path: "assessment-result/:userAssessmentMappingID/:assessmentID/:userName",
         component: EvaluatoinResponseViewComponent,
       },
 

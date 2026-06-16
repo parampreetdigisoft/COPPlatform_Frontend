@@ -121,6 +121,11 @@ export class ExecutiveService {
   public getAllPillars() {
     return this.http.get(`Pillar/Pillars`).pipe(map((x) => x as PillarsVM[]));
   }
+  public getPillarsByUserAssessmentMappingId(userAssessmentMappingID: number) {
+    return this.http
+      .getWithQueryParams(`Pillar/GetPillarsByUserAssessmentMappingId`, { userAssessmentMappingId: userAssessmentMappingID })
+      .pipe(map((x) => x as PillarsVM[]));
+  }
   public editAllPillars(id: number, data: PillarsVM) {
     return this.http.put(`Pillar/` + id, data).pipe(map((x) => x as PillarsVM));
   }

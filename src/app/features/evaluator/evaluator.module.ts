@@ -23,7 +23,7 @@ const routes: Routes = [
       { path: 'assigned-city', component: AssignedCityComponent },
       { path: 'make-assessment', component: MakeAssessmentComponent },
       { path: 'assessment-result', component: AssessmentResultComponent },
-      { path: 'assessment-result/:assessmentID/:userName', component: AssessmentViewResultComponent },
+      { path: 'assessment-result/:userAssessmentMappingID/:assessmentID/:userName', component: AssessmentViewResultComponent },
        { path: 'evaluator-Comparision-Weekly', component: ComparisionWeeklyComponent }, 
        { path: 'evaluator-Comparision', component: ComparisionComponent }, 
     ]

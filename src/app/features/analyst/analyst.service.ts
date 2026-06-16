@@ -103,6 +103,11 @@ export class AnalystService {
   public getAllPillars() {
     return this.http.get(`Pillar/Pillars`).pipe(map(x => x as PillarsVM[]));
   }
+  public getPillarsByUserAssessmentMappingId(userAssessmentMappingID: number) {
+    return this.http
+      .getWithQueryParams(`Pillar/GetPillarsByUserAssessmentMappingId`, { userAssessmentMappingId: userAssessmentMappingID })
+      .pipe(map((x) => x as PillarsVM[]));
+  }
   public exportPillarsHistoryByUserId(request: GetCityPillarHistoryRequestDto) {
     return this.http.ImportFile(`Pillar/ExportPillarsHistoryByUserId`, request);
   }

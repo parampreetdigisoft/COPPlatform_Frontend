@@ -56,6 +56,11 @@ export class EvaluatorService {
   public getAllPillars() {
     return this.http.get(`Pillar/Pillars`).pipe(map(x => x as PillarsVM[]));
   }
+  public getPillarsByUserAssessmentMappingId(userAssessmentMappingID: number) {
+    return this.http
+      .getWithQueryParams(`Pillar/GetPillarsByUserAssessmentMappingId`, { userAssessmentMappingId: userAssessmentMappingID })
+      .pipe(map((x) => x as PillarsVM[]));
+  }
 
   public saveAssessment(payload: AddAssessmentDto) {
     return this.http.post(`AssessmentResponse/saveAssessment`, payload).pipe(map(x => x as ResultResponseDto<string>));

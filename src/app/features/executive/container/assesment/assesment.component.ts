@@ -71,6 +71,7 @@ export class AssesmentComponent implements OnInit {
   goToAssessment(assessment: GetAssessmentResponse) {
     this.router.navigate([
       "/executive/assessment-result",
+      assessment.userAssessmentMappingID,
       assessment.assessmentID,
       assessment.geographicReference,
     ]);

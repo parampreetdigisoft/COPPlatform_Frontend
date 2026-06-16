@@ -1,10 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CityVM } from 'src/app/core/models/CityVM';
-import { PaginationUserRequest } from 'src/app/core/models/PaginationRequest';
 import { PaginationResponse } from 'src/app/core/models/PaginationResponse';
 import { ToasterService } from 'src/app/core/services/toaster.service';
 import { UserService } from 'src/app/core/services/user.service';
-
 import { EvaluatorService } from '../../evaluator.service';
 import { ActivatedRoute } from '@angular/router';
 import { PillarsVM } from 'src/app/core/models/PillersVM';
@@ -17,12 +14,13 @@ import { SortDirection } from 'src/app/core/enums/SortDirection';
   templateUrl: './assessment-view-result.component.html',
   styleUrl: './assessment-view-result.component.css'
 })
-export class AssessmentViewResultComponent implements OnInit {
+export class AssessmentViewResultComponent implements OnInit, OnDestroy {
   selectedPiller: PillarsVM | null = null;
   pillers: PillarsVM[] = [];
   selectedPillarId: number | any = '';
   userName: string | any = "";
   assessmentID: number | any = 0;
+  userAssessmentMappingID: number | any = 0;
   questionResponse: PaginationResponse<GetAssessmentQuestionResponseDto> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -34,16 +32,17 @@ export class AssessmentViewResultComponent implements OnInit {
   }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.userAssessmentMappingID = params.get('userAssessmentMappingID');
       this.assessmentID = params.get('assessmentID');
       this.userName = params.get('userName');
+      this.getAssessmentPillars();
+      this.getAssessmentQuestoins();
+      this.getAssessmentProgressHistory();
     });
-    this.getAssessmentQuestoins();
-    this.GetAllPillars();
-    this.getAssessmentProgressHistory();
   }
 
-  GetAllPillars() {
-    this.evaluatorService.getAllPillars().subscribe(p => {
+  getAssessmentPillars() {
+    this.evaluatorService.getPillarsByUserAssessmentMappingId(Number(this.userAssessmentMappingID)).subscribe(p => {
       this.pillers = p;
     });
   }

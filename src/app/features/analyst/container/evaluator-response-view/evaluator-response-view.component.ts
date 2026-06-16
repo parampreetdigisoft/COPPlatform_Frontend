@@ -20,43 +20,44 @@ export class EvaluatorResponseViewComponent implements OnInit, OnDestroy {
   selectedPillarId: number | any = '';
   userName: string | any = "";
   assessmentID: number | any = 0;
+  userAssessmentMappingID: number | any = 0;
   questionResponse: PaginationResponse<GetAssessmentQuestionResponseDto> | undefined;
   totalRecords: number = 0;
   pageSize: number = 10;
   currentPage: number = 1
- isLoader: boolean = false;
+  isLoader: boolean = false;
   constructor(private analystService: AnalystService, private userService: UserService, private toaster: ToasterService, private route: ActivatedRoute) { }
   ngOnDestroy(): void {
     this.userService.assessmentProgress.next(null);
   }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.userAssessmentMappingID = params.get('userAssessmentMappingID');
       this.assessmentID = params.get('assessmentID');
       this.userName = params.get('userName');
+      this.getAssessmentPillars();
+      this.getAssessmentQuestoins();
+      this.getAssessmentProgressHistory();
     });
-    this.getAssessmentQuestoins();
-    this.GetAllPillars();
-    this.getAssessmentProgressHistory();
-
   }
 
-  GetAllPillars() {
-    this.analystService.getAllPillars().subscribe(p => {
+  getAssessmentPillars() {
+    this.analystService.getPillarsByUserAssessmentMappingId(Number(this.userAssessmentMappingID)).subscribe(p => {
       this.pillers = p;
     });
   }
 
   getAssessmentQuestoins(currentPage: number = 1) {
-      this.questionResponse = undefined;
-      this.isLoader = true;
+    this.questionResponse = undefined;
+    this.isLoader = true;
     let payload: GetAssessmentQuestionRequestDto = {
       sortDirection: SortDirection.ASC,
       sortBy: 'QuestionID',
       pageNumber: currentPage,
       pageSize: this.pageSize,
       userId: this.userService?.userInfo?.userID,
-      assessmentID:this.assessmentID,
-      pillarID:this.selectedPillarId
+      assessmentID: this.assessmentID,
+      pillarID: this.selectedPillarId
     }
     this.analystService.getAssessmentQuestoins(payload).subscribe(cities => {
       this.questionResponse = cities;
@@ -66,14 +67,14 @@ export class EvaluatorResponseViewComponent implements OnInit, OnDestroy {
       this.isLoader = false;
     });
   }
-  getAssessmentProgressHistory(){
-    this.analystService.getAssessmentProgressHistory(this.assessmentID).subscribe(res=>{
-     if(res.succeeded){
-       this.userService.assessmentProgress.next(res.result);
-     }
-     else{
+  getAssessmentProgressHistory() {
+    this.analystService.getAssessmentProgressHistory(this.assessmentID).subscribe(res => {
+      if (res.succeeded) {
+        this.userService.assessmentProgress.next(res.result);
+      }
+      else {
         this.toaster.showError("Failed to fetch assessment progress history");
-     }
+      }
     });
   }
 }
