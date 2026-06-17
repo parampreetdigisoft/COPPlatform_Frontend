@@ -28,6 +28,8 @@ import { DeleteInvitationDto, GetInviatationRequestDto, GetInviatationResponseDt
 import { UpdateInvitationUserDto } from 'src/app/core/models/UpdateInviteUserDto';
 import { GetAssignedAssessmentResponseDto, GetExecutiveAssignedAssessmentResponseDto } from 'src/app/core/models/GetAssignedAssessmentResponseDto ';
 import { AddBulkQuestionsDto, AddQuestionRequest, GetQuestionByCityMappingResponse, GetQuestionRequest, GetQuestionResponse } from 'src/app/core/models/QuestionResponse';
+import { GetExecutiveOverviewKpisRequestDto } from 'src/app/core/models/GetExecutiveOverviewKpisRequestDto';
+import { GetExecutiveKpiDashboardResponseDto } from 'src/app/core/models/GetExecutiveKpiDashboardDto';
 
 @Injectable({
   providedIn: "root",
@@ -233,6 +235,18 @@ export class ExecutiveService {
     return this.http
       .getWithQueryParams(`Kpi/GetAnalyticalLayerResults`, request)
       .pipe(map((x) => x as PaginationResponse<GetAnalyticalLayerResultDto>));
+  }
+
+  public getExecutiveOverviewKpis(request: GetExecutiveOverviewKpisRequestDto) {
+    return this.http
+      .getWithQueryParams(`Kpi/GetExecutiveOverviewKpis`, request)
+      .pipe(map((x) => x as PaginationResponse<GetAnalyticalLayerResultDto>));
+  }
+
+  public getExecutiveKpiDashboard(request: GetExecutiveOverviewKpisRequestDto) {
+    return this.http
+      .getWithQueryParams(`Kpi/GetExecutiveKpiDashboard`, request)
+      .pipe(map((x) => x as ResultResponseDto<GetExecutiveKpiDashboardResponseDto>));
   }
   public GetAllKpi() {
     return this.http

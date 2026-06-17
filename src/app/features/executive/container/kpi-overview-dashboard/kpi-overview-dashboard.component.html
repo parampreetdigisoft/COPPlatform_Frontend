@@ -1,0 +1,193 @@
+<div class="heading_area">
+	<div class="row justify-content-between align-items-center">
+		<div class="col-md-auto">
+			<h3 class="page_head">
+				Readiness Dashboard
+			</h3>
+		</div>
+		<div class="col-md-3 ">
+			<div class="compare_select input_field input_flex">
+				<ng-select [items]="assignedInvitations"
+					[searchable]="true"
+					[placeholder]="!userAssessmentMappingID? 'Select assessment' :''"
+					[(ngModel)]="userAssessmentMappingID"
+					(change)="onAssessmentChange()"
+					bindValue="userAssessmentMappingID"
+					bindLabel="geographicReference"
+					class="form-control analyst_multi_select">
+					<ng-template ng-label-tmp
+						let-item="item"
+						class="select_item">
+						{{ item.geographicReference }}
+					</ng-template>
+
+					<ng-template ng-option-tmp
+						let-item="item">
+						{{ item.geographicReference }}, {{ item.year }}
+					</ng-template>
+				</ng-select>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="summary"
+	class="kpi-exec-dashboard">
+	<ng-container *ngIf="summary">
+		<section class="charts-row row g-3">
+			<div class="col-lg-4">
+				<div class="panel-card">
+					<div class="panel-head">
+						<h4>
+							Condition Distribution
+						</h4>
+						<span>All KPI layers</span>
+					</div>
+					<apx-chart *ngIf="conditionChartOptions.series"
+						[series]="conditionChartOptions.series!"
+						[chart]="conditionChartOptions.chart!"
+						[labels]="conditionChartOptions.labels!"
+						[colors]="conditionChartOptions.colors!"
+						[legend]="conditionChartOptions.legend!"
+						[plotOptions]="conditionChartOptions.plotOptions!"
+						[dataLabels]="conditionChartOptions.dataLabels!"
+						[stroke]="conditionChartOptions.stroke!"
+						[tooltip]="conditionChartOptions.tooltip!"></apx-chart>
+				</div>
+			</div>
+			<div class="col-lg-8">
+				<div class="panel-card kpi-performance-chart-panel">
+					<div class="panel-head panel-head--chart">
+						<div>
+							<h4>KPI Performance at a Glance</h4>
+							<span>Performance trend across pillars</span>
+						</div>
+						<div class="chart-legend-hint">
+							<span class="legend-dot legend-dot--critical"></span> Critical
+							<span class="legend-dot legend-dot--risk"></span> At Risk
+							<span class="legend-dot legend-dot--track"></span> On Track
+						</div>
+					</div>
+					<apx-chart *ngIf="hasPerformanceChartData && performanceLineChartOptions.series"
+						[series]="performanceLineChartOptions.series!"
+						[chart]="performanceLineChartOptions.chart!"
+						[xaxis]="performanceLineChartOptions.xaxis!"
+						[yaxis]="performanceLineChartOptions.yaxis!"
+						[stroke]="performanceLineChartOptions.stroke!"
+						[fill]="performanceLineChartOptions.fill!"
+						[markers]="performanceLineChartOptions.markers!"
+						[grid]="performanceLineChartOptions.grid!"
+						[dataLabels]="performanceLineChartOptions.dataLabels!"
+						[tooltip]="performanceLineChartOptions.tooltip!"
+						[colors]="performanceLineChartOptions.colors!"
+						class="kpi-performance-chart"></apx-chart>
+					<div *ngIf="!hasPerformanceChartData"
+						class="empty-block">
+						No KPI performance data available for this assessment.
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section *ngIf="overallKpis.length"
+			class="pillar-group-block overall-kpi-section">
+			<div class="pillar-group-card">
+				<div class="pillar-group-head">
+					<div class="pillar-group-head__text">
+						<h4>Overall KPI Layers</h4>
+						<p>{{ overallKpis.length }} layer{{ overallKpis.length === 1 ? '' : 's' }} without pillar grouping</p>
+					</div>
+				</div>
+				<div class="pillar-group-body">
+					<div class="kpi-layer-grid">
+						<div *ngFor="let kpi of overallKpis"
+							(click)="viewDetails(kpi)"
+							class="layer-card">
+							<div class="layer-card__info">
+								<div [matTooltip]="kpi.layerName"
+									class="layer-card__title">
+									{{ kpi.layerName }}
+								</div>
+								<div class="layer-card__code">{{ kpi.layerCode }}</div>
+								<span [ngClass]="getConditionClass(kpi.conditionLevel)"
+									[matTooltip]="kpi.condition || '-'"
+									class="condition_badge">
+									{{ kpi.condition || '-' }}
+								</span>
+							</div>
+							<div class="layer-card__score kpi_td_data">
+								<app-sparkline-score [value]="kpi.calValue ?? 0"
+									[tooltipText]="kpi.calText || ''"
+									[sign]="''"></app-sparkline-score>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section *ngFor="let pillar of pillarGroups"
+			class="pillar-group-block">
+			<div class="pillar-group-card">
+				<div class="pillar-group-head">
+					<div class="pillar-group-head__text">
+						<h4 [matTooltip]="pillar.pillarName">{{ pillar.pillarName }}</h4>
+						<p>
+							{{ pillar.kpiCount }} KPI layer{{ pillar.kpiCount === 1 ? '' : 's' }} ·
+							Avg score {{ pillar.avgScore | number:'1.0-1' }}
+						</p>
+					</div>
+					<div class="pillar-score-wrap kpi_td_data">
+						<app-circular-score [value]="pillar.avgScore"
+							[showSign]="false"></app-circular-score>
+					</div>
+				</div>
+				<div class="pillar-group-body">
+					<div class="kpi-layer-grid pillar-grid">
+						<div *ngFor="let kpi of pillar.kpis"
+							(click)="viewDetails(kpi)"
+							class="layer-card pillar-layer-card">
+							<div class="layer-card__info">
+								<div [matTooltip]="kpi.layerName"
+									class="layer-card__title">
+									{{ kpi.layerName }}
+								</div>
+								<div class="layer-card__code">{{ kpi.layerCode }}</div>
+								<span [ngClass]="getConditionClass(kpi.conditionLevel)"
+									[matTooltip]="kpi.condition || '-'"
+									class="condition_badge">
+									{{ kpi.condition || '-' }}
+								</span>
+							</div>
+							<div class="layer-card__score kpi_td_data">
+								<app-sparkline-score [value]="kpi.calValue ?? 0"
+									[tooltipText]="kpi.calText || ''"
+									[sign]="''"></app-sparkline-score>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</ng-container>
+</div>
+
+<div *ngIf="!isLoader && !summary"
+	class="no_result_found">
+	<h3>
+		No KPI dashboard data found
+	</h3>
+</div>
+
+<div *ngIf="isLoader"
+	class="loader_main">
+	<div class="loader"></div>
+</div>
+
+<div class="offcanvas offcanvas-end custom-sidebar kpi_sidebar"
+	tabindex="-1"
+	id="kpiLayerSidebar">
+	<div class="offcanvas-body">
+		<app-view-kpi-layer [selectedLayer]="selectedKpi"></app-view-kpi-layer>
+	</div>
+</div>

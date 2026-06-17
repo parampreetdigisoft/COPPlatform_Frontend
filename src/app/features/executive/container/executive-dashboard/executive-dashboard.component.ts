@@ -1,9 +1,11 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   ViewEncapsulation,
   ViewChild,
   AfterViewInit,
+  ElementRef,
   signal,
   computed,
 } from "@angular/core";
@@ -36,6 +38,7 @@ import { PillarsHistoryResponse, PillarsTableRow, QuestionTableRow } from "src/a
 import { GetCityPillarHistoryRequestNewDto } from "src/app/core/models/AssessmentRequest";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { forkJoin } from "rxjs";
 import { ExecutiveService } from "../../executive.service";
 
 export type ChartOptions = {
@@ -88,13 +91,13 @@ export type PillarChartOptions = {
   styleUrl: "./executive-dashboard.component.css",
   encapsulation: ViewEncapsulation.None,
 })
-export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
+export class ExecutiveDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedYear = new Date().getFullYear();
   assignedInvitations?: GetExecutiveAssignedAssessmentResponseDto[] = [];
-  assignedInvitationsAll?: GetExecutiveAssignedAssessmentResponseDto[] = [];
   assignedInvitation: number | any = null;
   cardHistory: CardHistoryDto | null = null;
   isLoader: boolean = false;
+  private chartLoadPending = 0;
   dataSource = new MatTableDataSource<PillarsTableRow>([]);
   displayedColumns: string[] = [];
   userMap = new Map<number, string>();
@@ -103,8 +106,16 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   public chartOptions!: Partial<ChartOptions>;
   public chartOptionsBar!: Partial<ChartOptionsBar>;
   @ViewChild("chartPillar") chartPillar!: ChartComponent;
+  @ViewChild("chartEvaluator") chartEvaluator?: ChartComponent;
   public chartPillarOptions: Partial<PillarChartOptions> = {};
-  searchText: string = '';
+  activeChartTab: 'pillar' | 'evaluator' = 'pillar';
+  @ViewChild('assessmentStrip') assessmentStrip?: ElementRef<HTMLElement>;
+  stripPreviewIndex = 0;
+  private stripAutoScrollTimer?: ReturnType<typeof setInterval>;
+  private stripAutoScrollResumeTimer?: ReturnType<typeof setTimeout>;
+  private stripAutoScrollPaused = false;
+  private readonly stripAutoScrollIntervalMs = 2800;
+  private readonly stripAutoScrollResumeMs = 10000;
   assessmentHistoryResponse = signal<AiCityPillarDashboardResponseDto | null>(null);
   totalQuestions = computed(() =>
     Math.round(
@@ -132,7 +143,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   completionRate = computed(() => {
     const total = this.cardHistory?.totalCriticalQuestions ?? 0;
     const totalAssessments = this.cardHistory?.totalAssessments ?? 1;
-    const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;    
+    const answered = this.cardHistory?.totalAnsweredCriticalQuestions ?? 0;
     return total > 0 ? (answered * 100) / (total * totalAssessments) : 0;
   });
   assessmentScore = computed(() => this.assessmentHistoryResponse()?.scoreProgress ?? 0);
@@ -147,7 +158,6 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    this.isLoader = true;
     this.initializeChart();
     this.getAssignedInvitations();
     this.getCardDetails();
@@ -155,50 +165,28 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() { }
 
- getAssignedInvitations(refresh: boolean = true) {
-
-  // Don't call API again
-  if (!refresh) {
-
-    const search = (this.searchText || '').toLowerCase().trim();
-
-    this.assignedInvitations = this.assignedInvitationsAll!.filter(x =>
-      !search ||
-      x.geographicReference?.toLowerCase().includes(search) 
-    );
-
-    if (this.assignedInvitations.length > 0) {
-      this.assignedInvitation =
-        this.assignedInvitations[0].userAssessmentMappingID;
-    }
-
-    return;
+  ngOnDestroy(): void {
+    this.stopStripAutoScroll();
   }
 
-  this.isLoader = true;
+  getAssignedInvitations() {
+    this.executiveService
+      .getExecutiveAssignedInvitations()
+      .subscribe({
+        next: (res) => {
+          this.assignedInvitations = res.result ?? [];
 
-  this.executiveService
-    .getExecutiveAssignedInvitations(this.searchText)
-    .subscribe({
-      next: (res) => {
-        this.isLoader = false;
-
-        this.assignedInvitations = res.result ?? [];
-        this.assignedInvitationsAll = res.result ?? [];
-
-        if (this.assignedInvitations.length > 0) {
-          this.assignedInvitation =
-            this.assignedInvitations[0].userAssessmentMappingID;
-        }
-
-        this.getDashboardPillarHistory();
-        this.getResponsesByUserId();
-      },
-      error: () => {
-        this.isLoader = false;
-      }
-    });
-}
+          if (this.assignedInvitations.length > 0) {
+            this.assignedInvitation =
+              this.assignedInvitations[0].userAssessmentMappingID;
+            this.reloadAssessmentCharts();
+            setTimeout(() => this.startStripAutoScroll(), 600);
+          } else {
+            this.stopStripAutoScroll();
+          }
+        },
+      });
+  }
 
   yearChanged() {
     this.getDashboardPillarHistory();
@@ -210,44 +198,98 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       .getExecutiveCardDetails()
       .subscribe({
         next: (res) => {
-          this.cardHistory = res.result;          
+          this.cardHistory = res.result;
         },
-        error: () => this.isLoader = false
       });
   }
 
   getDashboardPillarHistory() {
-    this.isLoader = true;
-
-    if (
-      this.userService?.userInfo?.userID == null
-    ) {
+    if (this.userService?.userInfo?.userID == null) {
       return;
     }
-    let request: UserAssessmentPillarDashboardRequstDto = {
+
+    this.beginChartLoading();
+
+    const request: UserAssessmentPillarDashboardRequstDto = {
       userAssessmentMappingID: this.assignedInvitation ?? null,
     };
+
     this.executiveService.getDashboardPillarHistory(request).subscribe({
       next: (res) => {
-        this.isLoader = false;
         this.assessmentHistoryResponse.set(res.result);
         if (this.assessmentHistoryResponse()) {
           this.buildPillarComparisonChart();
         }
+        this.endChartLoading();
       },
-      error: (err) => {
-        this.isLoader = false;
+      error: () => {
+        this.endChartLoading();
       },
     });
   }
+
+  reloadAssessmentCharts(): void {
+    if (
+      this.userService?.userInfo?.userID == null ||
+      this.assignedInvitation == null
+    ) {
+      return;
+    }
+
+    this.beginChartLoading();
+
+    const pillarRequest: UserAssessmentPillarDashboardRequstDto = {
+      userAssessmentMappingID: this.assignedInvitation ?? null,
+    };
+
+    const evaluatorPayload: GetCityPillarHistoryRequestNewDto = {
+      userId: this.userService.userInfo.userID,
+      pillarID: 0,
+      userAssessmentMappingID: this.assignedInvitation,
+      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize,
+    };
+
+    forkJoin({
+      pillar: this.executiveService.getDashboardPillarHistory(pillarRequest),
+      evaluator: this.executiveService.getResponsesByUserIdData(evaluatorPayload),
+    }).subscribe({
+      next: ({ pillar, evaluator }) => {
+        this.assessmentHistoryResponse.set(pillar.result);
+        if (this.assessmentHistoryResponse()) {
+          this.buildPillarComparisonChart();
+        }
+
+        this.pillersHistory = evaluator.result ?? [];
+        this.loadPillars();
+        this.GetPillarBarOptions();
+        this.endChartLoading();
+      },
+      error: () => {
+        this.endChartLoading();
+        this.toaster.showError("There is an error occur");
+      },
+    });
+  }
+
+  private beginChartLoading(): void {
+    this.chartLoadPending++;
+    this.isLoader = true;
+  }
+
+  private endChartLoading(): void {
+    this.chartLoadPending = Math.max(0, this.chartLoadPending - 1);
+    this.isLoader = this.chartLoadPending > 0;
+  }
   private readonly blueShades: string[] = [
-    '#d062e6', // blue
-    '#e7eb0b', // deep blue
+    '#6b62e6', // blue
+    '#53f74d', // deep blue
     '#782599', // purple
     '#0772e4', // steel blue (distinct from primary blue)
-    '#527191', // dark blue-grey
+    '#6c98c5', // dark blue-grey
     '#7eaf0b', // dark teal
-    '#03767e', // deep purple
+    '#187194', // deep purple
     '#062f86', // strong blue
     '#e9d19d', // light sky blue (new distinct tone)
   ];
@@ -737,10 +779,239 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onAssessmentSelect(item: any) {
+  onAssessmentSelect(item: GetExecutiveAssignedAssessmentResponseDto, reload = true) {
+    this.pauseStripAutoScroll();
+
+    const changed = this.assignedInvitation !== item.userAssessmentMappingID;
     this.assignedInvitation = item.userAssessmentMappingID;
-    this.getDashboardPillarHistory();
-    this.getResponsesByUserId();
+    this.scrollThumbIntoView(item.userAssessmentMappingID);
+    if (reload && changed) {
+      this.reloadAssessmentCharts();
+    }
+  }
+
+  onAssessmentPickerChange(): void {
+    const item = this.assignedInvitations?.find(
+      (x) => x.userAssessmentMappingID === this.assignedInvitation
+    );
+    if (item) {
+      this.onAssessmentSelect(item);
+    }
+  }
+
+  get selectedAssessment(): GetExecutiveAssignedAssessmentResponseDto | undefined {
+    return this.assignedInvitations?.find(
+      (x) => x.userAssessmentMappingID === this.assignedInvitation
+    );
+  }
+
+  setChartTab(tab: 'pillar' | 'evaluator'): void {
+    if (this.activeChartTab === tab) {
+      return;
+    }
+
+    this.activeChartTab = tab;
+
+    if (tab === 'evaluator') {
+      this.beginChartLoading();
+    }
+
+    // ApexCharts initializes with 0 dimensions inside display:none panels.
+    // Defer resize until the active panel is visible and the chart is mounted.
+    setTimeout(() => {
+      const chart = tab === 'evaluator' ? this.chartEvaluator : this.chartPillar;
+      chart?.updateOptions({}, false, false);
+      window.dispatchEvent(new Event('resize'));
+
+      if (tab === 'evaluator') {
+        setTimeout(() => this.endChartLoading(), 500);
+      }
+    }, 50);
+  }
+
+  scrollAssessmentStrip(direction: -1 | 1): void {
+    this.pauseStripAutoScroll();
+
+    const items = this.assignedInvitations ?? [];
+    if (items.length <= 1) {
+      return;
+    }
+
+    const nextIndex = direction > 0
+      ? (this.stripPreviewIndex + 1) % items.length
+      : (this.stripPreviewIndex - 1 + items.length) % items.length;
+
+    this.scrollStripToIndex(nextIndex);
+  }
+
+  startStripAutoScroll(): void {
+    this.stopStripAutoScroll();
+
+    const count = this.assignedInvitations?.length ?? 0;
+    if (count <= 1) {
+      return;
+    }
+
+    this.stripPreviewIndex = 0;
+    this.stripAutoScrollPaused = false;
+    this.scrollStripToIndex(0);
+
+    this.stripAutoScrollTimer = setInterval(() => {
+      if (this.stripAutoScrollPaused || (this.assignedInvitations?.length ?? 0) <= 1) {
+        return;
+      }
+
+      const total = this.assignedInvitations!.length;
+      const nextIndex = (this.stripPreviewIndex + 1) % total;
+      this.scrollStripToIndex(nextIndex);
+    }, this.stripAutoScrollIntervalMs);
+  }
+
+  pauseStripAutoScroll(): void {
+    this.stripAutoScrollPaused = true;
+
+    if (this.stripAutoScrollResumeTimer) {
+      clearTimeout(this.stripAutoScrollResumeTimer);
+    }
+
+    this.stripAutoScrollResumeTimer = setTimeout(() => {
+      this.stripAutoScrollPaused = false;
+    }, this.stripAutoScrollResumeMs);
+  }
+
+  stopStripAutoScroll(): void {
+    if (this.stripAutoScrollTimer) {
+      clearInterval(this.stripAutoScrollTimer);
+      this.stripAutoScrollTimer = undefined;
+    }
+
+    if (this.stripAutoScrollResumeTimer) {
+      clearTimeout(this.stripAutoScrollResumeTimer);
+      this.stripAutoScrollResumeTimer = undefined;
+    }
+  }
+
+  isStripPreviewIndex(index: number): boolean {
+    return !this.stripAutoScrollPaused && this.stripPreviewIndex === index;
+  }
+
+  private scrollStripToIndex(index: number): void {
+    const items = this.assignedInvitations ?? [];
+    if (index < 0 || index >= items.length) {
+      return;
+    }
+
+    this.stripPreviewIndex = index;
+
+    setTimeout(() => {
+      this.scrollStripItemIntoView(items[index].userAssessmentMappingID, 'smooth');
+    }, 50);
+  }
+
+  scrollThumbIntoView(id: number): void {
+    setTimeout(() => {
+      this.scrollStripItemIntoView(id, 'smooth');
+    }, 80);
+  }
+
+  /**
+   * Scrolls the assessment strip horizontally to reveal an item.
+   * Important: does NOT change the page's vertical scroll position (unlike scrollIntoView()).
+   */
+  private scrollStripItemIntoView(
+    assessmentId: number,
+    behavior: ScrollBehavior = 'auto'
+  ): void {
+    const strip = this.assessmentStrip?.nativeElement;
+    if (!strip) return;
+
+    const el = strip.querySelector(
+      `[data-assessment-id="${assessmentId}"]`
+    ) as HTMLElement | null;
+    if (!el) return;
+
+    const stripRect = strip.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+
+    const padding = 16; // keep a bit of air at edges
+    const currentLeft = strip.scrollLeft;
+
+    // Element's left/right positions relative to the strip scroll content
+    const elLeft = currentLeft + (elRect.left - stripRect.left);
+    const elRight = elLeft + elRect.width;
+
+    const visibleLeft = currentLeft;
+    const visibleRight = currentLeft + strip.clientWidth;
+
+    let targetLeft = currentLeft;
+    if (elLeft < visibleLeft + padding) {
+      targetLeft = Math.max(0, elLeft - padding);
+    } else if (elRight > visibleRight - padding) {
+      targetLeft = Math.max(0, elRight - strip.clientWidth + padding);
+    } else {
+      return; // already fully visible
+    }
+
+    strip.scrollTo({ left: targetLeft, behavior });
+  }
+
+  getAssessmentLabel(item: GetExecutiveAssignedAssessmentResponseDto): string {
+    const due = item.dueDate
+      ? new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '';
+    return `${item.geographicReference}, ${item.year}${due ? ` · Due ${due}` : ''}`;
+  }
+
+  getAssessmentShortLabel(item: GetExecutiveAssignedAssessmentResponseDto): string {
+    const sameGeo = (this.assignedInvitations ?? []).filter(
+      (x) => x.geographicReference?.toLowerCase() === item.geographicReference?.toLowerCase()
+    );
+    if (sameGeo.length > 1) {
+      const due = item.dueDate
+        ? new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : '';
+      return `${item.geographicReference} · ${item.year}${due ? ` · ${due}` : ''} · Score ${item.avgScoreProgress.toFixed(1)}`;
+    }
+    return `${item.geographicReference} · ${item.year}`;
+  }
+
+  hasSimilarGeoNames(): boolean {
+    const names = (this.assignedInvitations ?? []).map((x) =>
+      x.geographicReference?.toLowerCase().trim()
+    );
+    return new Set(names).size < names.length;
+  }
+
+  assessmentSearchFn(
+    term: string,
+    item: GetExecutiveAssignedAssessmentResponseDto
+  ): boolean {
+    const search = (term || '').toLowerCase().trim();
+    if (!search) {
+      return true;
+    }
+    const due = item.dueDate
+      ? new Date(item.dueDate)
+          .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          .toLowerCase()
+      : '';
+    return (
+      item.geographicReference?.toLowerCase().includes(search) ||
+      String(item.year).includes(search) ||
+      due.includes(search) ||
+      item.avgScoreProgress.toFixed(1).includes(search) ||
+      item.avgCompletionRate.toFixed(0).includes(search)
+    );
+  }
+
+  getRiskLevel(item: GetExecutiveAssignedAssessmentResponseDto): 'good' | 'warn' | 'critical' {
+    if (item.offTrackPercent >= 40) {
+      return 'critical';
+    }
+    if (item.atRiskPercent >= 30 || item.offTrackPercent >= 20) {
+      return 'warn';
+    }
+    return 'good';
   }
   getShortName(name: string | null | undefined): string {
     if (!name) return '';
@@ -833,7 +1104,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
 
       chart: {
         type: 'bar',
-        height: 250,
+        height: 450,
         stacked: true,
         toolbar: {
           show: true,
@@ -1001,7 +1272,7 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
       series: [],
       chart: {
         type: 'bar',
-        height: 500,
+        height: 450,
         stacked: true
       },
       xaxis: { categories: [] },
@@ -1010,31 +1281,6 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit {
     };
   }
 
-  getResponsesByUserId() {
-
-    this.isLoader = true;
-    const payload: GetCityPillarHistoryRequestNewDto = {
-      userId: this.userService?.userInfo?.userID,
-      pillarID: 0,
-      userAssessmentMappingID: this.assignedInvitation,
-      updatedAt: this.commonService.getStartOfYearLocal(this.selectedYear),
-      pageNumber: this.currentPage,
-      pageSize: this.pageSize
-    };
-
-    this.executiveService.getResponsesByUserIdData(payload).subscribe({
-      next: (res) => {
-        this.isLoader = false;
-        this.pillersHistory = res.result ?? [];
-        this.loadPillars();
-        this.GetPillarBarOptions();
-      },
-      error: () => {
-        this.isLoader = false;
-        this.toaster.showError("There is an error occur");
-      }
-    });
-  }
   loadPillars() {
     this.userMap = new Map<number, string>();
     this.pillersHistory.forEach((pillar) => {

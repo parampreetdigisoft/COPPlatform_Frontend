@@ -35,6 +35,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: "kpi-overview",
+        loadComponent: () =>
+          import("./container/kpi-overview-dashboard/kpi-overview-dashboard.component").then(
+            (m) => m.KpiOverviewDashboardComponent
+          ),
+      },
+      {
         path: "kpi-comparision",
         loadComponent: () =>
           import("./container/kpi-comparision/kpi-comparision.component").then(
