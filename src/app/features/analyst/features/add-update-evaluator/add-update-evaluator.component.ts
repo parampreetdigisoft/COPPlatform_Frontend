@@ -56,7 +56,7 @@ export class AddUpdateEvaluatorComponent {
        const cityData: UpdateInviteUserDto = {
          ...this.evaluatorForm.value,
          userID: this.evaluator?.userID ?? 0,
-         cityID: this.evaluatorForm.value.city,
+         userAssessmentMappingID: this.evaluatorForm.value.city,
          role:Number(this.evaluatorForm.value.role)
        };
        this.evaluatorChange.emit(cityData);

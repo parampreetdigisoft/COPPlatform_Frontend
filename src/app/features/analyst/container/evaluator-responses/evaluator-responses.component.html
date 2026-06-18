@@ -18,7 +18,7 @@
 
         <select
           [(ngModel)]="selectedcityID"
-          name="cityID"
+          name="userAssessmentMappingID"
           class="form-control"
           (change)="getAssessments()"
         >
@@ -27,22 +27,6 @@
             {{ invitation.geographicReference }}
           </option>
         </select>
-
-        <!-- <select
-          *ngIf="!assessmentUserID"
-          [(ngModel)]="selecteduserID"
-          name="cityID"
-          class="form-control"
-          (change)="getAssessments()"
-        >
-          <option value="">Search by Evaluator</option>
-          <option
-            *ngFor="let evaluator of evaluators"
-            [value]="evaluator.userID"
-          >
-            {{ evaluator.fullName }}
-          </option>
-        </select> -->
       </div>
     </div>
   </div>

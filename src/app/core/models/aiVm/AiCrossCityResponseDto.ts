@@ -16,7 +16,7 @@ export interface PillarValueDto {
   imagePath:string;
 }
 export interface ChartTableRowDto {
-  cityID: number;
+   
   cityName: string;
   value: number;
   pillarValues: PillarValueDto[];
@@ -29,7 +29,7 @@ export interface PillarWiseScoreDto {
   isAccess: boolean;
   imagePath:string;
   values: {
-    cityID: number;
+     
     cityName: string;
     value: number;
   }[];

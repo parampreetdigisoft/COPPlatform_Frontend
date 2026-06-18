@@ -102,9 +102,6 @@ export class EvaluatorService {
   public GetAllKpi() {
     return this.http.get(`Kpi/GetAllKpi`).pipe(map(x => x as ResultResponseDto<AnalyticalLayerResponseDto[]>));;
   }
-  public compareCities(request: CompareCityRequestDto) {
-    return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
-  }
 
 
   public getDashboardPillarHistory(request: UserAssessmentPillarDashboardRequstDto) {

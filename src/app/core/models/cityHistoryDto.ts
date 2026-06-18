@@ -92,7 +92,7 @@ export interface UserCityRequstDto extends UserCityPillarDashboardRequstDto {
 }
 
 export interface UserCityPillarDashboardRequstDto {
-  cityID: number;
+   
   updatedAt: string;
 }
 

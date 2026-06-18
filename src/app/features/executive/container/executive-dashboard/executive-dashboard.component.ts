@@ -170,12 +170,13 @@ export class ExecutiveDashboardComponent implements OnInit, AfterViewInit, OnDes
   }
 
   getAssignedInvitations() {
+    this.isLoader =true;
     this.executiveService
       .getExecutiveAssignedInvitations()
       .subscribe({
         next: (res) => {
           this.assignedInvitations = res.result ?? [];
-
+          this.isLoader =true;
           if (this.assignedInvitations.length > 0) {
             this.assignedInvitation =
               this.assignedInvitations[0].userAssessmentMappingID;

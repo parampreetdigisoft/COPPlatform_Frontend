@@ -1,5 +1,5 @@
 export class RegenerateAiSearchDto {
-  cityID!: number;
+
   cityEnable = false;
   pillarEnable = false;
   questionEnable = false;

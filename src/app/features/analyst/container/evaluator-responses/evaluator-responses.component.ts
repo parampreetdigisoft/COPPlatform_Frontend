@@ -56,7 +56,7 @@ export class EvaluatorResponsesComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       this.assessmentUserID = params.get("assessmentUserID");
       let uid = params.get("userID");
-      let cid = params.get("cityID");
+      let cid = params.get("userAssessmentMappingID");
       if (uid && cid && !this.assessmentUserID) {
         this.selectedcityID = cid;
         this.selecteduserID = uid;

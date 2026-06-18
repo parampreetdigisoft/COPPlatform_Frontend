@@ -18,7 +18,7 @@ const routes: Routes = [
       { path: "dashboard", component: ExecutiveDashboardComponent },
 
       { path: "assessment", component: AssesmentComponent },
-      { path: "assessment/:roleID/:cityID", component: AssesmentComponent },
+      { path: "assessment/:roleID/:userAssessmentMappingID", component: AssesmentComponent },
       {
         path: "assessment-result/:userAssessmentMappingID/:assessmentID/:userName",
         component: EvaluatoinResponseViewComponent,

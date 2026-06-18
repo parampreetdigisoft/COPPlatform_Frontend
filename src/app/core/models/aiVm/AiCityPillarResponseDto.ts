@@ -6,7 +6,7 @@ export interface AiCityPillarResponseDto {
 }
 export interface AiCityPillarVM {
   pillarScoreID: number;
-  cityID: number;
+   
   pillarID: number;
   pillarName: string;
   description: string;

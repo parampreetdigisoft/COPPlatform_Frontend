@@ -40,7 +40,7 @@ export interface AssessmentWithProgressVM {
 }
 
 export interface GetCitySubmitionHistoryReponseDto {
-  cityID: number;
+   
   totalAssessment: number;
   score: number;
   aiScore: number;

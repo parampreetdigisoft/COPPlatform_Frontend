@@ -33,7 +33,7 @@
               <div class="input_field">
                 <label>Select Analyst *</label>
 
-                <ng-select [items]="users" [searchable]="true" placeholder="Select analyst" bindValue="userID"
+                <ng-select [items]="users" [searchable]="true" [searchFn]="customSearchFn" placeholder="Select analyst" bindValue="userID"
                   bindLabel="userID" formControlName="userID" class="form-control analyst_multi_select">
 
                   <ng-template ng-label-tmp let-item="item">

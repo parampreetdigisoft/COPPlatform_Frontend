@@ -58,7 +58,7 @@ export class AssesmentComponent implements OnInit {
     this.getAllCitiesByUserId();
     this.route.paramMap.subscribe((params) => {
       let rid = params.get("roleID");
-      let cid = params.get("cityID");
+      let cid = params.get("userAssessmentMappingID");
       if (rid && cid) {
         this.selectedRoleID = rid;
         this.userAssessmentMappingID = Number(cid);
@@ -160,25 +160,7 @@ export class AssesmentComponent implements OnInit {
     if (modalInstance) modalInstance.hide();
     this.isOpendialog = false;
   }
-  getUsersAssignedToCity() {
-    if (this.selectedAssessment == null) {
-      this.toaster.showError("Plese select assessment");
-    }
-    this.adminService
-      .getUsersAssignedToCity(this.selectedAssessment.cityID)
-      .subscribe({
-        next: (res) => {
-          if (res.succeeded) {
-            this.userofSelecteCityResponse = res.result ?? [];
-          } else {
-            this.toaster.showError(res.errors.join(", "));
-          }
-        },
-        error: () => {
-          this.toaster.showError("Failed to changed access");
-        },
-      });
-  }
+
   customSearchFn(term: string, item: GetAssignedAssessmentResponseDto) {
     term = term.toLowerCase();
     return (

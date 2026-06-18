@@ -223,11 +223,7 @@ export class AdminService {
       .post(`AssessmentResponse/transferAssessment`, request)
       .pipe(map((x) => x as ResultResponseDto<string>));
   }
-  public getUsersAssignedToCity(cityID: number) {
-    return this.http
-      .get(`User/getUsersAssignedToCity/` + cityID)
-      .pipe(map((x) => x as ResultResponseDto<GetAssessmentResponse[]>));
-  }
+
   public getAccessUsers(payload: GetAssignUserDto) {
     return this.http
       .getWithQueryParams(`User/getAccessUsers`, payload)
@@ -267,9 +263,7 @@ export class AdminService {
       .get(`Kpi/GetAllKpi`)
       .pipe(map((x) => x as ResultResponseDto<AnalyticalLayerResponseDto[]>));
   }
-  public compareCities(request: CompareCityRequestDto) {
-    return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
-  }
+
   public getKpiLayerChart(request: GetKpiLayerChartRequestDto) {
     return this.http.post(`Kpi/GetKpiLayerChart`, request).pipe(map(x => x as ResultResponseDto<GetKpiLayerChartResponseDto>));
   }

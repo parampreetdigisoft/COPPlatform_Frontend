@@ -3,7 +3,6 @@ import { PaginationUserRequest } from "./PaginationRequest";
 
 export interface GetAnalyticalLayerRequestDto extends PaginationUserRequest {
   layerID?: number ;
-  cityID?:number;
   userAssessmentMappingID?:number;
   year?:number;
 }

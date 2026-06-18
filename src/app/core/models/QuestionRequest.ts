@@ -1,6 +1,5 @@
 
 export interface CityPillerRequestDto {
-  cityID :number;
   userID: number;
   pillarID?: number;
 }

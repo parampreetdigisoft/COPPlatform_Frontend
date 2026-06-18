@@ -1,5 +1,5 @@
 export interface AiCityPillarDashboardResponseDto {
-  cityID: number;
+   
   cityName: string;
   evaluationValue: number;
   aiValue: number;

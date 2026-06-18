@@ -1,7 +1,6 @@
 import { PaginationRequest } from "../PaginationRequest";
 
 export interface AiCitySummeryRequestDto extends PaginationRequest {
-  cityID?:number;
   year?:number
 }
 

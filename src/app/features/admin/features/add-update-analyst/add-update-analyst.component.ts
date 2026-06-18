@@ -70,7 +70,7 @@ export class AddUpdateAnalystComponent implements OnInit {
       const cityData: UpdateInviteUserDto = {
         ...this.analystForm.value,
         userID: this.analyst?.userID ?? 0,
-        cityID: formValue.city,
+        userAssessmentMappingID: formValue.userAssessmentMappingID,
         role:Number(formValue.role)
       };
       this.analystChange.emit(cityData);

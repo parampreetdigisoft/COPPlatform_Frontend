@@ -11,7 +11,7 @@ export interface CityVM extends AddUpdateCityDto {
   aiScore?: number;
 }
 export interface AddUpdateCityDto {
-  cityID: number;
+   
   country: string;
   state: string;
   cityName: string;

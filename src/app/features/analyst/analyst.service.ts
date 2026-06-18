@@ -97,9 +97,7 @@ export class AnalystService {
   public unAssignCity(data: any) {
     return this.http.post(`City/unAssignCity`, data).pipe(map(x => x as ResultResponseDto<unknown>));
   }
-  public getCitiesProgressByUserId(userID: number, updatedAt: string) {
-    return this.http.get(`City/getCitiesProgressByUserId/` + updatedAt).pipe(map(x => x as ResultResponseDto<GetCitiesSubmitionHistoryReponseDto[]>));
-  }
+
   public getAllPillars() {
     return this.http.get(`Pillar/Pillars`).pipe(map(x => x as PillarsVM[]));
   }
@@ -136,9 +134,7 @@ export class AnalystService {
     return this.http.get(`AssessmentResponse/getAssessmentProgressHistory/` + assessmentID).pipe(map(x => x as ResultResponseDto<AssessmentWithProgressVM>));
   }
 
-  public getCityPillarHistory(request: UserCityPillarDashboardRequstDto) {
-    return this.http.getWithQueryParams(`AssessmentResponse/getCityPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
-  }
+
   public getAssignedAssessments() {
     return this.http.get(`AssessmentResponse/getAssignedAssessments`).pipe(map(x => x as ResultResponseDto<GetAssignedAssessmentResponseDto[]>));
   }
@@ -151,9 +147,7 @@ export class AnalystService {
   public GetAllKpi() {
     return this.http.get(`Kpi/GetAllKpi`).pipe(map(x => x as ResultResponseDto<AnalyticalLayerResponseDto[]>));;
   }
-  public compareCities(request: CompareCityRequestDto) {
-    return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
-  }
+
   public getKpiLayerChart(request: GetKpiLayerChartRequestDto) {
     return this.http.post(`Kpi/GetKpiLayerChart`, request).pipe(map(x => x as ResultResponseDto<GetKpiLayerChartResponseDto>));
   }

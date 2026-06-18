@@ -100,6 +100,13 @@ export class SendInvitationComponent implements OnInit {
   openPicker(event: any) {
     event.target.showPicker?.();
   }
-
+  customSearchFn(term: string, item: any) {
+    term = term.toLowerCase();
+    return (
+      item.fullName?.toLowerCase()?.includes(term) ||
+      item.email?.toLowerCase()?.includes(term) ||
+      (item.userID || '').toString().includes(term)
+    );
+  }
  
 }

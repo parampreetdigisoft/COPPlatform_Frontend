@@ -25,7 +25,7 @@ const routes: Routes = [
       { path: 'evaluator-view', component: EvaluatorViewComponent },
       { path: 'evaluations/:assessmentUserID', component: EvaluatorResponsesComponent },
       { path: 'evaluations', component: EvaluatorResponsesComponent },
-      { path: 'evaluations/:userID/:cityID', component: EvaluatorResponsesComponent },
+      { path: 'evaluations/:userID/:userAssessmentMappingID', component: EvaluatorResponsesComponent },
       { path: 'analyst-assessment', component: AnalystAssessmentComponent },
       { path: 'assessment-result/:userAssessmentMappingID/:assessmentID/:userName', component: EvaluatorResponseViewComponent },
       { path: 'evaluator-Comparision', component: ComparisionComponent }, 

@@ -19,7 +19,7 @@ export interface ChartTableRowDto {
 }
 
 export interface CityValueDto {
-  cityID: number;
+   
   cityName: string;
   value: number;
   aiValue: number;

@@ -196,9 +196,7 @@ export class ExecutiveService {
       .pipe(map((x) => x as ResultResponseDto<AssessmentWithProgressVM>));
   }
 
-  public getCityPillarHistory(request: UserCityPillarDashboardRequstDto) {
-    return this.http.getWithQueryParams(`AssessmentResponse/getCityPillarHistory`, request).pipe(map(x => x as ResultResponseDto<AiCityPillarDashboardResponseDto>));
-  }
+
   public changeAssessmentStatus(request: ChangeAssessmentStatusRequestDto) {
     return this.http
       .post(`AssessmentResponse/changeAssessmentStatus`, request)
@@ -209,11 +207,7 @@ export class ExecutiveService {
       .post(`AssessmentResponse/transferAssessment`, request)
       .pipe(map((x) => x as ResultResponseDto<string>));
   }
-  public getUsersAssignedToCity(cityID: number) {
-    return this.http
-      .get(`User/getUsersAssignedToCity/` + cityID)
-      .pipe(map((x) => x as ResultResponseDto<GetAssessmentResponse[]>));
-  }
+
   public getAccessUsers(payload: GetAssignUserDto) {
     return this.http
       .getWithQueryParams(`User/getAccessUsers`, payload)
@@ -252,9 +246,6 @@ export class ExecutiveService {
     return this.http
       .get(`Kpi/GetAllKpi`)
       .pipe(map((x) => x as ResultResponseDto<AnalyticalLayerResponseDto[]>));
-  }
-  public compareCities(request: CompareCityRequestDto) {
-    return this.http.post(`Kpi/compareCities`, request).pipe(map(x => x as ResultResponseDto<CompareCityResponseDto>));
   }
   public getKpiLayerChart(request: GetKpiLayerChartRequestDto) {
     return this.http.post(`Kpi/GetKpiLayerChart`, request).pipe(map(x => x as ResultResponseDto<GetKpiLayerChartResponseDto>));

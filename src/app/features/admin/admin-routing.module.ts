@@ -2,7 +2,6 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule, Routes } from "@angular/router";
 import { AdminComponent } from "./component/admin.component";
-import { CityComponent } from "./container/city/city.component";
 import { PillarComponent } from "./container/pillar/pillar.component";
 import { QuestionComponent } from "./container/question/question.component";
 import { AssesmentComponent } from "./container/assesment/assesment.component";
@@ -19,12 +18,11 @@ const routes: Routes = [
     children: [
       { path: "", redirectTo: "dashboard", pathMatch: "full" },
       { path: "dashboard", component: AdminDashboardComponent },
-      { path: "city", component: CityComponent },
       { path: "users", component: AnalystViewComponent },
       { path: "pillar", component: PillarComponent },
       { path: "question", component: QuestionComponent },
       { path: "assesment", component: AssesmentComponent },
-      { path: "assesment/:roleID/:cityID", component: AssesmentComponent },
+      { path: "assesment/:roleID/:userAssessmentMappingID", component: AssesmentComponent },
       {
         path: "assessment-result/:userAssessmentMappingID/:assessmentID/:userName",
         component: EvaluatoinResponseViewComponent,

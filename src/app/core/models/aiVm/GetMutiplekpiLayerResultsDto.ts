@@ -20,7 +20,7 @@ export interface GetMutiplekpiLayerResultsDto {
 
 export interface MutipleCitieskpiLayerResults {
   layerResultID: number;
-  cityID: number;
+   
 
   interpretationID?: number | null;
   normalizeValue?: number | null;
